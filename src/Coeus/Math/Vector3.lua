@@ -56,6 +56,24 @@ function Vector3.Cross(a, b)
 	)
 end
 
+function Vector3:LengthSquared()
+	return (self.x^2)+(self.y^2)+(self.z^2)
+end
+function Vector3:Length()
+	return math.sqrt(self:LengthSquared())
+end
+
+function Vector3.Unit(a)
+	local length = a:Length()
+	return a / length
+end
+function Vector3:Normalize()
+	local len = self:Length()
+	self.x = self.x / len
+	self.y = self.y / len
+	self.z = self.z / len
+end
+
 function Vector3:GetValues()
 	return {self.x, self.y, self.z}
 end
