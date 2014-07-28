@@ -101,12 +101,89 @@ local GLFW = GLFW.GLFW
 
 local gl = OpenGL.gl
 local GL = OpenGL.GL
+OpenGL.loader = glfw.GetProcAddress
+
+local Shader = Coeus.Graphics.Shader
+local Mesh = Coeus.Graphics.Mesh
+
+local Vector3 = Coeus.Math.Vector3
+local Matrix4 = Coeus.Math.Matrix4
 
 function Coeus.Main(window)
+	local shader = Shader:New([[
+	#version 330
+	layout(location=0) in vec4 position;
+
+	uniform mat4 modelview;
+	uniform mat4 projection;
+
+	void main() {
+		gl_Position = projection * modelview * position;
+	}
+	]],[[
+	#version 330
+	layout(location=0) out vec4 FragColor;
+
+	uniform float x;
+
+	void main() {
+		FragColor = vec4(x, 1.0, x, 1.0);	
+	}
+	]])
+
+	local vertex_data = {
+		1.0, 1.0,-1.0,
+	   -1.0, 1.0,-1.0,
+	   -1.0, 1.0, 1.0,
+	    1.0, 1.0, 1.0,
+	    1.0,-1.0,-1.0,
+	   -1.0,-1.0,-1.0,
+	   -1.0,-1.0, 1.0,
+	    1.0,-1.0, 1.0
+	}
+	local index_data = {
+		0,1,2,
+		0,2,3,
+		0,4,5,
+		0,5,1,
+		1,5,6,
+		1,6,2,
+		2,6,7,
+		2,7,3,
+		3,7,4,
+		3,4,0,
+		4,7,6,
+		4,6,5
+	}
+	local mesh = Mesh:New()
+	mesh:SetData(vertex_data, index_data, Mesh.DataFormat.Position)
+
+	local width, height = window:GetSize()
+	local aspect = width / height
+	local perspective = Matrix4.GetPerspective(90, 1.0, 100.0, aspect)
+
+	local modelview = Matrix4.GetTranslation(Vector3:New(0, 0, -5))
+	for i=0,15 do
+		print(modelview.m[i])
+	end
+
 	while (glfw.WindowShouldClose(window.handle) == 0) do
 		window:Use()
-		--gl.ClearColor(0, 0, 0, 1)
-		--gl.Clear(GL.COLOR_BUFFER_BIT)
+		gl.ClearColor(0, 0, 1, 1)
+		gl.Clear(GL.COLOR_BUFFER_BIT)
+
+		gl.UseProgram(shader.program)
+		shader:Send('x', math.sin(os.clock()))
+		shader:Send('projection', perspective)
+		shader:Send('modelview', modelview)
+
+		modelview = modelview:Multiply(Matrix4.GetRotationY(math.rad(0.5)), modelview)
+		
+		mesh:Render()
+		local err = gl.GetError()
+		if err ~= GL.NO_ERROR then
+			error("GL error: " .. err)
+		end
 
 
 		glfw.SwapBuffers(window.handle)
