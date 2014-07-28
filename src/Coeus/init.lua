@@ -44,8 +44,6 @@ end
 function Coeus:LoadFile(name, path)
 	path = path or name_to_file(name)
 
-	--print("loadfile", name, path)
-
 	local chunk, err = loadfile(path)
 
 	if (not chunk) then
@@ -67,8 +65,6 @@ end
 
 function Coeus:LoadDirectory(name, path)
 	path = path or name_to_directory(name)
-
-	--print("loaddir", name, path)
 
 	local container = setmetatable({}, {
 		__index = function(container, key)
