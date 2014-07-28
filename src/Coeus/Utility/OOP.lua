@@ -104,9 +104,6 @@ OOP = {
 		end,
 
 		Destroy = function(self, ...)
-			if (self._destroy) then
-				return self:_destroy(...)
-			end
 		end,
 
 		AddMetamethods = function(self, methods)
