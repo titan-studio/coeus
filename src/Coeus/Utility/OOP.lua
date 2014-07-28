@@ -72,15 +72,23 @@ OOP = {
 
 	Object = {
 		Inherit = function(self, ...)
+			local metatable = getmetatable(self)
+
 			for key, item in ipairs({...}) do
 				Table.Merge(item, self)
+				Table.Merge(getmetatable(item), metatable)
 			end
+
+			setmetatable(self, metatable)
 
 			return self
 		end,
 
 		Copy = function(self)
-			return Table.DeepCopy(self)
+			local instance = Table.DeepCopy(self)
+
+			setmetatable(instance, getmetatable(self))
+			return instance
 		end,
 
 		New = function(self, ...)
@@ -96,8 +104,15 @@ OOP = {
 		end,
 
 		Destroy = function(self, ...)
-			if (self._destroy) then
-				return self:_destroy(...)
+		end,
+
+		AddMetamethods = function(self, methods)
+			local metatable = getmetatable(self)
+
+			if (metatable) then
+				Table.Copy(methods, metatable)
+			else
+				setmetatable(methods)
 			end
 		end
 	}
