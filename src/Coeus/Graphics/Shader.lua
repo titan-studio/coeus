@@ -131,4 +131,8 @@ function Shader:SendInt(name, ...)
 	--TODO: implement this
 end
 
+function Shader:Use()
+	gl.UseProgram(self.program)
+end
+
 return Shader

@@ -102,6 +102,11 @@ function Window:_new(title, width, height, fullscreen, resizable, monitor)
 	self.height = yp[0]
 
 	self:Use()
+	gl.Enable(GL.DEPTH_TEST)
+	gl.DepthFunc(GL.LEQUAL)
+
+	glfw.SwapInterval(0)
+
 end
 
 function Window:Use()
@@ -131,6 +136,12 @@ end
 
 function Window:IsMinimized()
 	return glfw.GetWindowAttrib(self.handle, GLFW.ICONIFIED) == 1
+end
+
+function Window:SetTitle(title)
+	self.title = title
+
+	glfw.SetWindowTitle(self.handle, title)
 end
 
 return Window
