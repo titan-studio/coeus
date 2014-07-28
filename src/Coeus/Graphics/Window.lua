@@ -2,6 +2,7 @@ local Coeus = (...)
 local oop = Coeus.Utility.OOP
 local GLFW = Coeus.Bindings.GLFW
 local OpenGL = Coeus.Bindings.OpenGL
+local ffi = require("ffi")
 
 local glfw = GLFW.glfw
 local GLFW = GLFW.GLFW
@@ -9,11 +10,12 @@ local GLFW = GLFW.GLFW
 local gl = OpenGL.gl
 local GL = OpenGL.GL
 
-local Window = oop:class() {
-	x 		= 0,
-	y 		= 0,
 
+local Window = oop:Class() {
 	title 	= "Coeus Window",
+
+	x = 0,
+	y = 0,
 
 	width 	= 640,
 	height 	= 480,
@@ -25,9 +27,7 @@ local Window = oop:class() {
 	handle = false
 }
 
-function Window:_new(x, y, title, width, height, fullscreen, resizable, monitor)
-	self.x = x or self.x
-	self.y = y or self.y
+function Window:_new(title, width, height, fullscreen, resizable, monitor)
 	self.width = width or self.width
 	self.height = height or self.height
 
@@ -51,7 +51,7 @@ function Window:_new(x, y, title, width, height, fullscreen, resizable, monitor)
 	end
 
 	glfw.WindowHint(GLFW.CONTEXT_VERSION_MAJOR, 3)
-	glfw.WindowHint(GLFW.CONTEXT_VERSION_MINOR, 2)
+	glfw.WindowHint(GLFW.CONTEXT_VERSION_MINOR, 3)
 	glfw.WindowHint(GLFW.OPENGL_PROFILE, GLFW.OPENGL_CORE_PROFILE)
 	glfw.WindowHint(GLFW.OPENGL_FORWARD_COMPAT, GL.TRUE)
 	glfw.WindowHint(GLFW.OPENGL_DEBUG_CONTEXT, GL.TRUE)
@@ -76,15 +76,58 @@ function Window:_new(x, y, title, width, height, fullscreen, resizable, monitor)
 	end
 
 	if window == nil then
-		print("GLFW failed to create a window!")
-		return nil
+		error("GLFW failed to create a window!")
 	end
 
 	self.handle = window
+	glfw.SetWindowSizeCallback(self.handle, function(handle, width, height)
+		--TODO: hook up to an event
+		self.width = width
+		self.height = height
+	end)
+	glfw.SetWindowCloseCallback(self.handle, function(handle)
+		--TODO: hook up to an event
+	end)
+	glfw.SetWindowPosCallback(self.handle, function(handle, x, y)
+		self.x = x
+		self.y = y
+	end)
+
+	local xp, yp = ffi.new("int[1]"), ffi.new("int[1]")
+	glfw.GetWindowPos(self.handle, xp, yp)
+	self.x = xp[0]
+	self.y = yp[0]
+	glfw.GetWindowSize(self.handle, xp, yp)
+	self.width = xp[0]
+	self.height = xp[0]
 end
 
 function Window:Use()
 	glfw.MakeContextCurrent(self.handle)
+end
+
+function Window:GetSize()
+	return self.width, self.height
+end
+
+function Window:GetPosition()
+	return self.x, self.y
+end
+
+function Window:SetSize(width, height)
+	glfw.SetWindowSize(self.handle, width, height)
+end
+
+function Window:SetPosition(x, y)
+	glfw.SetWindowPos(self.handle, x, y)
+end
+
+function Window:HasFocus()
+	return glfw.GetWindowAttrib(self.handle, GLFW.FOCUSED) == 1
+end
+
+function Window:IsMinimized()
+	return glfw.GetWindowAttrib(self.handle, GLFW.ICONIFIED) == 1
 end
 
 return Window

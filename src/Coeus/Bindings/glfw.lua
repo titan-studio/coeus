@@ -1,11 +1,11 @@
-local S, this = ...
+local Coeus = ...
 
 local ffi = require("ffi")
 local glfw
 local glfw_lib
 
 if (ffi.os == "Windows") then
-	glfw_lib = ffi.load(this.dir .. "/win32/glfw3.dll")
+	glfw_lib = ffi.load("lib/win32/glfw3.dll")
 else
 	glfw_lib = ffi.load("libglfw.so.3")
 end
@@ -386,5 +386,7 @@ void glfwSwapInterval(int interval);
 int glfwExtensionSupported(const char* extension);
 GLFWglproc glfwGetProcAddress(const char* procname);
 ]]
+
+glfw.glfw.Init()
 
 return glfw

@@ -1,5 +1,4 @@
 local Coeus = (...)
-
 local Table = {}
 
 function Table.IsDictionary(source)

@@ -1,10 +1,10 @@
-local S, this = ...
+local Coeus = ...
 
 local ffi = require("ffi")
 local z_lib
 
 if (ffi.os == "Windows") then
-	z_lib = ffi.load(this.dir .. "/win32/zlib1.dll")
+	z_lib = ffi.load("lib/win32/zlib1.dll")
 else
 	z_lib = ffi.load("z")
 end

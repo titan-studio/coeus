@@ -44,7 +44,7 @@ end
 function Coeus:LoadFile(name, path)
 	path = path or name_to_file(name)
 
-	print("loadfile", name, path)
+	--print("loadfile", name, path)
 
 	local chunk, err = loadfile(path)
 
@@ -68,7 +68,7 @@ end
 function Coeus:LoadDirectory(name, path)
 	path = path or name_to_directory(name)
 
-	print("loaddir", name, path)
+	--print("loaddir", name, path)
 
 	local container = setmetatable({}, {
 		__index = function(container, key)
@@ -91,5 +91,28 @@ setmetatable(Coeus, {
 		return self[key]
 	end
 })
+
+local GLFW = Coeus.Bindings.GLFW
+local OpenGL = Coeus.Bindings.OpenGL
+local ffi = require("ffi")
+
+local glfw = GLFW.glfw
+local GLFW = GLFW.GLFW
+
+local gl = OpenGL.gl
+local GL = OpenGL.GL
+
+function Coeus.Main(window)
+	while (glfw.WindowShouldClose(window.handle) == 0) do
+		window:Use()
+		--gl.ClearColor(0, 0, 0, 1)
+		--gl.Clear(GL.COLOR_BUFFER_BIT)
+
+
+		glfw.SwapBuffers(window.handle)
+		glfw.PollEvents()
+
+	end
+end
 
 return Coeus
