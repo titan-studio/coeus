@@ -112,7 +112,7 @@ OOP = {
 			if (metatable) then
 				Table.Copy(methods, metatable)
 			else
-				setmetatable(methods)
+				setmetatable(self, methods)
 			end
 		end
 	}
