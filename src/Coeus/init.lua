@@ -83,4 +83,13 @@ function Coeus:LoadDirectory(name, path)
 	return container
 end
 
+--Automagically load directories if a key doesn't exist
+setmetatable(Coeus, {
+	__index = function(self, key)
+		self[key] = self:Load(key)
+
+		return self[key]
+	end
+})
+
 return Coeus

@@ -1,4 +1,4 @@
 local Coeus = require("src.Coeus")
-local Bindings = Coeus:Load("Bindings")
+local Bindings = Coeus.Bindings
 
 print(Bindings.opengl) --should yield a table
