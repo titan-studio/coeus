@@ -86,6 +86,7 @@ OOP = {
 		New = function(self, ...)
 			if (self._new) then
 				local instance = self:Copy()
+				instance.GetClass = function() return self end
 				instance:_new(...)
 
 				return instance
