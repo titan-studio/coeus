@@ -2164,6 +2164,9 @@ local gl_mt = {
 		local glname = "gl" .. name
 		local procname = "PFNGL" .. name:upper() .. "PROC"
 		local func = ffi.cast(procname, openGL.loader(glname))
+		if func == nil then
+			error("GL function \"" .. glname .. "\" doesn't exist or the GL context isn't active yet.")
+		end
 		rawset(self, name, func)
 		return func
 	end

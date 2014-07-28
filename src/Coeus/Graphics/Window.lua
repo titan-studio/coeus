@@ -99,11 +99,14 @@ function Window:_new(title, width, height, fullscreen, resizable, monitor)
 	self.y = yp[0]
 	glfw.GetWindowSize(self.handle, xp, yp)
 	self.width = xp[0]
-	self.height = xp[0]
+	self.height = yp[0]
+
+	self:Use()
 end
 
 function Window:Use()
 	glfw.MakeContextCurrent(self.handle)
+	gl.Viewport(0, 0, self.width, self.height)
 end
 
 function Window:GetSize()
