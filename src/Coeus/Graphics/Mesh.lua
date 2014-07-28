@@ -82,7 +82,7 @@ function Mesh:Render()
 	end
 end
 
-function Mesh:_destroy()
+function Mesh:Destroy()
 	local buf = ffi.new('int[1]')
 	buf[0] = self.vbo
 	gl.DeleteBuffers(1, buf)
