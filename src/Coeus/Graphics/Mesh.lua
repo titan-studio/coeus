@@ -20,8 +20,9 @@ local Mesh = oop:Class() {
 }
 
 Mesh.DataFormat = {
-	Position 						= 0,
-	PositionTexCoordInterleaved		= 1
+	Position 							= 0,
+	PositionTexCoordInterleaved			= 1,
+	PositionTexCoordNormalInterleaved 	= 2
 }
 
 function Mesh:_new()
@@ -38,18 +39,31 @@ function Mesh:_new()
 end
 
 function Mesh:SetData(vertices, indices, format)
-	self.num_vertices = vertices
+	self.num_vertices = #vertices
 
 	gl.BindVertexArray(self.vao)
 
 	if format == Mesh.DataFormat.Position then
 		gl.EnableVertexAttribArray(0)
 		gl.VertexAttribPointer(0, 3, GL.FLOAT, GL.FALSE, 3 * 4, ffi.cast('void *', 0))
+
+		self.num_vertices = self.num_vertices / 3
 	elseif format == Mesh.DataFormat.PositionTexCoordInterleaved then
 		gl.EnableVertexAttribArray(0)
 		gl.VertexAttribPointer(0, 3, GL.FLOAT, GL.FALSE, 5 * 4, ffi.cast('void *', 0))
 		gl.EnableVertexAttribArray(1)
 		gl.VertexAttribPointer(1, 2, GL.FLOAT, GL.FALSE, 5 * 4, ffi.cast('void *', 3 * 4))
+
+		self.num_vertices = self.num_vertices / 5
+	elseif format == Mesh.DataFormat.PositionTexCoordNormalInterleaved then
+		gl.EnableVertexAttribArray(0)
+		gl.VertexAttribPointer(0, 3, GL.FLOAT, GL.FALSE, 8 * 4, ffi.cast('void *', 0))
+		gl.EnableVertexAttribArray(1)
+		gl.VertexAttribPointer(1, 2, GL.FLOAT, GL.FALSE, 8 * 4, ffi.cast('void *', 3 * 4))
+		gl.EnableVertexAttribArray(2)
+		gl.VertexAttribPointer(2, 3, GL.FLOAT, GL.FALSE, 8 * 4, ffi.cast('void *', 5 * 4))
+
+		self.num_vertices = self.num_vertices / 8
 	end
 
 	local data = ffi.new('float['..#vertices..']')

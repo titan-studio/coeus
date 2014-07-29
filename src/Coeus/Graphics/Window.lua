@@ -61,11 +61,14 @@ function Window:_new(title, width, height, fullscreen, resizable, monitor)
 	glfw.WindowHint(GLFW.OPENGL_FORWARD_COMPAT, GL.TRUE)
 	glfw.WindowHint(GLFW.OPENGL_DEBUG_CONTEXT, GL.TRUE)
 
+	glfw.WindowHint(GLFW.DEPTH_BITS, 24)
+
 	glfw.WindowHint(GLFW.RESIZABLE, resizable and GL.TRUE or GL.FALSE)
 
 	local mode = glfw.GetVideoMode(monitorobj)[0]
 	width = width or mode.width
 	height = height or mode.height
+
 
 	local window
 	if fullscreen then
@@ -111,8 +114,12 @@ function Window:_new(title, width, height, fullscreen, resizable, monitor)
 	gl.Enable(GL.DEPTH_TEST)
 	gl.DepthFunc(GL.LEQUAL)
 
-	glfw.SwapInterval(1)
+	gl.FrontFace(GL.CW)
+	gl.Enable(GL.CULL_FACE)
+	gl.CullFace(GL.BACK)
+	gl.DepthMask(GL.TRUE)
 
+	glfw.SwapInterval(1)
 end
 
 function Window:Use()

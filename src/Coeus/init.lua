@@ -122,7 +122,8 @@ function Coeus.Main(window, app)
 
 		glfw.PollEvents()
 		window:Use()
-		gl.FrontFace(GL.CCW)
+
+		gl.ClearDepth(1.0)
 		gl.ClearColor(0, 0, 0, 1)
 		gl.Clear(bit.bor(tonumber(GL.COLOR_BUFFER_BIT), tonumber(GL.DEPTH_BUFFER_BIT)))
 		if app.Render then app:Render() end

@@ -41,12 +41,13 @@ local mouse = Coeus.Input.Mouse:New(window)
 function app:Load()
 	self.shader = Shader:New([[
 	#version 330
-	layout(location=0) in vec4 position;
+	layout(location=0) in vec3 position;
+	layout(location=2) in vec3 normal;
 
 	uniform mat4 mvp;
 
 	void main() {
-		gl_Position = mvp * position;
+		gl_Position = mvp * vec4(position, 1.0);
 	}
 	]],[[
 	#version 330
@@ -86,8 +87,8 @@ function app:Load()
 	self.mesh = Mesh:New()
 	self.mesh:SetData(vertex_data, index_data, Mesh.DataFormat.Position)
 
-	gl.Enable(GL.CULL_FACE)
-	gl.CullFace(GL.BACK)
+	self.mesh = Coeus.Utility.OBJLoader:New("test.obj"):GetMesh()
+
 
 	mouse:SetLocked(true)
 end
