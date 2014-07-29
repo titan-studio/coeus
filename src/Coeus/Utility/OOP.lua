@@ -92,18 +92,25 @@ OOP = {
 		end,
 
 		New = function(self, ...)
-			if (self._new) then
-				local instance = self:Copy()
-				instance.GetClass = function() return self end
-				instance:_new(...)
+			local instance = self:Copy()
+			instance.GetClass = function() return self end
 
-				return instance
-			else
-				return self:Copy()
+			if (self._new) then
+				instance:_new(...)
 			end
+			return instance
 		end,
 
 		Destroy = function(self, ...)
+			if self._destroy then
+				self:_destroy(...)
+
+				for i,v in pairs(self) do
+					if v.GetClass and v:GetClass() == Coeus.Event then
+						v:Destroy()
+					end
+				end
+			end
 		end,
 
 		AddMetamethods = function(self, methods)

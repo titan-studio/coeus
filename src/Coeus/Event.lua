@@ -96,4 +96,9 @@ function Event:Sort()
 	end)
 end
 
+function Event:Destroy()
+	--free the listeners
+	self.listeners = {}
+end
+
 return Event
