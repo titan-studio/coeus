@@ -1,16 +1,17 @@
-local Coeus 	= (...)
-local oop 		= Coeus.Utility.OOP 
-local bit		= require('bit')
-local Event		= Coeus.Event
-local ffi		= require('ffi')
+local Coeus = (...)
+local ffi = require('ffi')
+local bit = require('bit')
 
-local OpenGL	= Coeus.Bindings.OpenGL
-local GL 		= OpenGL.GL
-local GLFW 		= Coeus.Bindings.GLFW
-local glfw 		= GLFW.glfw
-	  GLFW 		= GLFW.GLFW
+local OOP = Coeus.Utility.OOP
+local Event = Coeus.Event
 
-local Mouse = oop:Class() {
+local OpenGL = Coeus.Bindings.OpenGL
+local GL = OpenGL.GL
+local GLFW = Coeus.Bindings.GLFW
+local glfw = GLFW.glfw
+GLFW = GLFW.GLFW
+
+local Mouse = OOP:Class() {
 	window = false,
 	buttons = {},
 
@@ -25,8 +26,10 @@ local Mouse = oop:Class() {
 	delta_x = 0,
 	delta_y = 0,
 
-	ButtonDown 	= Event:New(),
-	ButtonUp	= Event:New()
+	ButtonDown = Event:New(),
+	ButtonUp = Event:New(),
+	EnterWindow = Event:New(),
+	LeaveWindow = Event:New()
 }
 
 function Mouse:_new(window)
@@ -35,43 +38,22 @@ function Mouse:_new(window)
 	glfw.SetCursorEnterCallback(self.window.handle, function(handle, entered)
 		if entered == GL.TRUE then
 			self.mouse_in = true
+			self.EnterWindow:Fire()
 		else
 			self.mouse_in = false
+			self.LeaveWindow:Fire()
 		end
 	end)
+
 	glfw.SetMouseButtonCallback(self.window.handle, function(handle, button, action, mod)
-		local modifiers = {
-			shift = false,
-			alt = false,
-			ctrl = false,
-			super = false
-		}
-		modifiers.shift = false
-		if bit.band(mod, GLFW.MOD_SHIFT) == GLFW.MOD_SHIFT then
-			modifiers.shift = true
-		end
-
-		modifiers.alt = false
-		if bit.band(mod, GLFW.MOD_ALT) == GLFW.MOD_ALT then
-			modifiers.alt = true
-		end
-
-		modifiers.ctrl = false
-		if bit.band(mod, GLFW.MOD_CONTROL) == GLFW.MOD_CONTROL then
-			modifiers.ctrl = true
-		end
-
-		modifiers.super = false
-		if bit.band(mod, GLFW.MOD_SUPER) == GLFW.MOD_SUPER then
-			modifiers.super = true
-		end
+		button = button + 1
 
 		if action == GLFW.PRESS then
-			self.buttons[button+1] = true
-			self.ButtonDown:Fire(button+1, modifiers)
+			self.buttons[button] = true
+			self.ButtonDown:Fire(button, modifiers)
 		else
-			self.buttons[button+1] = false
-			self.ButtonUp:Fire(button+1, modifiers)
+			self.buttons[button] = false
+			self.ButtonUp:Fire(button, modifiers)
 		end
 	end)
 end

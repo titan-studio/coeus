@@ -34,9 +34,8 @@ local CTester = require("tests")
 CTester:Init(Coeus)
 print(CTester:RunTestFolder("Coeus.Bindings"))
 
-local Keyboard = Coeus.Input.Keyboard
-local keyboard = Keyboard:New(window)
-local mouse = Coeus.Input.Mouse:New(window)
+local keyboard = Coeus.Input.KeyboardContext:New(window)
+local mouse = Coeus.Input.MouseContext:New(window)
 
 function app:Load()
 	self.shader = Shader:New([[

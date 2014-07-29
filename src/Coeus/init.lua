@@ -136,7 +136,7 @@ function Coeus.Main(window, app)
 		glfw.SwapBuffers(window.handle)
 
 		local diff = Timing.GetTime() - start
-		--Coeus.Timing.Sleep(math.max(0, (target_fps - diff) * 1000))
+		Coeus.Timing.Sleep(math.max(0, (target_fps - diff) * 1000))
 	end
 	if app.Destroy then app:Destroy() end
 end
