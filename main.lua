@@ -19,6 +19,10 @@ local GL = OpenGL.GL
 local window = Window:New("Coeus", 1280, 720, false, true)
 local app = {}
 
+local CTester = require("tests")
+CTester:Init(Coeus)
+print(CTester:RunTestFolder("Coeus.Bindings"))
+
 function app:Load()
 	self.shader = Shader:New([[
 	#version 330
