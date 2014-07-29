@@ -15,6 +15,7 @@ local Matrix4 = Coeus.Math.Matrix4
 local Table = Coeus.Utility.Table
 
 local Shader = oop:Class() {
+	context = false,
 	program = false,
 	uniforms = {}
 }
@@ -47,7 +48,9 @@ local function create_shader(source, type)
 end
 
 
-function Shader:_new(vertex_source, fragment_source, geometry_source)
+function Shader:_new(context, vertex_source, fragment_source, geometry_source)
+	self.context = context
+
 	local vertex_shader
 	if vertex_source then
 		vertex_shader = create_shader(vertex_source, GL.VERTEX_SHADER)
@@ -115,13 +118,20 @@ function Shader:Send(name, ...)
 			gl.UniformMatrix4fv(uniform, #values, GL.FALSE, data)
 			return
 		end
+		if first.GetClass and first:GetClass() == Texture then
+			local data = ffi.new('int[' .. #values .. ']')
+			for i, texture in ipairs(values) do
+				data[i-1] = self.context:BindTexture(texture)
+			end
+			gl.Uniform1iv(uniform, #values, data)
+		end
 		print("Unhandled type of uniform")
 		return
 	end
 
 	--If a single number...
 	local data = ffi.new('float[' .. #values .. ']')
-	for i=1,#values do
+	for i = 1, #values do
 		data[i-1] = values[i]
 	end
 	gl.Uniform1fv(uniform, #values, data)

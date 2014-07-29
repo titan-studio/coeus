@@ -8,7 +8,9 @@ local GraphicsContext = OOP:Class() {
 }
 
 function GraphicsContext:_new()
-
+	local texture_units = ffi.new('int[1]')
+	gl.GetIntegerv(GL.MAX_TEXTURE_IMAGE_UNITS, texture_units)
+	self.MaxTextureUnits = texture_units[0]
 end
 
 function GraphicsContext:BindTexture(texture)
@@ -20,7 +22,7 @@ function GraphicsContext:BindTexture(texture)
 		end
 	end
 
-	texture:Bind(unused)
+	texture:Bind(unused + GL.TEXTURE0)
 	self.texture_units[unused] = texture
 end
 
