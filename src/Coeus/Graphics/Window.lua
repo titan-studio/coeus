@@ -1,8 +1,9 @@
 local Coeus = (...)
+local ffi = require("ffi")
+
 local oop = Coeus.Utility.OOP
 local GLFW = Coeus.Bindings.GLFW
 local OpenGL = Coeus.Bindings.OpenGL
-local ffi = require("ffi")
 
 local glfw = GLFW.glfw
 local GLFW = GLFW.GLFW
@@ -13,31 +14,34 @@ local GL = OpenGL.GL
 local Event = Coeus.Event
 
 local Window = oop:Class() {
-	title 	= "Coeus Window",
+	title = "Coeus Window",
 
 	x = 0,
 	y = 0,
 
-	width 	= 640,
-	height 	= 480,
+	width = 640,
+	height = 480,
 
-	fullscreen 	= false,
-	resizable 	= false,
-	monitor 	= false,
+	fullscreen = false,
+	resizable = false,
+	monitor = false,
 
 	handle = false,
 
-	Resized 	= Event:New(),
-	Moved 		= Event:New(),
-	Closed		= Event:New()
+	Resized = Event:New(),
+	Moved = Event:New(),
+	Closed = Event:New()
 }
 
-function Window:_new(title, width, height, fullscreen, resizable, monitor)
+function Window:_new(title, width, height, mode)
 	self.width = width or self.width
 	self.height = height or self.height
-
 	self.title = title or self.title
-	self.fullscreen = fullscreen or self.fullscreen
+
+	self.fullscreen = mode and mode.fullscreen or self.fullscreen
+
+	local monitor = mode and mode.monitor or self.mode
+	local resizable = mode and mode.resizable or self.resizable
 
 	local monitorobj
 
@@ -68,7 +72,6 @@ function Window:_new(title, width, height, fullscreen, resizable, monitor)
 	local mode = glfw.GetVideoMode(monitorobj)[0]
 	width = width or mode.width
 	height = height or mode.height
-
 
 	local window
 	if fullscreen then

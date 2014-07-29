@@ -18,7 +18,7 @@ local GLFW = GLFW.GLFW
 local gl = OpenGL.gl
 local GL = OpenGL.GL
 
-local window = Window:New("Coeus", 1280, 720, false, true)
+local window = Window:New("Coeus", 1280, 720, {fullscreen = false, resizable = true})
 
 local Entity = Coeus.Entity.Entity
 local Camera = Coeus.Graphics.Camera
@@ -28,11 +28,6 @@ cam:SetPosition(0, 0, 10)
 cam:AddComponent(Camera:New(window))
 cam:BuildTransform()
 local view = cam:GetComponent(Camera):GetViewTransform()
-for i=0,15 do print(view.m[i]) end
-
-local CTester = require("tests")
-CTester:Init(Coeus)
-print(CTester:RunTestFolder("Coeus.Bindings"))
 
 local keyboard = Coeus.Input.KeyboardContext:New(window)
 local mouse = Coeus.Input.MouseContext:New(window)
@@ -66,7 +61,6 @@ function TestApp:Initialize()
 
 	self.mesh = Coeus.Utility.OBJLoader:New("test.obj"):GetMesh()
 
-
 	mouse:SetLocked(true)
 end
 
@@ -91,23 +85,23 @@ function TestApp:Render()
 	local proj = cam:GetComponent(Camera):GetProjectionTransform()
 	local mvp = proj * view * model_trans
 
-	self.shader:Send('mvp', mvp)
+	self.shader:Send("mvp", mvp)
 	self.mesh:Render()
 
 	local fwd = cam:GetLocalTransform():GetForwardVector()
 	local right = cam:GetLocalTransform():GetRightVector()
 	local dist = 0
 	local strafe = 0
-	if keyboard:IsKeyDown('w') then
+	if keyboard:IsKeyDown("w") then
 		dist = -5 * Coeus.Timing.GetDelta()
 	end
-	if keyboard:IsKeyDown('s') then
+	if keyboard:IsKeyDown("s") then
 		dist = 5 * Coeus.Timing.GetDelta()
 	end
-	if keyboard:IsKeyDown('a') then
+	if keyboard:IsKeyDown("a") then
 		strafe = -4 * Coeus.Timing.GetDelta()
 	end
-	if keyboard:IsKeyDown('d') then
+	if keyboard:IsKeyDown("d") then
 		strafe = 4 * Coeus.Timing.GetDelta()
 	end
 	if keyboard:IsKeyDown(256) then

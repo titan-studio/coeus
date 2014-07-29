@@ -34,7 +34,7 @@ function Keyboard:_new(window)
 end
 
 function Keyboard:IsKeyDown(key)
-	if type(key) == 'string' then
+	if type(key) == "string" then
 		key = key:upper()
 		key = string.byte(key)
 	end
