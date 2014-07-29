@@ -6,7 +6,7 @@ local Matrix4 		= Coeus.Math.Matrix4
 local Vector3 		= Coeus.Math.Vector3
 local Quaternion 	= Coeus.Math.Quaternion
 
-local Event 		= Coeus.Event
+local Event 		= Coeus.Utility.Event
 
 local Entity = oop:Class() {
 	parent 		= false,

@@ -98,9 +98,6 @@ setmetatable(Coeus, {
 
 local GLFW = Coeus.Bindings.GLFW
 local OpenGL = Coeus.Bindings.OpenGL
-local ffi = require("ffi")
-
-local Timing = Coeus.Timing
 
 local glfw = GLFW.glfw
 local GLFW = GLFW.GLFW
@@ -108,37 +105,5 @@ local GLFW = GLFW.GLFW
 local gl = OpenGL.gl
 local GL = OpenGL.GL
 OpenGL.loader = glfw.GetProcAddress
-
-local bit = require("bit")
-
-local target_fps = 1 / 60
-
-function Coeus.Main(window, app)
-	app:Initialize()
-	Timing.Step()
-	while (glfw.WindowShouldClose(window.handle) == 0) do
-		Timing.Step()
-		local start = Timing.GetTime()
-
-		glfw.PollEvents()
-		window:Use()
-
-		gl.ClearDepth(1.0)
-		gl.ClearColor(0, 0, 0, 1)
-		gl.Clear(bit.bor(tonumber(GL.COLOR_BUFFER_BIT), tonumber(GL.DEPTH_BUFFER_BIT)))
-		app:Render()
-		
-		local err = gl.GetError()
-		if err ~= GL.NO_ERROR then
-			error("GL error: " .. err)
-		end
-
-		glfw.SwapBuffers(window.handle)
-
-		local diff = Timing.GetTime() - start
-		Coeus.Timing.Sleep(math.max(0, (target_fps - diff) * 1000))
-	end
-	app:Destroy()
-end
 
 return Coeus

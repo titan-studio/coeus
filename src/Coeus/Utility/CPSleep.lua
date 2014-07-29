@@ -6,8 +6,8 @@ if (ffi.os == "Windows") then
 	local Win32 = Coeus.Bindings.Win32
 
 	Win32.timeBeginPeriod(1)
-	CPSleep = function(ms)
-		Win32.Sleep(ms)
+	CPSleep = function(s)
+		Win32.Sleep(s * 1000)
 	end
 else
 	--untested
@@ -17,8 +17,8 @@ else
 		int usleep(useconds_t usec);
 	]])
 
-	CPSleep = function(ms)
-		ffi.C.usleep(ms * 1000)
+	CPSleep = function(s)
+		ffi.C.usleep(s * 1000000)
 	end
 end
 

@@ -2,13 +2,13 @@ local Coeus = (...)
 local bit = require("bit")
 
 local OOP = Coeus.Utility.OOP
-local Event = Coeus.Event
+local Event = Coeus.Utility.Event
 
 local GLFW = Coeus.Bindings.GLFW
 local glfw = GLFW.glfw
 GLFW = GLFW.GLFW
 
-local Keyboard = OOP:Class() {
+local KeyboardContext = OOP:Class() {
 	keys = {},
 
 	KeyDown = Event:New(),
@@ -17,7 +17,7 @@ local Keyboard = OOP:Class() {
 	TextInput = Event:New()
 }
 
-function Keyboard:_new(window)
+function KeyboardContext:_new(window)
 	glfw.SetKeyCallback(window.handle, function(handle, key, scancode, action, mod)
 		if action == GLFW.PRESS then
 			self.keys[key] = true
@@ -33,7 +33,7 @@ function Keyboard:_new(window)
 	end)
 end
 
-function Keyboard:IsKeyDown(key)
+function KeyboardContext:IsKeyDown(key)
 	if type(key) == "string" then
 		key = key:upper()
 		key = string.byte(key)
@@ -41,4 +41,4 @@ function Keyboard:IsKeyDown(key)
 	return self.keys[key] or false
 end
 
-return Keyboard
+return KeyboardContext

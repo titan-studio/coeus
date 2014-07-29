@@ -1,9 +1,13 @@
 local Coeus = (...)
 local ffi = require("ffi")
 
-local oop = Coeus.Utility.OOP
+local OOP = Coeus.Utility.OOP
 local GLFW = Coeus.Bindings.GLFW
 local OpenGL = Coeus.Bindings.OpenGL
+
+local KeyboardContext = Coeus.Input.KeyboardContext
+local MouseContext = Coeus.Input.MouseContext
+local GraphicsContext = Coeus.Graphics.GraphicsContext
 
 local glfw = GLFW.glfw
 local GLFW = GLFW.GLFW
@@ -11,9 +15,9 @@ local GLFW = GLFW.GLFW
 local gl = OpenGL.gl
 local GL = OpenGL.GL
 
-local Event = Coeus.Event
+local Event = Coeus.Utility.Event
 
-local Window = oop:Class() {
+local Window = OOP:Class() {
 	title = "Coeus Window",
 
 	x = 0,
@@ -25,8 +29,13 @@ local Window = oop:Class() {
 	fullscreen = false,
 	resizable = false,
 	monitor = false,
+	vsync_enabled = false,
 
 	handle = false,
+
+	Keyboard = false,
+	Mouse = false,
+	Graphics = false,
 
 	Resized = Event:New(),
 	Moved = Event:New(),
@@ -42,6 +51,7 @@ function Window:_new(title, width, height, mode)
 
 	local monitor = mode and mode.monitor or self.mode
 	local resizable = mode and mode.resizable or self.resizable
+	local vsync_enabled = mode and mode.vsync or self.vsync
 
 	local monitorobj
 
@@ -53,7 +63,8 @@ function Window:_new(title, width, height, mode)
 			monitorobj = monitors[monitor - 1]
 		else
 			print("Monitor cannot be greater than the number of connected monitors!")
-			return nil
+			print("Reverting to primary monitor...")
+			monitorobj = glfw.GetPrimaryMonitor()
 		end
 	else
 		monitorobj = glfw.GetPrimaryMonitor()
@@ -122,7 +133,11 @@ function Window:_new(title, width, height, mode)
 	gl.CullFace(GL.BACK)
 	gl.DepthMask(GL.TRUE)
 
-	glfw.SwapInterval(1)
+	self:SetVSyncEnabled(self.vsync_enabled)
+
+	self.Keyboard = KeyboardContext:New(self)
+	self.Mouse = MouseContext:New(self)
+	self.Graphics = GraphicsContext:New(self)
 end
 
 function Window:Use()
@@ -133,17 +148,37 @@ end
 function Window:GetSize()
 	return self.width, self.height
 end
-
-function Window:GetPosition()
-	return self.x, self.y
-end
-
 function Window:SetSize(width, height)
 	glfw.SetWindowSize(self.handle, width, height)
 end
 
+function Window:GetPosition()
+	return self.x, self.y
+end
 function Window:SetPosition(x, y)
 	glfw.SetWindowPos(self.handle, x, y)
+end
+
+function Window:GetVSyncEnabled()
+	return self.vsync_enabled
+end
+function Window:SetVSyncEnabled(value)
+	local old_handle = glfw.GetCurrentContext()
+
+	glfw.MakeContextCurrent(self.handle)
+	glfw.SwapInterval(value and 1 or 0)
+	glfw.MakeContextCurrent(old_handle)
+
+	self.vsync_enabled = not not value
+end
+
+function Window:GetTitle(title)
+	return self.title
+end
+function Window:SetTitle(title)
+	self.title = title
+
+	glfw.SetWindowTitle(self.handle, title)
 end
 
 function Window:HasFocus()
@@ -152,12 +187,6 @@ end
 
 function Window:IsMinimized()
 	return glfw.GetWindowAttrib(self.handle, GLFW.ICONIFIED) == 1
-end
-
-function Window:SetTitle(title)
-	self.title = title
-
-	glfw.SetWindowTitle(self.handle, title)
 end
 
 function Window:Close()
