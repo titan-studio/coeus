@@ -33,6 +33,7 @@ end
 
 function Matrix4:GetInverse()
 	local r = {}
+	local m = self.m
 	r[0] = m[5]*m[10]*m[15] - m[5]*m[14]*m[11] - m[6]*m[9]*m[15] + m[6]*m[13]*m[11] + m[7]*m[9]*m[14] - m[7]*m[13]*m[10]
 	r[1] = -m[1]*m[10]*m[15] + m[1]*m[14]*m[11] + m[2]*m[9]*m[15] - m[2]*m[13]*m[11] - m[3]*m[9]*m[14] + m[3]*m[13]*m[10]
 	r[2] = m[1]*m[6]*m[15] - m[1]*m[14]*m[7] - m[2]*m[5]*m[15] + m[2]*m[13]*m[7] + m[3]*m[5]*m[14] - m[3]*m[13]*m[6]
@@ -62,9 +63,9 @@ function Matrix4:GetInverse()
 	return Matrix4:New(r)
 end
 
-function Matrix4.Multiply(mat_a, mat_b)
-	local a = mat_a.m
-	local b = mat_b.m
+function Matrix4.Multiply(b, a)
+	local a = a.m
+	local b = b.m
 	local r = {}
 	r[0] = a[0] * b[0] + a[1] * b[4] + a[2] * b[8] + a[3] * b[12]
 	r[1] = a[0] * b[1] + a[1] * b[5] + a[2] * b[9] + a[3] * b[13]

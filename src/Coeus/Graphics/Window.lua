@@ -10,6 +10,7 @@ local GLFW = GLFW.GLFW
 local gl = OpenGL.gl
 local GL = OpenGL.GL
 
+local Event = Coeus.Event
 
 local Window = oop:Class() {
 	title 	= "Coeus Window",
@@ -24,7 +25,11 @@ local Window = oop:Class() {
 	resizable 	= false,
 	monitor 	= false,
 
-	handle = false
+	handle = false,
+
+	Resized 	= Event:New(),
+	Moved 		= Event:New(),
+	Closed		= Event:New()
 }
 
 function Window:_new(title, width, height, fullscreen, resizable, monitor)
@@ -81,14 +86,15 @@ function Window:_new(title, width, height, fullscreen, resizable, monitor)
 
 	self.handle = window
 	glfw.SetWindowSizeCallback(self.handle, function(handle, width, height)
-		--TODO: hook up to an event
+		self.Resized:Fire(width, height)
 		self.width = width
 		self.height = height
 	end)
 	glfw.SetWindowCloseCallback(self.handle, function(handle)
-		--TODO: hook up to an event
+		self.Closed:Fire()
 	end)
 	glfw.SetWindowPosCallback(self.handle, function(handle, x, y)
+		self.Moved:Fire(x, y)
 		self.x = x
 		self.y = y
 	end)
@@ -105,7 +111,7 @@ function Window:_new(title, width, height, fullscreen, resizable, monitor)
 	gl.Enable(GL.DEPTH_TEST)
 	gl.DepthFunc(GL.LEQUAL)
 
-	glfw.SwapInterval(0)
+	glfw.SwapInterval(1)
 
 end
 

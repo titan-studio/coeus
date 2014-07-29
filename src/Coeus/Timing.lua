@@ -41,7 +41,7 @@ function Timing.GetDelta()
 end
 
 function Timing.GetFPS()
-	return Timing.FPS
+	return math.ceil(Timing.FPS)
 end
 
 return Timing

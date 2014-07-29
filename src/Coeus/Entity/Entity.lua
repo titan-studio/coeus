@@ -6,21 +6,24 @@ local Matrix4 		= Coeus.Math.Matrix4
 local Vector3 		= Coeus.Math.Vector3
 local Quaternion 	= Coeus.Math.Quaternion
 
+local Event 		= Coeus.Event
+
 local Entity = oop:Class() {
 	parent 		= false,
 	children 	= {},
 
-	local_transform 	= Matrix4:New()
-	render_transform 	= Matrix4:New()
+	local_transform 	= Matrix4:New(),
+	render_transform 	= Matrix4:New(),
 	dirty_transform 	= false,
 
-	scale 	 = Vector3:new(),
+	scale 	 = Vector3:New(1, 1, 1),
 	position = Vector3:New(),
 	rotation = Quaternion:New(),
 
 	components = {},
 
-	name = "Entity"
+	name = "Entity",
+
 }
 
 function Entity:_new()
@@ -167,10 +170,11 @@ function Entity:BuildTransform()
 	if not self.dirty_transform then return end
 	self.dirty_transform = false
 
-	self.local_transform = Matrix4.GetScale(self.scale) * 
-						   self.rotation:ToRotationMatrix() *
+	self.local_transform = --nMatrix4.GetScale(self.scale) * 
+						 --  self.rotation:ToRotationMatrix() *
 						   Matrix4.GetTranslation(self.position)
-	self.render_transform = self.local_transform * self.render_transform
+						   print(self.position.x, self.position.y, self.position.z)
+	self.render_transform = self.local_transform-- * self.render_transform
 end
 
 

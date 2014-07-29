@@ -19,25 +19,29 @@ local GL = OpenGL.GL
 local window = Window:New("Coeus", 1280, 720, false, true)
 local app = {}
 
+local Entity = Coeus.Entity.Entity
+local Camera = Coeus.Graphics.Camera
+
+local cam = Entity:New()
+cam:SetPosition(0, 0, 10)
+cam:AddComponent(Camera:New(window))
+cam:BuildTransform()
+local view = cam:GetComponent(Camera):GetViewTransform()
+for i=0,15 do print(view.m[i]) end
+
 local CTester = require("tests")
 CTester:Init(Coeus)
 print(CTester:RunTestFolder("Coeus.Bindings"))
 
 function app:Load()
-	local x = Vector3:New(1, 0, 0)
-	local y = Vector3:New(2, 0, 0)
-	x = x:Lerp(y, 0.5)
-	print(x.x)
-
 	self.shader = Shader:New([[
 	#version 330
 	layout(location=0) in vec4 position;
 
-	uniform mat4 modelview;
-	uniform mat4 projection;
+	uniform mat4 mvp;
 
 	void main() {
-		gl_Position = projection * modelview * position;
+		gl_Position = mvp * position;
 	}
 	]],[[
 	#version 330
@@ -45,7 +49,8 @@ function app:Load()
 
 
 	void main() {
-		FragColor = vec4(1.0, 1.0, 1.0, 1.0) * gl_FragCoord.z;
+		float mod = gl_FragCoord.z;
+		FragColor = vec4(mod, mod, mod, 1.0);
 	}
 	]])
 
@@ -76,33 +81,31 @@ function app:Load()
 	self.mesh = Mesh:New()
 	self.mesh:SetData(vertex_data, index_data, Mesh.DataFormat.Position)
 
-	local width, height = window:GetSize()
-	local aspect = width / height
-	local perspective = Matrix4.GetPerspective(90, 1.0, 100.0, aspect)
-
-	local modelview = Matrix4.GetTranslation(Vector3:New(0, 0, -5))
 	gl.Enable(GL.CULL_FACE)
 	gl.CullFace(GL.BACK)
 end
 
-local prev_time = glfw.GetTime()
-local x = 0
 function app:Render()
 	window:SetTitle("Coeus (FPS: " .. Coeus.Timing.GetFPS() .. ")")
-	local width, height = window:GetSize()
-	local aspect = width / height
-	local perspective = Matrix4.GetPerspective(90, 1.0, 100.0, aspect)
 
 	self.shader:Use()
 	
+	local model_trans = Matrix4.GetRotationY(math.rad(os.clock() * 100))
+	--model_trans = Matrix4.GetTranslation(Vector3:New(1.5, 0, 0)) * model_trans
 
-	local modelview = Matrix4.GetTranslation(Vector3:New(0, 0, -5))
-	modelview = Matrix4.GetRotationY(math.rad(os.clock() * 100)) * modelview
-	modelview = Matrix4.GetTranslation(Vector3:New(1.5, 0, 0)) * modelview
-	
-	self.shader:Send('projection', perspective)
-	self.shader:Send('modelview', modelview)
+	local view = cam:GetComponent(Camera):GetViewTransform()
+	local proj = cam:GetComponent(Camera):GetProjectionTransform()
+	local mvp = proj * view * model_trans
+
+	self.shader:Send('mvp', mvp)
 	self.mesh:Render()
+
+	if glfw.GetKey(window.handle, GLFW.KEY_W) == GLFW.PRESS then
+		cam:SetPosition(0, 1.5, cam:GetPosition().z - 5 * Coeus.Timing.GetDelta())
+	end
+	if glfw.GetKey(window.handle, GLFW.KEY_S) == GLFW.PRESS then
+		cam:SetPosition(0, 1.5, cam:GetPosition().z + 5 * Coeus.Timing.GetDelta())
+	end
 end
 
 Coeus.Main(window, app)

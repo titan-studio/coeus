@@ -1,6 +1,8 @@
 local Coeus = (...)
 local oop = Coeus.Utility.OOP
 
+local Matrix4 = Coeus.Math.Matrix4
+
 --TURN BACK NOW! THIS FILE HAS BEEN KNOWN TO CAUSE IRREVERSIBLE BRAIN DAMAGE
 
 local Quaternion = oop:Class() {
@@ -82,17 +84,17 @@ function Quaternion:ToRotationMatrix()
 	local ty = self.y + self.y
 	local tz = self.z + self.z
 	
-	local twx = tx * w
-	local twy = ty * w
-	local twz = tz * w
+	local twx = tx * self.w
+	local twy = ty * self.w
+	local twz = tz * self.w
 
-	local txx = tx * x
-	local txy = ty * x
-	local txz = tz * x
+	local txx = tx * self.x
+	local txy = ty * self.x
+	local txz = tz * self.x
 
-	local tyy = ty * y
-	local tyz = tz * y
-	local tzz = tz * z
+	local tyy = ty * self.y
+	local tyz = tz * self.y
+	local tzz = tz * self.z
 
 	return Matrix4.Manual(
 		1 - (tyy + tzz), txy - twz, txz + twy, 0,
