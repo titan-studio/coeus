@@ -15,13 +15,15 @@ local Coeus = {
 	Version = {0, 0, 0},
 
 	loaded = {},
+	meta = {}
 }
 
 function Coeus:Load(name)
 	local abs_name = self.Root .. name
+	local id = name:lower()
 
-	if (self.loaded[name]) then
-		return self.loaded[name]
+	if (self.loaded[id]) then
+		return self.loaded[id]
 	else
 		local file = name_to_file(abs_name)
 		local dir = name_to_directory(abs_name)
@@ -50,14 +52,20 @@ function Coeus:LoadFile(name, path)
 		error(err)
 	end
 
-	local success, object = pcall(chunk, self)
+	local meta = {
+		name = name,
+		path = path
+	}
+	local success, object = pcall(chunk, self, meta)
 
 	if (not success) then
 		error(object)
 	end
 
+	self.meta[name] = meta
+
 	if (object) then
-		self.loaded[name] = object
+		self.loaded[name:lower()] = object
 
 		return object
 	end
@@ -74,7 +82,7 @@ function Coeus:LoadDirectory(name, path)
 		end
 	})
 
-	self.loaded[name] = container
+	self.loaded[name:lower()] = container
 
 	return container
 end
