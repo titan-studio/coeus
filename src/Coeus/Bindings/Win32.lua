@@ -47,6 +47,10 @@ ffi.cdef([[
 	} RTL_CRITICAL_SECTION_DEBUG, *PRTL_CRITICAL_SECTION_DEBUG, RTL_RESOURCE_DEBUG, *PRTL_RESOURCE_DEBUG;
 
 	typedef struct _RTL_CRITICAL_SECTION CRITICAL_SECTION;
+	typedef unsigned int MMRESULT;
+
+	void Sleep(DWORD milliseconds);
+	MMRESULT timeBeginPeriod(unsigned int uperiod);
 ]])
 
-return {}
+return ffi.C

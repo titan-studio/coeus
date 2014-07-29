@@ -1,7 +1,9 @@
 local Coeus = (...)
+local ffi = require("ffi")
+local CPSleep = Coeus.Utility.CPSleep
 local GLFW = Coeus.Bindings.GLFW
 local glfw = GLFW.glfw
-local GLFW = GLFW.GLFW 
+local GLFW = GLFW.GLFW
 
 local Timing = { 
 	current = 0,
@@ -16,8 +18,12 @@ function Timing.GetTime()
 	return glfw.GetTime()
 end
 
+function Timing.Sleep(time)
+	CPSleep(time)
+end
+
 function Timing.Step()
-	Timing.current = Timing:GetTime()
+	Timing.current = Timing.GetTime()
 	Timing.delta = Timing.current - Timing.previous
 	Timing.previous = Timing.current
 

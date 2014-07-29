@@ -10,9 +10,14 @@ if (ffi.os == "Windows") then
 		typedef int clock_t;
 		typedef int clockid_t;
 
-		typedef struct _ttherad_timespec {
+		typedef struct _tthread_timespec {
 			time_t tv_sec;
 			long   tv_nsec;
+		};
+
+		typedef struct timespec {
+			time_t tv_sec;
+			long tv_nsec;
 		};
 
 		typedef int _tthread_clockid_t;
