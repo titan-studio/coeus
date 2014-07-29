@@ -26,8 +26,10 @@ function Texture:Destroy()
 end
 
 function Texture:Bind(unit)
-	self.unit = unit
-	gl.ActiveTexture(unit)
+	if unit then
+		self.unit = unit
+		gl.ActiveTexture(unit)
+	end
 	gl.BindTexture(self.gl_target, self.handle)
 end
 
