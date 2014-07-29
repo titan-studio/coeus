@@ -90,6 +90,18 @@ function Matrix4.Multiply(b, a)
 	return Matrix4:New(r)
 end
 
+function Matrix4:GetUpVector()
+	return Vector3:New(self.m[4], self.m[5], self.m[6])
+end
+
+function Matrix4:GetRightVector()
+	return Vector3:New(self.m[0], self.m[1], self.m[2])
+end
+
+function Matrix4:GetForwardVector()
+	return Vector3:New(self.m[8], self.m[9], self.m[10])
+end
+
 function Matrix4:TransformPoint(vec)
 	--This function may not be correct (or at least what is expected.)
 	--Further investigation may be necessary

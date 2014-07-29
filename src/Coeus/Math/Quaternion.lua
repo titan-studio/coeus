@@ -140,9 +140,9 @@ function Quaternion.Slerp(a, b, alpha, shortest_path)
 		local inv_sin = 1 / sin
 		local coeff0 = math.sin((1 - alpha) * angle) * inv_sin
 		local coeff1 = math.sin(alpha * angle) * inv_sin
-		return coeff0 * a + coeff1 * t
+		return a:Multiply(coeff0) + coeff1 * t
 	else
-		t = (1 - alpha) * a + alpha * t
+		t = a:Multiply(1 - alpha) + alpha * t
 		t:Normalize()
 		return t
 	end

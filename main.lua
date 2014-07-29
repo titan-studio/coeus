@@ -7,6 +7,7 @@ local Mesh = Coeus.Graphics.Mesh
 
 local Vector3 = Coeus.Math.Vector3
 local Matrix4 = Coeus.Math.Matrix4
+local Quaternion = Coeus.Math.Quaternion
 
 local OpenGL = Coeus.Bindings.OpenGL
 local GLFW = Coeus.Bindings.GLFW
@@ -32,6 +33,10 @@ for i=0,15 do print(view.m[i]) end
 local CTester = require("tests")
 CTester:Init(Coeus)
 print(CTester:RunTestFolder("Coeus.Bindings"))
+
+local Keyboard = Coeus.Input.Keyboard
+local keyboard = Keyboard:New(window)
+local mouse = Coeus.Input.Mouse:New(window)
 
 function app:Load()
 	self.shader = Shader:New([[
@@ -83,14 +88,25 @@ function app:Load()
 
 	gl.Enable(GL.CULL_FACE)
 	gl.CullFace(GL.BACK)
+
+	mouse:SetLocked(true)
 end
 
+local des_rot = Quaternion:New()
 function app:Render()
 	window:SetTitle("Coeus (FPS: " .. Coeus.Timing.GetFPS() .. ")")
 
+	mouse:Update()
+	local dx, dy = mouse:GetDelta()
+	local rot = cam:GetRotation()
+	local yaw = Quaternion.FromAngleAxis(dx * 0.25 * Coeus.Timing.GetDelta(), Vector3:New(0, 1, 0))
+	des_rot = yaw * des_rot
+	rot = Quaternion.Slerp(rot, des_rot, 0.5)
+	cam:SetRotation(rot)
+
 	self.shader:Use()
 	
-	local model_trans = Matrix4.GetRotationY(math.rad(os.clock() * 100))
+	local model_trans = Matrix4:New()--Matrix4.GetRotationY(math.rad(os.clock() * 100))
 	--model_trans = Matrix4.GetTranslation(Vector3:New(1.5, 0, 0)) * model_trans
 
 	local view = cam:GetComponent(Camera):GetViewTransform()
@@ -100,12 +116,26 @@ function app:Render()
 	self.shader:Send('mvp', mvp)
 	self.mesh:Render()
 
-	if glfw.GetKey(window.handle, GLFW.KEY_W) == GLFW.PRESS then
-		cam:SetPosition(0, 1.5, cam:GetPosition().z - 5 * Coeus.Timing.GetDelta())
+	local fwd = cam:GetLocalTransform():GetForwardVector()
+	local right = cam:GetLocalTransform():GetRightVector()
+	local dist = 0
+	local strafe = 0
+	if keyboard:IsKeyDown('w') then
+		dist = -5 * Coeus.Timing.GetDelta()
 	end
-	if glfw.GetKey(window.handle, GLFW.KEY_S) == GLFW.PRESS then
-		cam:SetPosition(0, 1.5, cam:GetPosition().z + 5 * Coeus.Timing.GetDelta())
+	if keyboard:IsKeyDown('s') then
+		dist = 5 * Coeus.Timing.GetDelta()
 	end
+	if keyboard:IsKeyDown('a') then
+		strafe = -4 * Coeus.Timing.GetDelta()
+	end
+	if keyboard:IsKeyDown('d') then
+		strafe = 4 * Coeus.Timing.GetDelta()
+	end
+	if keyboard:IsKeyDown(256) then
+		window:Close()
+	end
+	cam:SetPosition(cam:GetPosition() + (fwd * dist) + (right * strafe))
 end
 
 Coeus.Main(window, app)

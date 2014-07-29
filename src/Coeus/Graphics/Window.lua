@@ -150,4 +150,8 @@ function Window:SetTitle(title)
 	glfw.SetWindowTitle(self.handle, title)
 end
 
+function Window:Close()
+	glfw.SetWindowShouldClose(self.handle, 1)
+end
+
 return Window
