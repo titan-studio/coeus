@@ -17,7 +17,7 @@ local GLFW = GLFW.GLFW
 local gl = OpenGL.gl
 local GL = OpenGL.GL
 
-local window = Window:New("Coeus", 1280, 720, false, true)
+local window = Window:New("Coeus", 1280, 720, {fullscreen = false, resizable = true})
 local app = {}
 
 local Entity = Coeus.Entity.Entity
@@ -28,11 +28,6 @@ cam:SetPosition(0, 0, 10)
 cam:AddComponent(Camera:New(window))
 cam:BuildTransform()
 local view = cam:GetComponent(Camera):GetViewTransform()
-for i=0,15 do print(view.m[i]) end
-
-local CTester = require("tests")
-CTester:Init(Coeus)
-print(CTester:RunTestFolder("Coeus.Bindings"))
 
 local keyboard = Coeus.Input.KeyboardContext:New(window)
 local mouse = Coeus.Input.MouseContext:New(window)
@@ -87,7 +82,6 @@ function app:Load()
 	self.mesh:SetData(vertex_data, index_data, Mesh.DataFormat.Position)
 
 	self.mesh = Coeus.Utility.OBJLoader:New("test.obj"):GetMesh()
-
 
 	mouse:SetLocked(true)
 end
