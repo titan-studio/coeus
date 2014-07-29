@@ -111,10 +111,15 @@ OpenGL.loader = glfw.GetProcAddress
 
 local bit = require("bit")
 
+local target_fps = 1 / 60
+
 function Coeus.Main(window, app)
 	if app.Load then app:Load() end
+	Timing.Step()
 	while (glfw.WindowShouldClose(window.handle) == 0) do
 		Timing.Step()
+		local start = Timing.GetTime()
+
 		glfw.PollEvents()
 		window:Use()
 		gl.FrontFace(GL.CCW)
@@ -127,10 +132,10 @@ function Coeus.Main(window, app)
 			error("GL error: " .. err)
 		end
 
-
 		glfw.SwapBuffers(window.handle)
-		
 
+		local diff = Timing.GetTime() - start
+		Coeus.Timing.Sleep(math.max(0, (target_fps - diff) * 1000))
 	end
 	if app.Destroy then app:Destroy() end
 end
