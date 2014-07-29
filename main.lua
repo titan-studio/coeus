@@ -1,4 +1,5 @@
 local Coeus = require("src.Coeus")
+local oop = Coeus.Utility.OOP
 local Window = Coeus.Graphics.Window
 local Shader = Coeus.Graphics.Shader
 
@@ -18,7 +19,6 @@ local gl = OpenGL.gl
 local GL = OpenGL.GL
 
 local window = Window:New("Coeus", 1280, 720, false, true)
-local app = {}
 
 local Entity = Coeus.Entity.Entity
 local Camera = Coeus.Graphics.Camera
@@ -37,7 +37,11 @@ print(CTester:RunTestFolder("Coeus.Bindings"))
 local keyboard = Coeus.Input.KeyboardContext:New(window)
 local mouse = Coeus.Input.MouseContext:New(window)
 
-function app:Load()
+local TestApp = oop:Class(Coeus.Application) {
+	shader = false,
+	mesh = false
+}
+function TestApp:Initialize()
 	self.shader = Shader:New([[
 	#version 330
 	layout(location=0) in vec3 position;
@@ -59,32 +63,6 @@ function app:Load()
 	}
 	]])
 
-	local vertex_data = {
-		1.0, 1.0,-1.0,
-	   -1.0, 1.0,-1.0,
-	   -1.0, 1.0, 1.0,
-	    1.0, 1.0, 1.0,
-	    1.0,-1.0,-1.0,
-	   -1.0,-1.0,-1.0,
-	   -1.0,-1.0, 1.0,
-	    1.0,-1.0, 1.0
-	}
-	local index_data = {
-		0,1,2,
-		0,2,3,
-		0,4,5,
-		0,5,1,
-		1,5,6,
-		1,6,2,
-		2,6,7,
-		2,7,3,
-		3,7,4,
-		3,4,0,
-		4,7,6,
-		4,6,5
-	}
-	self.mesh = Mesh:New()
-	self.mesh:SetData(vertex_data, index_data, Mesh.DataFormat.Position)
 
 	self.mesh = Coeus.Utility.OBJLoader:New("test.obj"):GetMesh()
 
@@ -93,7 +71,7 @@ function app:Load()
 end
 
 local des_rot = Quaternion:New()
-function app:Render()
+function TestApp:Render()
 	window:SetTitle("Coeus (FPS: " .. Coeus.Timing.GetFPS() .. ")")
 
 	mouse:Update()
@@ -138,4 +116,4 @@ function app:Render()
 	cam:SetPosition(cam:GetPosition() + (fwd * dist) + (right * strafe))
 end
 
-Coeus.Main(window, app)
+Coeus.Main(window, TestApp:New())

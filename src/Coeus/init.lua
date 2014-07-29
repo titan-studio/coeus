@@ -114,7 +114,7 @@ local bit = require("bit")
 local target_fps = 1 / 60
 
 function Coeus.Main(window, app)
-	if app.Load then app:Load() end
+	app:Initialize()
 	Timing.Step()
 	while (glfw.WindowShouldClose(window.handle) == 0) do
 		Timing.Step()
@@ -126,7 +126,7 @@ function Coeus.Main(window, app)
 		gl.ClearDepth(1.0)
 		gl.ClearColor(0, 0, 0, 1)
 		gl.Clear(bit.bor(tonumber(GL.COLOR_BUFFER_BIT), tonumber(GL.DEPTH_BUFFER_BIT)))
-		if app.Render then app:Render() end
+		app:Render()
 		
 		local err = gl.GetError()
 		if err ~= GL.NO_ERROR then
@@ -138,7 +138,7 @@ function Coeus.Main(window, app)
 		local diff = Timing.GetTime() - start
 		Coeus.Timing.Sleep(math.max(0, (target_fps - diff) * 1000))
 	end
-	if app.Destroy then app:Destroy() end
+	app:Destroy()
 end
 
 return Coeus
