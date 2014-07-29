@@ -14,6 +14,9 @@ function Vector3:_new(x, y, z)
 end
 
 function Vector3.Add(a, b)
+	if type(a) == 'number' then
+		return Vector3.Add(b, a)
+	end
 	if type(b) == 'number' then
 		return Vector3:New(a.x + b, a.y + b, a.z + b)
 	end
@@ -28,6 +31,9 @@ function Vector3.Subtract(a, b)
 end
 
 function Vector3.Multiply(a, b)
+	if type(a) == 'number' then
+		return Vector3.Multiply(b, a)
+	end
 	if type(b) == 'number' then
 		return Vector3:New(a.x * b, a.y * b, a.z * b)
 	end
@@ -72,6 +78,14 @@ function Vector3:Normalize()
 	self.x = self.x / len
 	self.y = self.y / len
 	self.z = self.z / len
+end
+
+function Vector3.GetMidpoint(a, b)
+	return (a + b) / 2
+end
+
+function Vector3.Lerp(a, b, alpha)
+	return a + (alpha * (b - a))
 end
 
 function Vector3:GetValues()

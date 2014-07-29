@@ -24,6 +24,11 @@ CTester:Init(Coeus)
 print(CTester:RunTestFolder("Coeus.Bindings"))
 
 function app:Load()
+	local x = Vector3:New(1, 0, 0)
+	local y = Vector3:New(2, 0, 0)
+	x = x:Lerp(y, 0.5)
+	print(x.x)
+
 	self.shader = Shader:New([[
 	#version 330
 	layout(location=0) in vec4 position;
@@ -91,9 +96,9 @@ function app:Render()
 	self.shader:Use()
 	
 
-	local modelview = Matrix4.GetTranslation(Vector3:New(0, -1.5, -5))
-	modelview = modelview:Multiply(Matrix4.GetRotationY(math.rad(os.clock() * 100)), modelview)
-	modelview = modelview:Multiply(Matrix4.GetTranslation(Vector3:New(1.5, 0, 0)), modelview)
+	local modelview = Matrix4.GetTranslation(Vector3:New(0, 0, -5))
+	modelview = Matrix4.GetRotationY(math.rad(os.clock() * 100)) * modelview
+	modelview = Matrix4.GetTranslation(Vector3:New(1.5, 0, 0)) * modelview
 	
 	self.shader:Send('projection', perspective)
 	self.shader:Send('modelview', modelview)
