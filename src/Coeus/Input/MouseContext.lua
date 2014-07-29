@@ -3,7 +3,7 @@ local ffi = require('ffi')
 local bit = require('bit')
 
 local OOP = Coeus.Utility.OOP
-local Event = Coeus.Event
+local Event = Coeus.Utility.Event
 
 local OpenGL = Coeus.Bindings.OpenGL
 local GL = OpenGL.GL
@@ -11,7 +11,7 @@ local GLFW = Coeus.Bindings.GLFW
 local glfw = GLFW.glfw
 GLFW = GLFW.GLFW
 
-local Mouse = OOP:Class() {
+local MouseContext = OOP:Class() {
 	window = false,
 	buttons = {},
 
@@ -32,7 +32,7 @@ local Mouse = OOP:Class() {
 	LeaveWindow = Event:New()
 }
 
-function Mouse:_new(window)
+function MouseContext:_new(window)
 	self.window = window
 
 	glfw.SetCursorEnterCallback(self.window.handle, function(handle, entered)
@@ -58,25 +58,25 @@ function Mouse:_new(window)
 	end)
 end
 
-function Mouse:IsButtonDown(button)
+function MouseContext:IsButtonDown(button)
 	return self.buttons[button] or false
 end
 
-function Mouse:GetPosition()
+function MouseContext:GetPosition()
 	return math.floor(self.x), math.floor(self.y)
 end
 
-function Mouse:SetPosition(x, y)
+function MouseContext:SetPosition(x, y)
 	glfw.SetCursorPos(self.window.handle, x, y)
 	self.x = x
 	self.y = y
 end
 
-function Mouse:GetDelta()
+function MouseContext:GetDelta()
 	return self.delta_x, self.delta_y
 end
 
-function Mouse:SetLocked(locked)
+function MouseContext:SetLocked(locked)
 	self.lock = locked
 	if locked then
 		self.prelock_x = self.x
@@ -85,11 +85,11 @@ function Mouse:SetLocked(locked)
 		self:SetPosition(self.prelock_x, self.prelock_y)
 	end
 end
-function Mouse:IsLocked()
+function MouseContext:IsLocked()
 	return self.lock
 end
 
-function Mouse:Update()
+function MouseContext:Update()
 	local xp, yp = ffi.new("double[1]"), ffi.new("double[1]")
 	glfw.GetCursorPos(self.window.handle, xp, yp)
 	self.x, self.y = xp[0], yp[0]
@@ -111,4 +111,4 @@ function Mouse:Update()
 	end
 end
 
-return Mouse
+return MouseContext

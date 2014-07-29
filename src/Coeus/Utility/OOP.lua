@@ -106,7 +106,7 @@ OOP = {
 				self:_destroy(...)
 
 				for i,v in pairs(self) do
-					if v.GetClass and v:GetClass() == Coeus.Event then
+					if v.GetClass and v:GetClass() == Coeus.Utility.Event then
 						v:Destroy()
 					end
 				end
