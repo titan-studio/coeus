@@ -7,8 +7,11 @@ Simple use case:
 Code:
 	local ev = Event:New(true)
 
-	local listener1 = ev:Listen(function(x)
+	local listener1 = ev:Listen(function(x, consume, disconnect)
 		print("listener 1 checking in!",x)
+		if x == "round 2" then
+			disconnect()
+		end
 	end, false, 2)
 	local listener2 = ev:Listen(function(x)
 		print("listener 2 checking in!",x)
@@ -16,11 +19,16 @@ Code:
 
 	ev:Fire("round 1")
 	ev:Fire("round 2")
+	ev:Fire("round 3")
 
 Output:
 >	listener 2 checking in!	round 1
+	(listener 2 comes first because it had the lower priority number
+	 if you call consume() in listener 2, it won't reach listener 1)
 > 	listener 1 checking in!	round 1
+	(listener 2 is disposable so it drops out after round 1)
 >	listener 1 checking in! round 2
+ 	(round 3 reaches nothing because listener 1 called disconnect() in round 2)
 
 Any questions? Ask Kyle
 ]]
