@@ -107,23 +107,23 @@ function app:Render()
 	local proj = cam:GetComponent(Camera):GetProjectionTransform()
 	local mvp = proj * view * model_trans
 
-	self.shader:Send('mvp', mvp)
+	self.shader:Send("mvp", mvp)
 	self.mesh:Render()
 
 	local fwd = cam:GetLocalTransform():GetForwardVector()
 	local right = cam:GetLocalTransform():GetRightVector()
 	local dist = 0
 	local strafe = 0
-	if keyboard:IsKeyDown('w') then
+	if keyboard:IsKeyDown("w") then
 		dist = -5 * Coeus.Timing.GetDelta()
 	end
-	if keyboard:IsKeyDown('s') then
+	if keyboard:IsKeyDown("s") then
 		dist = 5 * Coeus.Timing.GetDelta()
 	end
-	if keyboard:IsKeyDown('a') then
+	if keyboard:IsKeyDown("a") then
 		strafe = -4 * Coeus.Timing.GetDelta()
 	end
-	if keyboard:IsKeyDown('d') then
+	if keyboard:IsKeyDown("d") then
 		strafe = 4 * Coeus.Timing.GetDelta()
 	end
 	if keyboard:IsKeyDown(256) then

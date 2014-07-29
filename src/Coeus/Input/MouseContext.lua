@@ -90,7 +90,7 @@ function Mouse:IsLocked()
 end
 
 function Mouse:Update()
-	local xp, yp = ffi.new('double[1]'), ffi.new('double[1]')
+	local xp, yp = ffi.new("double[1]"), ffi.new("double[1]")
 	glfw.GetCursorPos(self.window.handle, xp, yp)
 	self.x, self.y = xp[0], yp[0]
 
