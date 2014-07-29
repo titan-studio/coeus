@@ -99,7 +99,7 @@ function app:Render()
 	mouse:Update()
 	local dx, dy = mouse:GetDelta()
 	local rot = cam:GetRotation()
-	local yaw = Quaternion.FromAngleAxis(dx * 0.25 * Coeus.Timing.GetDelta(), Vector3:New(0, 1, 0))
+	local yaw = Quaternion.FromAngleAxis(dx * 0.005, Vector3:New(0, 1, 0))
 	des_rot = yaw * des_rot
 	rot = Quaternion.Slerp(rot, des_rot, 0.5)
 	cam:SetRotation(rot)
