@@ -1,5 +1,8 @@
 local Coeus = require("src.Coeus")
-local oop = Coeus.Utility.OOP
+local tests = require("tests")
+tests:Init(Coeus)
+print(tests:RunTestFolder("Coeus"))
+
 local Window = Coeus.Graphics.Window
 local Shader = Coeus.Graphics.Shader
 
@@ -37,7 +40,7 @@ TestApp.shader = false
 TestApp.mesh = false
 
 function TestApp:Initialize()
-	self.shader = Shader:New(Coeus.Graphics.GraphicsContext:New(), [[
+	self.shader = Shader:New(window.Graphics, [[
 	#version 330
 	layout(location=0) in vec3 position;
 	layout(location=1) in vec2 texcoord_;
