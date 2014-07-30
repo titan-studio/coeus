@@ -1,8 +1,8 @@
 local Coeus 	= (...)
-local oop		= Coeus.Utility.OOP 
+local OOP		= Coeus.Utility.OOP 
 local Table		= Coeus.Utility.Table
 
-local BaseComponent = oop:Class() {
+local BaseComponent = OOP:Class() {
 	entity = false,
 }
 

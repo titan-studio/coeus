@@ -31,7 +31,7 @@ function Texture:Bind(unit)
 		self.unit = unit
 		gl.ActiveTexture(unit)
 	end
-	gl.BindTexture(GL.TEXTURE_2D, self.handle)
+	gl.BindTexture(self.gl_target, self.handle)
 end
 
 function Texture:Unbind()

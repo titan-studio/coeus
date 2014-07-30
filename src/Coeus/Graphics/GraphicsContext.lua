@@ -6,16 +6,25 @@ local OpenGL = Coeus.Bindings.OpenGL
 local gl = OpenGL.gl
 local GL = OpenGL.GL
 
+local RenderPass = Coeus.Graphics.RenderPass
+
 local GraphicsContext = OOP:Class() {
 	texture_units = {},
+	MaxTextureUnits = 32,
 
-	MaxTextureUnits = 32
+	render_passes = {},
+
+	ActiveCamera = false
 }
 
 function GraphicsContext:_new()
 	local texture_units = ffi.new('int[1]')
 	gl.GetIntegerv(GL.MAX_TEXTURE_IMAGE_UNITS, texture_units)
 	self.MaxTextureUnits = texture_units[0]
+
+	self.render_passes[#self.render_passes+1] = RenderPass:New("Default Pass", RenderPass.PassTag.Default, 1)
+	self.render_passes[#self.render_passes+1] = RenderPass:New("Transparent Pass", RenderPass.PassTag.Transparent, 2)
+	self.render_passes[#self.render_passes+1] = RenderPass:New("HUD", RenderPass.PassTag.HUD, 3)
 end
 
 function GraphicsContext:BindTexture(texture)

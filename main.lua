@@ -1,4 +1,5 @@
 local Coeus = require("src.Coeus")
+
 local tests = require("tests")
 tests:Init(Coeus)
 print(tests:RunTestFolder("Coeus"))
@@ -25,13 +26,26 @@ local window = Window:New("Coeus", 1280, 720, {fullscreen = false, resizable = t
 local TestApp = Coeus.Application:New(window)
 
 local Entity = Coeus.Entity.Entity
+
 local Camera = Coeus.Graphics.Camera
+
 
 local cam = Entity:New()
 cam:SetPosition(0, 0, 10)
 cam:AddComponent(Camera:New(window))
 cam:BuildTransform()
 local view = cam:GetComponent(Camera):GetViewTransform()
+window.Graphics.ActiveCamera = cam:GetComponent(Camera)
+
+
+local MeshRenderer =  Coeus.Graphics.MeshRenderer
+
+local test_obj = Entity:New()
+test_obj:SetPosition(3, 0, 0)
+local mesh_renderer = MeshRenderer:New(window.Graphics)
+mesh_renderer.Mesh = Coeus.Utility.OBJLoader:New("test.obj"):GetMesh()
+mesh_renderer.Shader = false
+test_obj:AddComponent(mesh_renderer)
 
 local keyboard = window.Keyboard
 local mouse = window.Mouse
@@ -46,12 +60,12 @@ function TestApp:Initialize()
 	layout(location=1) in vec2 texcoord_;
 	layout(location=2) in vec3 normal;
 
-	uniform mat4 mvp;
+	uniform mat4 ModelViewProjection;
 
 	out vec2 texcoord;
 
 	void main() {
-		gl_Position = mvp * vec4(position, 1.0);
+		gl_Position = ModelViewProjection * vec4(position, 1.0);
 		texcoord = texcoord_;
 	}
 	]],[[
@@ -67,9 +81,9 @@ function TestApp:Initialize()
 		FragColor = texture2D(tex, texcoord);
 	}
 	]])
+	mesh_renderer.Shader = self.shader
 
 	self.texture = Coeus.Utility.PNGLoader:New("test.png"):GetTexture()
-	self.mesh = Coeus.Utility.OBJLoader:New("test.obj"):GetMesh()
 
 	mouse:SetLocked(true)
 end
@@ -89,17 +103,8 @@ function TestApp:Render()
 	cam:SetRotation(rot)
 
 	self.shader:Use()
-	
-	local model_trans = Matrix4:New()--Matrix4.GetRotationY(math.rad(os.clock() * 100))
-	--model_trans = Matrix4.GetTranslation(Vector3:New(1.5, 0, 0)) * model_trans
-
-	local view = cam:GetComponent(Camera):GetViewTransform()
-	local proj = cam:GetComponent(Camera):GetProjectionTransform()
-	local mvp = proj * view * model_trans
-
-	self.shader:Send("mvp", mvp)
 	self.shader:Send("tex", self.texture)
-	self.mesh:Render()
+	test_obj:Render()
 
 	local fwd = cam:GetLocalTransform():GetForwardVector()
 	local right = cam:GetLocalTransform():GetRightVector()
