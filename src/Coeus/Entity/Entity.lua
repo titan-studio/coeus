@@ -9,6 +9,8 @@ local Quaternion 	= Coeus.Math.Quaternion
 local Event 		= Coeus.Utility.Event
 
 local Entity = oop:Class() {
+	scene = false,
+
 	parent 		= false,
 	children 	= {},
 
@@ -38,6 +40,14 @@ function Entity:GetName()
 end
 
 
+function Entity:SetScene(scene)
+	self.scene = scene
+	for i,v in pairs(self.children) do
+		v:SetScene(scene)
+	end
+end
+
+
 function Entity:AddChild(child)
 	for i,v in pairs(self.children) do
 		if v == child then return end
@@ -47,6 +57,7 @@ function Entity:AddChild(child)
 		child.parent:RemoveChild(child)
 	end
 	child.parent = self
+	child:SetScene(self.scene)
 end
 
 function Entity:RemoveChild(child)

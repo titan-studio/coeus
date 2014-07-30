@@ -1,17 +1,18 @@
 local Coeus			= (...)
 local OOP			= Coeus.Utility.OOP
 
-local last_priority = 1
+local next_priority = 1
 local RenderPass = OOP:Class() {
 	name = "Default Pass",
-	pass_tag = false
+	pass_tag = false,
 	priority = 1,
 
 	entities = {}
 }
 RenderPass.PassTag = {
 	Default 		= 1,
-	Transparent 	= 2
+	Transparent 	= 2,
+	HUD				= 3
 }
 
 function RenderPass:_new(name, tag, priority)
