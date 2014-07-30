@@ -10,6 +10,10 @@ local function name_to_directory(name)
 	return name:gsub("%.", "/")
 end
 
+local function name_to_id(name)
+	return name:lower()
+end
+
 local Coeus = {
 	Root = PATH .. ".",
 	Version = {0, 0, 0},
@@ -20,7 +24,7 @@ local Coeus = {
 
 function Coeus:Load(name)
 	local abs_name = self.Root .. name
-	local id = name:lower()
+	local id = name_to_id(name)
 
 	if (self.loaded[id]) then
 		return self.loaded[id]
@@ -65,7 +69,7 @@ function Coeus:LoadFile(name, path)
 	self.meta[name] = meta
 
 	if (object) then
-		self.loaded[name:lower()] = object
+		self.loaded[name_to_id(name)] = object
 
 		return object
 	end
@@ -76,15 +80,26 @@ function Coeus:LoadDirectory(name, path)
 
 	local container = setmetatable({}, {
 		__index = function(container, key)
-			self[key] = self:Load(name .. "." .. key)
+			container[key] = self:Load(name .. "." .. key)
 
-			return self[key]
+			return container[key]
 		end
 	})
 
-	self.loaded[name:lower()] = container
+	self.loaded[name_to_id(name)] = container
 
 	return container
+end
+
+function Coeus:GetLoadedModules()
+	local buffer = {}
+	for key, value in pairs(self.loaded) do
+		table.insert(buffer, key)
+	end
+
+	table.sort(buffer)
+
+	return buffer
 end
 
 --Automagically load directories if a key doesn't exist
