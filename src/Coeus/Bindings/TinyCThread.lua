@@ -4,7 +4,7 @@ local tct = (ffi.os == "Windows") and ffi.load("lib/win32/tinycthread.dll") or f
 
 --Platform-specific typedefs
 if (ffi.os == "Windows") then
-	Coeus:Load("Bindings.Win32")
+	Coeus:Load("Bindings.Win32_")
 	ffi.cdef([[
 		typedef int time_t;
 		typedef int clock_t;

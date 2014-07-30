@@ -9,9 +9,10 @@ local function name_to_directory(name)
 	return name:gsub("%.", "/")
 end
 
-local simple_lr_composite = {
+local result_set_metatable = {
 	__tostring = function(self)
 		local buf = {}
+		
 		for key, value in ipairs(self) do
 			table.insert(buf, tostring(value))
 		end
@@ -139,7 +140,7 @@ function Tests:RunTestFolder(name, path)
 
 	if (mode == "directory") then
 		local result_set = {}
-		setmetatable(result_set, simple_lr_composite)
+		setmetatable(result_set, result_set_metatable)
 
 		for file in lfs.dir(path) do
 			if (file ~= "." and file ~= "..") then

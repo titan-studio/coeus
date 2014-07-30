@@ -3,7 +3,7 @@ local ffi = require("ffi")
 local CPSleep
 
 if (ffi.os == "Windows") then
-	local Win32 = Coeus.Bindings.Win32
+	local Win32 = Coeus.Bindings.Win32_
 
 	Win32.timeBeginPeriod(1)
 	CPSleep = function(s)
