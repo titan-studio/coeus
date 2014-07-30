@@ -6,8 +6,8 @@ local Matrix4		= Coeus.Math.Matrix4
 
 local Camera = oop:Class(BaseComponent) {
 	fov = 90,
-	near = 1.0,
-	far = 100,
+	near = 0.1,
+	far = 10000,
 
 	projection_type = 0,
 	projection = false,

@@ -36,9 +36,9 @@ function PNGLoader:_new(filename)
 
 	
 
-	gl.TexParameterf(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST)
+	gl.TexParameterf(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
 
-	gl.TexParameterf(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST)
+	gl.TexParameterf(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
 	gl.TexImage2D(GL.TEXTURE_2D, 0, GL.RGBA, width[0], height[0], 0, GL.RGBA, GL.UNSIGNED_BYTE, image_data[0])
 local err = gl.GetError()
 		if err ~= GL.NO_ERROR then
