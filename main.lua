@@ -37,28 +37,35 @@ TestApp.shader = false
 TestApp.mesh = false
 
 function TestApp:Initialize()
-	self.shader = Shader:New([[
+	self.shader = Shader:New(Coeus.Graphics.GraphicsContext:New(), [[
 	#version 330
 	layout(location=0) in vec3 position;
+	layout(location=1) in vec2 texcoord_;
 	layout(location=2) in vec3 normal;
 
 	uniform mat4 mvp;
 
+	out vec2 texcoord;
+
 	void main() {
 		gl_Position = mvp * vec4(position, 1.0);
+		texcoord = texcoord_;
 	}
 	]],[[
 	#version 330
+	
 	layout(location=0) out vec4 FragColor;
 
+	uniform sampler2D tex;
+
+	in vec2 texcoord;
 
 	void main() {
-		float mod = gl_FragCoord.z;
-		FragColor = vec4(mod, mod, mod, 1.0);
+		FragColor = texture2D(tex, texcoord);
 	}
 	]])
 
-
+	self.texture = Coeus.Utility.PNGLoader:New("test.png"):GetTexture()
 	self.mesh = Coeus.Utility.OBJLoader:New("test.obj"):GetMesh()
 
 	mouse:SetLocked(true)
@@ -88,6 +95,7 @@ function TestApp:Render()
 	local mvp = proj * view * model_trans
 
 	self.shader:Send("mvp", mvp)
+	self.shader:Send("tex", self.texture)
 	self.mesh:Render()
 
 	local fwd = cam:GetLocalTransform():GetForwardVector()

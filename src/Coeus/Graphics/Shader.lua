@@ -14,6 +14,8 @@ local Vector3 = Coeus.Math.Vector3
 local Matrix4 = Coeus.Math.Matrix4
 local Table = Coeus.Utility.Table
 
+local Texture = Coeus.Graphics.Texture
+
 local Shader = oop:Class() {
 	context = false,
 	program = false,
@@ -120,10 +122,11 @@ function Shader:Send(name, ...)
 		end
 		if first.GetClass and first:GetClass() == Texture then
 			local data = ffi.new('int[' .. #values .. ']')
-			for i, texture in ipairs(values) do
-				data[i-1] = self.context:BindTexture(texture)
+			for i = 1, #values do
+				data[i-1] = self.context:BindTexture(values[i])
 			end
 			gl.Uniform1iv(uniform, #values, data)
+			return
 		end
 		print("Unhandled type of uniform")
 		return

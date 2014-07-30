@@ -172,7 +172,7 @@ function Matrix4.GetPerspective(fov, near, far, aspect)
 	local m = {}
 	local y_scale = 1.0 / math.tan(math.rad(fov) / 2)
 	local x_scale = y_scale / aspect
-	local range =  far - near
+	local range =  near - far
 
 	m[0] = x_scale
 	m[1] = 0 

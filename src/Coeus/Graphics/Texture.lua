@@ -1,3 +1,4 @@
+local ffi = require("ffi")
 local Coeus			= (...)
 local oop			= Coeus.Utility.OOP 
 
@@ -30,7 +31,7 @@ function Texture:Bind(unit)
 		self.unit = unit
 		gl.ActiveTexture(unit)
 	end
-	gl.BindTexture(self.gl_target, self.handle)
+	gl.BindTexture(GL.TEXTURE_2D, self.handle)
 end
 
 function Texture:Unbind()

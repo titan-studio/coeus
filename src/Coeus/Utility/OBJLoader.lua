@@ -53,7 +53,7 @@ function OBJLoader:_new(filename)
 			vertex_data[#vertex_data + 1] = vertex.x
 			vertex_data[#vertex_data + 1] = vertex.y
 			vertex_data[#vertex_data + 1] = vertex.z
- 
+ 	
  			vertex_data[#vertex_data + 1] = texcoord.x
 			vertex_data[#vertex_data + 1] = texcoord.y
  
@@ -81,6 +81,14 @@ function OBJLoader:ParseVector3(str)
 	return Vector3:New(x, y, z)
 end
 
+function OBJLoader:ParseVector2(str)
+	local x, y, z = str:match("^(%S+) +(%S+)")
+	x = tonumber(x) or 0
+	y = tonumber(y) or 0
+
+	return {x=x,y=y}
+end	
+
 function OBJLoader:ParseLine(line)
 	local cmd, arg_str = line:match("^%s*(%S+) +(.*)")
 	cmd = cmd and cmd:lower()
@@ -91,7 +99,7 @@ function OBJLoader:ParseLine(line)
 	elseif cmd == 'vn' then
 		self.normals[#self.normals + 1] = self:ParseVector3(arg_str)
 	elseif cmd == 'vt' then
-		self.texcoords[#self.texcoords + 1] = self:ParseVector3(arg_str)
+		self.texcoords[#self.texcoords + 1] = self:ParseVector2(arg_str)
 	elseif cmd == 'f' then
 		local face = {}
 		for c in arg_str:gmatch'(%S+)' do

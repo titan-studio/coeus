@@ -1,5 +1,10 @@
+local ffi = require("ffi")
 local Coeus = ...
 local OOP = Coeus.Utility.OOP
+
+local OpenGL = Coeus.Bindings.OpenGL
+local gl = OpenGL.gl
+local GL = OpenGL.GL
 
 local GraphicsContext = OOP:Class() {
 	texture_units = {},
@@ -24,6 +29,7 @@ function GraphicsContext:BindTexture(texture)
 
 	texture:Bind(unused + GL.TEXTURE0)
 	self.texture_units[unused] = texture
+	return unused
 end
 
 function GraphicsContext:UnbindTextures()
