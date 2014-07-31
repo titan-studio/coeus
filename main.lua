@@ -30,11 +30,8 @@ local TestApp = Coeus.Application:New(window)
 local Entity = Coeus.Entity.Entity
 local Camera = Coeus.Graphics.Camera
 
-<<<<<<< HEAD
 local scene = Scene:New()
 
-=======
->>>>>>> 67bbcf81ea246b0f78feecda26c606c3dd1a6f31
 local cam = Entity:New()
 cam:SetPosition(0, 0, -10)
 cam:AddComponent(Camera:New(window))
