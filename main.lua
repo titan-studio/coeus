@@ -28,18 +28,19 @@ local window = Window:New("Coeus", 1280, 720, {fullscreen = false, resizable = t
 local TestApp = Coeus.Application:New(window)
 
 local Entity = Coeus.Entity.Entity
-
 local Camera = Coeus.Graphics.Camera
 
+<<<<<<< HEAD
 local scene = Scene:New()
 
+=======
+>>>>>>> 67bbcf81ea246b0f78feecda26c606c3dd1a6f31
 local cam = Entity:New()
-cam:SetPosition(0, 0, 10)
+cam:SetPosition(0, 0, -10)
 cam:AddComponent(Camera:New(window))
 cam:BuildTransform()
 local view = cam:GetComponent(Camera):GetViewTransform()
 window.Graphics.ActiveCamera = cam:GetComponent(Camera)
-
 
 local MeshRenderer =  Coeus.Graphics.MeshRenderer
 
@@ -113,18 +114,21 @@ function TestApp:Render()
 	local right = cam:GetLocalTransform():GetRightVector()
 	local dist = 0
 	local strafe = 0
+
 	if keyboard:IsKeyDown("w") then
 		dist = -5 * delta
 	end
 	if keyboard:IsKeyDown("s") then
 		dist = 5 * delta
 	end
+
 	if keyboard:IsKeyDown("a") then
 		strafe = -4 * delta
 	end
 	if keyboard:IsKeyDown("d") then
 		strafe = 4 * delta
 	end
+	
 	if keyboard:IsKeyDown(256) then
 		window:Close()
 	end

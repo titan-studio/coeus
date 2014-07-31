@@ -15,5 +15,5 @@ Binaries for Windows (32-bit) are included in the lib/win32 folder. You'll still
 - libvorbis 1.3.4
 - libogg 1.3.2
 - zlib 1.2.8
-- FreeType 2.5.3
+- stb_freetype v0.8b
 - TinyCThread 1.1
