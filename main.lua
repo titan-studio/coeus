@@ -24,6 +24,7 @@ local Entity = Coeus.Entity.Entity
 local Camera = Coeus.Graphics.Camera
 local Material = Coeus.Graphics.Material
 local MeshRenderer =  Coeus.Graphics.MeshRenderer
+local TextRenderer = Coeus.Graphics.Text.TextRenderer
 
 local window = Window:New("Coeus", 1280, 720, {fullscreen = false, resizable = true, vsync = true})
 local TestApp = Coeus.Application:New(window)
@@ -36,7 +37,7 @@ function TestApp:Initialize()
 	window.Graphics:SetSceneActive(scene, true)
 
 	local cam = Entity:New()
-	cam:SetPosition(0, 0, -10)
+	cam:SetPosition(0, 5, 5)
 	cam:AddComponent(Camera:New(window))
 	cam:BuildTransform()
 	scene:AddEntity(cam)
@@ -44,7 +45,7 @@ function TestApp:Initialize()
 
 	local test_obj = Entity:New()
 	scene:AddEntity(test_obj)
-	test_obj:SetPosition(3, 0, 0)
+	test_obj:SetPosition(0, -3, 0)
 	local mesh_renderer = MeshRenderer:New(window.Graphics)
 	mesh_renderer.Mesh = Coeus.Utility.OBJLoader:New("test.obj"):GetMesh()
 	mesh_renderer.Shader = false
@@ -79,6 +80,16 @@ function TestApp:Initialize()
 	]])
 	material.Textures.tex = Coeus.Utility.PNGLoader:New("test.png"):GetTexture()
 	test_obj:AddComponent(material)
+
+	local text = Entity:New()
+	text:SetPosition(0, 0, 0)
+	scene:AddEntity(text)
+	local text_renderer = TextRenderer:New(window.Graphics)
+	text_renderer.text = "!@#$%^&*()_+\\/abcdefghijklmnopqrstuvwxyz"
+	text_renderer.font = Coeus.Graphics.Text.Font:New("OpenSans-Regular.ttf", 100)
+	text:SetScale(0.05, 0.05, 0.01)
+	text_renderer:RebuildText()
+	text:AddComponent(text_renderer)
 
 	mouse:SetLocked(true)
 end

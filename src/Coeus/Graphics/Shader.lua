@@ -79,6 +79,7 @@ function Shader:get_uniform(name)
 	if not uni then
 		local str = ffi.cast('char*', name)
 		uni = gl.GetUniformLocation(self.program, str)
+		print("location of uniform " .. name .. ": " .. uni)
 		self.uniforms[name] = uni
 	end
 	return uni

@@ -16,7 +16,9 @@ local Mesh = oop:Class() {
 	vao = -1,
 
 	num_vertices = 0,
-	num_indices = 0
+	num_indices = 0,
+
+	render_groups = {}
 }
 
 Mesh.DataFormat = {
@@ -34,8 +36,6 @@ function Mesh:_new()
 	gl.GenBuffers(1, vbo); vbo = vbo[0]
 	gl.BindBuffer(GL.ARRAY_BUFFER, vbo)
 	self.vbo = vbo
-
-	
 end
 
 function Mesh:SetData(vertices, indices, format)
