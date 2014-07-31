@@ -105,8 +105,8 @@ function OBJLoader:ParseLine(line)
 		for c in arg_str:gmatch'(%S+)' do
 			local v, t, n = c:match("^([^/]+)/?([^/]*)/?([^/]*)")
 			v = tonumber(v) or 0
-			t = tonumber(v) or 0
-			n = tonumber(v) or 0
+			t = tonumber(t) or 0
+			n = tonumber(n) or 0
 
 			face[#face + 1] = {
 				v = v,
