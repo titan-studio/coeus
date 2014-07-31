@@ -1,6 +1,6 @@
-local Coeus = (...)
+local Coeus = ...
 local ffi = require("ffi")
-local tct = (ffi.os == "Windows") and ffi.load("lib/win32/tinycthread.dll") or ffi.C
+local tct = Coeus.Bindings.coeus_aux
 
 --Platform-specific typedefs
 if (ffi.os == "Windows") then

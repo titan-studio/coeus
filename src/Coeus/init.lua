@@ -22,38 +22,47 @@ local Coeus = {
 	meta = {}
 }
 
-function Coeus:Load(name)
+function Coeus:Load(name, safe)
 	local abs_name = self.Root .. name
 	local id = name_to_id(name)
 
 	if (self.loaded[id]) then
 		return self.loaded[id]
+	end
+
+	local file = name_to_file(abs_name)
+	local dir = name_to_directory(abs_name)
+
+	local file_mode = lfs.attributes(file, "mode")
+	local dir_mode = lfs.attributes(dir, "mode")
+
+	if (file_mode == "file") then
+		return self:LoadFile(name, file, safe)
+	elseif (dir_mode == "directory") then
+		return self:LoadDirectory(name, dir)
+	elseif (not file_mode and not dir_mode) then
+		error("Unable to load module '" .. (name or "nil") .. "': file does not exist.")
 	else
-		local file = name_to_file(abs_name)
-		local dir = name_to_directory(abs_name)
-
-		local file_mode = lfs.attributes(file, "mode")
-		local dir_mode = lfs.attributes(dir, "mode")
-
-		if (file_mode == "file") then
-			return self:LoadFile(name, file)
-		elseif (dir_mode == "directory") then
-			return self:LoadDirectory(name, dir)
-		elseif (not file_mode and not dir_mode) then
-			error("Unable to load module '" .. (name or "nil") .. "': file does not exist.")
-		else
-			error("Unknown error in loading module '" .. (name or "nil") .. "'")
-		end
+		error("Unknown error in loading module '" .. (name or "nil") .. "'")
 	end
 end
 
-function Coeus:LoadFile(name, path)
+function Coeus:LoadFile(name, path, safe)
+	local id = name_to_id(name)
+	if (self.loaded[id]) then
+		return self.loaded[id]
+	end
+
 	path = path or name_to_file(name)
 
 	local chunk, err = loadfile(path)
 
 	if (not chunk) then
-		error(err)
+		if (safe) then
+			return nil, err
+		else
+			error(err)
+		end
 	end
 
 	local meta = {
@@ -63,7 +72,11 @@ function Coeus:LoadFile(name, path)
 	local success, object = pcall(chunk, self, meta)
 
 	if (not success) then
-		error(object)
+		if (safe) then
+			return nil, object
+		else
+			error(object)
+		end
 	end
 
 	self.meta[name] = meta
@@ -76,6 +89,11 @@ function Coeus:LoadFile(name, path)
 end
 
 function Coeus:LoadDirectory(name, path)
+	local id = name_to_id(name)
+	if (self.loaded[id]) then
+		return self.loaded[id]
+	end
+
 	path = path or name_to_directory(name)
 
 	local container = setmetatable({}, {

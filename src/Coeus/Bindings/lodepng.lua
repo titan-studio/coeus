@@ -1,5 +1,6 @@
+local Coeus = ...
 local ffi = require("ffi")
-local lib = (ffi.os == "Windows") and ffi.load("lib/win32/lodepng.dll") or ffi.C
+local lib = Coeus.Bindings.coeus_aux
 
 ffi.cdef([[
 /*

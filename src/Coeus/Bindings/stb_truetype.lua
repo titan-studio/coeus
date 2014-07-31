@@ -1,6 +1,6 @@
 local Coeus = ...
 local ffi = require("ffi")
-local stb_truetype = (ffi.os == "Windows") and ffi.load("lib/win32/stb_truetype.dll") or ffi.C
+local stb_truetype = Coeus.Bindings.coeus_aux
 
 ffi.cdef([[
 // stb_truetype.h - v0.8b - public domain

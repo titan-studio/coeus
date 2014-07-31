@@ -79,8 +79,6 @@ function TestApp:Initialize()
 	]])
 	material.Textures.tex = Coeus.Utility.PNGLoader:New("test.png"):GetTexture()
 	test_obj:AddComponent(material)
-	print(test_obj:GetComponent(Material), material)
-
 
 	mouse:SetLocked(true)
 end
