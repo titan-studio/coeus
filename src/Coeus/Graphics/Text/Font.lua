@@ -100,8 +100,6 @@ function Font:CreateTexture()
 	gl.PixelStorei(GL.PACK_ALIGNMENT, 1)
 	self.texture_width = Font.TextureSizes[size_index][1]
 	self.texture_height = Font.TextureSizes[size_index][2]
-	print("new tex size " .. self.texture_width .. "x" .. self.texture_height)
-
 	local format = GL.RED
 	local internal_format = GL.R8
 	local bpp = 1
@@ -186,7 +184,6 @@ function Font:AddGlyph(glyph)
 	g.Spacing = tonumber(advance[0]) * self.scale
 	g.BearingX = tonumber(lsb[0]) * self.scale
 	g.BearingY = tonumber(y1) + height
-	print(string.char(glyph), g.BearingY, y1, height)
 
 	local texture = self.textures[#self.textures]
 	g.Texture = texture
@@ -230,7 +227,6 @@ function Font:AddGlyph(glyph)
 				t = (self.texture_y+height) / self.texture_height
 			},
 		}
-		--print(string.char(glyph), g.BearingY)
 		for i, v in ipairs(g.Vertices) do
 			v.x = v.x + g.BearingX
 			v.y = v.y - g.BearingY
@@ -244,6 +240,7 @@ function Font:AddGlyph(glyph)
 	end
 	g.Codepoint = glyph
 	self.glyphs[glyph] = g
+
 	return g
 end
 function Font:GetGlyph(glyph)
@@ -275,9 +272,7 @@ function Font:GenerateMesh(text, extra_spacing, offset_x, offset_y)
 	local vertex_id = 0
 	--Now do the actual mesh building
 	for codepoint in Coeus.Utility.Unicode.UTF8Iterate(text) do
-		local str = string.char(codepoint)
-
-		if str == '\n' then
+		if codepoint == string.byte('\n') then
 			if dx > max_width then
 				max_width = dx
 			end
@@ -311,7 +306,7 @@ function Font:GenerateMesh(text, extra_spacing, offset_x, offset_y)
 
 			dx = dx + glyph.Spacing
 
-			if str == ' ' and extra_spacing ~= 0 then
+			if codepoint == string.byte(" ") and extra_spacing ~= 0 then
 				dx = math.floor(dx + extra_spacing)
 			end
 		end

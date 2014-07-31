@@ -57,7 +57,6 @@ function TextRenderer:RebuildText()
 	local text = self.text
 	local vertex_data, draws, width, height = self.font:GenerateMesh(text)
 	self.Mesh:SetData(vertex_data, nil, Mesh.DataFormat.PositionTexCoordInterleaved)
-
 	self.width = width
 	self.height = height
 

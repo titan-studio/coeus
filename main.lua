@@ -85,7 +85,7 @@ function TestApp:Initialize()
 	text:SetPosition(0, 0, 0)
 	scene:AddEntity(text)
 	local text_renderer = TextRenderer:New(window.Graphics)
-	text_renderer.text = "!@#$%^&*()_+\\/abcdefghijklmnopqrstuvwxyz"
+	text_renderer.text = "本語"
 	text_renderer.font = Coeus.Graphics.Text.Font:New("OpenSans-Regular.ttf", 100)
 	text:SetScale(0.05, 0.05, 0.01)
 	text_renderer:RebuildText()
@@ -108,7 +108,6 @@ function TestApp:Render()
 	des_rot = yaw * des_rot
 	rot = Quaternion.Slerp(rot, des_rot, 0.5)
 	
-
 	window.Graphics:Render()
 
 
