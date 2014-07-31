@@ -2,11 +2,11 @@ local Coeus			= (...)
 local OOP			= Coeus.Utility.OOP
 
 local BaseComponent	= Coeus.Entity.BaseComponent
+local Material 		= Coeus.Graphics.Material
 
 local MeshRenderer = OOP:Class(BaseComponent) {
 	GraphicsContext = false,
 	Mesh = false,
-	Shader = false,
 }
 
 function MeshRenderer:_new(ctx)
@@ -14,14 +14,10 @@ function MeshRenderer:_new(ctx)
 end
 
 function MeshRenderer:Render()
-	local camera = self.GraphicsContext.ActiveCamera
-	local model = self.entity:GetRenderTransform()
-	local view_projection = camera:GetViewProjection()
-
-	local mvp = view_projection * model
-
-	if self.Shader and self.Mesh then
-		self.Shader:Send("ModelViewProjection", mvp)
+	local material = self.entity:GetComponent(Material)
+	if material and self.Mesh then
+		material:Use()
+		
 		self.Mesh:Render()
 	end
 end
