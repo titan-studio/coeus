@@ -30,7 +30,9 @@ local TestApp = Coeus.Application:New(window)
 local Entity = Coeus.Entity.Entity
 local Camera = Coeus.Graphics.Camera
 
-local scene = Scene:New()
+local scene = Scene:New(window.Graphics)
+window.Graphics:AddScene(scene)
+window.Graphics:SetSceneActive(scene, true)
 
 local cam = Entity:New()
 cam:SetPosition(0, 0, -10)
@@ -42,6 +44,7 @@ window.Graphics.ActiveCamera = cam:GetComponent(Camera)
 local MeshRenderer =  Coeus.Graphics.MeshRenderer
 
 local test_obj = Entity:New()
+scene:AddEntity(test_obj)
 test_obj:SetPosition(3, 0, 0)
 local mesh_renderer = MeshRenderer:New(window.Graphics)
 mesh_renderer.Mesh = Coeus.Utility.OBJLoader:New("test.obj"):GetMesh()
@@ -105,7 +108,7 @@ function TestApp:Render()
 
 	self.shader:Use()
 	self.shader:Send("tex", self.texture)
-	test_obj:Render()
+	window.Graphics:Render()
 
 	local fwd = cam:GetLocalTransform():GetForwardVector()
 	local right = cam:GetLocalTransform():GetRightVector()

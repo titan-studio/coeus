@@ -3,6 +3,7 @@ local OOP			= Coeus.Utility.OOP
 
 local next_priority = 1
 local RenderPass = OOP:Class() {
+	context = false,
 	name = "Default Pass",
 	pass_tag = false,
 	priority = 1,
@@ -15,7 +16,8 @@ RenderPass.PassTag = {
 	HUD				= 3
 }
 
-function RenderPass:_new(name, tag, priority)
+function RenderPass:_new(context, name, tag, priority)
+	self.context = context
 	self.name = name
 	self.pass_tag = tag or RenderPass.PassTag.Default
 	self.priority = priority or next_priority
@@ -41,7 +43,7 @@ function RenderPass:RemoveEntity(entity)
 end
 
 function RenderPass:Render()
-	for i,v in pairs(self.entities) do
+	for i,v in pairs(self.context.active_scenes) do
 		v:Render()
 	end
 end
