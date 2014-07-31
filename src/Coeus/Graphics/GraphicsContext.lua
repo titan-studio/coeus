@@ -47,4 +47,8 @@ function GraphicsContext:UnbindTextures()
 	end
 end
 
+function GraphicsContext:Render()
+
+end
+
 return GraphicsContext

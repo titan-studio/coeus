@@ -10,6 +10,8 @@ local Shader = Coeus.Graphics.Shader
 local Shader = Coeus.Graphics.Shader
 local Mesh = Coeus.Graphics.Mesh
 
+local Scene = Coeus.Graphics.Scene
+
 local Vector3 = Coeus.Math.Vector3
 local Matrix4 = Coeus.Math.Matrix4
 local Quaternion = Coeus.Math.Quaternion
@@ -29,6 +31,7 @@ local Entity = Coeus.Entity.Entity
 
 local Camera = Coeus.Graphics.Camera
 
+local scene = Scene:New()
 
 local cam = Entity:New()
 cam:SetPosition(0, 0, 10)
