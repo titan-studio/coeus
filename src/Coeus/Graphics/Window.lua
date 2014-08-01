@@ -132,6 +132,8 @@ function Window:_new(title, width, height, mode)
 	gl.Enable(GL.CULL_FACE)
 	gl.CullFace(GL.BACK)
 	gl.DepthMask(GL.TRUE)
+	gl.Enable(GL.BLEND)
+	
 
 	self:SetVSyncEnabled(self.vsync_enabled)
 

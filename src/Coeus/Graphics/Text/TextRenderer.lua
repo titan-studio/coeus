@@ -48,6 +48,7 @@ function TextRenderer:_new(context)
 
 		void main() {
 			float brightness = texture2D(FontAtlas, texcoord).x;
+			//if (brightness == 0) discard;
 			FragColor = vec4(vec3(1.0) * brightness, 1.0);
 		}
 	]])
@@ -69,6 +70,7 @@ end
 
 function TextRenderer:Render()
 	if not self.draws then return end
+	gl.BlendFunc(GL.ONE, GL.ONE)
 	gl.BindVertexArray(self.Mesh.vao)
 	local camera = self.context.ActiveCamera
 	local model = self.entity:GetRenderTransform()
@@ -81,6 +83,7 @@ function TextRenderer:Render()
 		self.Shader:Send("ModelViewProjection", mvp)
 		gl.DrawArrays(GL.TRIANGLES, v.start, v.count)
 	end
+	gl.BlendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
 end
 
 return TextRenderer

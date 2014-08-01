@@ -41,6 +41,7 @@ function Application:Main()
 
 	while (glfw.WindowShouldClose(self.Window.handle) == 0) do
 		self.Timer:Step()
+		self.Window.Mouse:Update(self.Timer:GetDelta())
 		local start = self.Timer:GetTime()
 
 		glfw.PollEvents()

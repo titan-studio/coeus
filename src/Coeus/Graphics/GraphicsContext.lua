@@ -93,6 +93,7 @@ end
 function GraphicsContext:Render()
 	for i, v in ipairs(self.render_passes) do
 		v:Render()
+		break
 	end
 end
 
