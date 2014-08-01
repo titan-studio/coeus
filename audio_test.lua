@@ -19,19 +19,20 @@ local test_data = {}
 
 local bt = 22000
 for index = 1, bt do
-	test_data[index] = math.ceil(127 + 127 * math.sin(index / bt))
+	local percent = index / bt
+
+	test_data[index] = math.ceil(255 * math.sin(220 * percent * math.pi * 2))
 end
 
 local format = ffi.new("ALenum[1]")
 local size = ffi.new("ALsizei[1]")
-local data = ffi.new("ALint[?]", #test_data, test_data)
-local pdata = ffi.new("ALvoid*", data)
+local data = ffi.new("int8_t[?]", #test_data, test_data)
 local freq = ffi.new("ALsizei[1]")
 local loop = ffi.new("ALboolean[1]", 1)
 
 local Buffer = ffi.new("unsigned int[1]")
 OpenAL.alGenBuffers(1, Buffer)
-OpenAL.alBufferData(Buffer[0], OpenAL.AL_FORMAT_MONO8, pdata, 4, bt)
+OpenAL.alBufferData(Buffer[0], OpenAL.AL_FORMAT_MONO8, data, #test_data, bt)
 
 local pSource = ffi.new("int[1]")
 OpenAL.alGenSources(1, pSource)
