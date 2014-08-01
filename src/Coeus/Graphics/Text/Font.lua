@@ -144,14 +144,6 @@ function Font:AddGlyph(glyph)
 	tt.stbtt_MakeCodepointBitmap(
 		self.font, data, width, height, width, self.scale, self.scale,
 		glyph)
-
---[[
-	local data = tt.stbtt_GetCodepointBitmap(
-		self.font, self.scale, self.scale, glyph, x2, y2, x1, y1)
-	local width = tonumber(x2[0])
-	local height = tonumber(y2[0])
-	local y1 = tonumber(y1[0])
-]]
 	if self.texture_x + width + Font.TexturePadding > self.texture_width then
 		self.texture_x = Font.TexturePadding
 		self.texture_y = self.texture_y + self.row_height

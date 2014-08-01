@@ -87,13 +87,17 @@ function TestApp:Initialize()
 	text:SetPosition(0, 0, 0)
 	scene:AddEntity(text)
 	local text_renderer = TextRenderer:New(window.Graphics)
-	text_renderer.text = "本語"
-	text_renderer.font = Coeus.Graphics.Text.Font:New("OpenSans-Regular.ttf", 100)
+	text_renderer.text = "booty"
+	text_renderer.font = Coeus.Graphics.Text.Font:New("Orbitron-Regular.ttf", 100)
 	text:SetScale(0.05, 0.05, 0.01)
 	text_renderer:RebuildText()
 	text:AddComponent(text_renderer)
 
 	mouse:SetLocked(true)
+
+	self.look_pitch = 0
+	self.look_yaw = 0
+	self.look_roll = 0
 end
 
 local des_rot = Quaternion:New()
@@ -102,13 +106,21 @@ function TestApp:Render()
 
 	window:SetTitle("Coeus (FPS: " .. self.Timer:GetFPS() .. ")")
 
-	mouse:Update()
 	local cam = window.Graphics.ActiveCamera:GetEntity()
 	local dx, dy = mouse:GetDelta()
 	local rot = cam:GetRotation()
-	local yaw = Quaternion.FromAngleAxis(dx * 0.005, Vector3:New(0, 1, 0))
-	des_rot = yaw * des_rot
-	rot = Quaternion.Slerp(rot, des_rot, 0.5)
+	self.look_pitch = self.look_pitch + dy * 0.005
+	if mouse:IsButtonDown(2) then
+		self.look_roll = self.look_roll + dx * 0.005
+	else
+		self.look_yaw = self.look_yaw + dx * 0.005
+		
+	end
+	local yaw = Quaternion.FromAngleAxis(self.look_yaw, Vector3:New(0, 1, 0))
+	local pitch = Quaternion.FromAngleAxis(self.look_pitch, Vector3:New(1, 0, 0))
+	local roll = Quaternion.FromAngleAxis(self.look_roll, Vector3:New(0, 0, 1))
+	des_rot = pitch * yaw
+	rot = Quaternion.Slerp(rot, des_rot, self.Timer:GetDelta() * 20)
 	
 	window.Graphics:Render()
 
