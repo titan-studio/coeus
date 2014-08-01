@@ -1,11 +1,11 @@
 local Coeus = ...
 
 return {
-	Name = "Bindings.luajit",
+	Name = "Bindings.LuaJIT",
 
 	Tests = {
 		Load = function(self, result)
-			Coeus:Load("Bindings.luajit")
+			Coeus:Load("Bindings.LuaJIT")
 		end
 	}
 }
