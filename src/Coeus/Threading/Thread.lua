@@ -66,4 +66,7 @@ function Thread:Join()
 	TCT.thrd_join(self.thread[0], nil)
 end
 
+function Thread:Destroy()
+end
+
 return Thread

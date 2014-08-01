@@ -76,7 +76,6 @@ end
 
 function Font:CreateTexture()
 	local size_index = self.texture_size_index
-	print(size_index < #Font.TextureSizes, #self.textures > 0)
 	if size_index < #Font.TextureSizes and #self.textures > 0 then
 		local top = self.textures[#self.textures]
 		top:Destroy()

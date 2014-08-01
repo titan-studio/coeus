@@ -45,7 +45,6 @@ function PNGLoader:_new(filename)
 		error("GL error: " .. err)
 	end
 	self.texture = texture
-	print(width[0], height[0])
 	--ffi.C.free(image_data[0])
 end
 

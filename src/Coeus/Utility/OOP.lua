@@ -1,128 +1,126 @@
 local Coeus = (...)
 local Table = Coeus.Utility.Table
-local OOP
+local OOP = {}
 
-OOP = {
-	Objectify = function(self, target)
-		Table.Merge(self.object, target)
+function OOP:Objectify(target)
+	Table.Merge(self.object, target)
 
+	return target
+end
+
+function OOP:Class(...)
+	local new = Table.Merge(self.Object, {})
+	new:Inherit(...)
+
+	return function(target)
+		target = target or {}
+		
+		Table.Merge(new, target)
 		return target
-	end,
+	end
+end
 
-	Class = function(self, ...)
-		local new = Table.Merge(self.Object, {})
-		new:Inherit(...)
+function OOP:Mix(...)
+	local result = {}
+	local mixing = {}
+	local imixing = {}
+	local args = {...}
 
-		return function(target)
-			target = target or {}
-			
-			Table.Merge(new, target)
-			return target
-		end
-	end,
+	for step, class in pairs(args) do
+		for key, value in pairs(class) do
+			local typed = type(value)
 
-	Mix = function(self, ...)
-		local result = {}
-		local mixing = {}
-		local imixing = {}
-		local args = {...}
-
-		for step, class in pairs(args) do
-			for key, value in pairs(class) do
-				local typed = type(value)
-
-				if (typed == "function") then
-					if (not mixing[key]) then
-						mixing[key] = {value}
+			if (typed == "function") then
+				if (not mixing[key]) then
+					mixing[key] = {value}
+					imixing[value] = true
+				else
+					if (not imixing[value]) then
 						imixing[value] = true
-					else
-						if (not imixing[value]) then
-							imixing[value] = true
-							table.insert(mixing[key], value)
-						end
+						table.insert(mixing[key], value)
 					end
-				elseif (not result[key]) then
-					if (typed == "table") then
-						result[key] = Table.DeepCopy(value)
-					else
-						result[key] = value
-					end
+				end
+			elseif (not result[key]) then
+				if (typed == "table") then
+					result[key] = Table.DeepCopy(value)
+				else
+					result[key] = value
 				end
 			end
 		end
+	end
 
-		for key, value in pairs(mixing) do
-			if (#value > 1) then
-				result[key] = function(...)
-					local result = {}
+	for key, value in pairs(mixing) do
+		if (#value > 1) then
+			result[key] = function(...)
+				local result = {}
 
-					for index, functor in ipairs(value) do
-						result = {functor(...)}
-					end
-
-					return unpack(result)
+				for index, functor in ipairs(value) do
+					result = {functor(...)}
 				end
-			else
-				result[key] = value[1]
+
+				return unpack(result)
+			end
+		else
+			result[key] = value[1]
+		end
+	end
+
+	return result
+end
+
+OOP.Object = {}
+
+function OOP.Object:Inherit(...)
+	local metatable = getmetatable(self)
+
+	for key, item in ipairs({...}) do
+		Table.Merge(item, self)
+		Table.Merge(getmetatable(item), metatable)
+	end
+
+	setmetatable(self, metatable)
+
+	return self
+end
+
+function OOP.Object:Copy()
+	local instance = Table.DeepCopy(self)
+
+	setmetatable(instance, getmetatable(self))
+	return instance
+end
+
+function OOP.Object:New(...)
+	local instance = self:Copy()
+	instance.GetClass = function() return self end
+
+	if (self._new) then
+		instance:_new(...)
+	end
+	return instance
+end
+
+function OOP.Object:Destroy(...)
+	if self._destroy then
+		self:_destroy(...)
+
+		for i,v in pairs(self) do
+			if v.GetClass and v:GetClass() == Coeus.Utility.Event then
+				v:Destroy()
 			end
 		end
+	end
+end
 
-		return result
-	end,
+function OOP.Object:AddMetamethods(methods)
+	local metatable = getmetatable(self)
 
-	Object = {
-		Inherit = function(self, ...)
-			local metatable = getmetatable(self)
-
-			for key, item in ipairs({...}) do
-				Table.Merge(item, self)
-				Table.Merge(getmetatable(item), metatable)
-			end
-
-			setmetatable(self, metatable)
-
-			return self
-		end,
-
-		Copy = function(self)
-			local instance = Table.DeepCopy(self)
-
-			setmetatable(instance, getmetatable(self))
-			return instance
-		end,
-
-		New = function(self, ...)
-			local instance = self:Copy()
-			instance.GetClass = function() return self end
-
-			if (self._new) then
-				instance:_new(...)
-			end
-			return instance
-		end,
-
-		Destroy = function(self, ...)
-			if self._destroy then
-				self:_destroy(...)
-
-				for i,v in pairs(self) do
-					if v.GetClass and v:GetClass() == Coeus.Utility.Event then
-						v:Destroy()
-					end
-				end
-			end
-		end,
-
-		AddMetamethods = function(self, methods)
-			local metatable = getmetatable(self)
-
-			if (metatable) then
-				Table.Copy(methods, metatable)
-			else
-				setmetatable(self, methods)
-			end
-		end
-	}
-}
+	if (metatable) then
+		Table.Copy(methods, metatable)
+	else
+		setmetatable(self, methods)
+	end
+end
 
 return OOP
