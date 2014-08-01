@@ -5,7 +5,10 @@ local CPSleep
 if (ffi.os == "Windows") then
 	local Win32 = Coeus.Bindings.Win32_
 
-	Win32.timeBeginPeriod(1)
+	--Windows 7 bugfix: WinMM not referenced by default.
+	local WinMM = ffi.load("winmm.dll")
+	WinMM.timeBeginPeriod(1)
+
 	CPSleep = function(s)
 		Win32.Sleep(s * 1000)
 	end
