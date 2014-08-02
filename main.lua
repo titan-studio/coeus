@@ -4,8 +4,6 @@ local tests = require("tests")
 tests:Init(Coeus)
 --print(tests:RunTestFolder("Coeus"))
 
-require("audio_test")
-
 local Window = Coeus.Graphics.Window
 local Vector3 = Coeus.Math.Vector3
 local Matrix4 = Coeus.Math.Matrix4
@@ -77,7 +75,7 @@ function TestApp:Initialize()
 		in vec2 texcoord;
 
 		void main() {
-			FragColor = texture2D(tex, texcoord);
+			FragColor = texture(tex, texcoord);
 		}
 	]])
 	material.Textures.tex = Coeus.Utility.PNGLoader:New("test.png"):GetTexture()

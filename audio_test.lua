@@ -15,13 +15,14 @@ local ListenerPos = ffi.new("ALfloat[3]", {0, 0, 0})
 local ListenerVel = ffi.new("ALfloat[3]", {0, 0, 0})
 local ListenerOri = ffi.new("ALfloat[6]", {0, 0, -1, 0, 1, 0})
 
+local hertz = 440
 local test_data = {}
 
-local bt = 22000
+local bt = 44000
 for index = 1, bt do
 	local percent = index / bt
 
-	test_data[index] = math.ceil(255 * math.sin(220 * percent * math.pi * 2))
+	test_data[index] = math.ceil(127 * math.sin(hertz * percent * math.pi * 2))
 end
 
 local format = ffi.new("ALenum[1]")

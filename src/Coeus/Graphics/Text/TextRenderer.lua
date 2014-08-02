@@ -47,7 +47,7 @@ function TextRenderer:_new(context)
 		in vec2 texcoord;
 
 		void main() {
-			float brightness = texture2D(FontAtlas, texcoord).x;
+			float brightness = texture(FontAtlas, texcoord).x;
 			//if (brightness == 0) discard;
 			FragColor = vec4(vec3(1.0) * brightness, 1.0);
 		}
