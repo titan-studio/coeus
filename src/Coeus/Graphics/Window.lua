@@ -37,9 +37,15 @@ local Window = OOP:Class() {
 	Mouse = false,
 	Graphics = false,
 
-	Resized = Event:New(),
-	Moved = Event:New(),
-	Closed = Event:New()
+	Resized 	= Event:New(),
+	Moved 		= Event:New(),
+	Closed 		= Event:New(),
+	
+	FocusGained = Event:New(),
+	FocusLost 	= Event:New(),
+
+	Minimized 	= Event:New(),
+	Restored	= Event:New()
 }
 
 function Window:_new(title, width, height, mode)
@@ -114,6 +120,20 @@ function Window:_new(title, width, height, mode)
 		self.Moved:Fire(x, y)
 		self.x = x
 		self.y = y
+	end)
+	glfw.SetWindowFocusCallback(self.handle, function(handle, focus)
+		if focus == GL.TRUE then
+			self.FocusGained:Fire()
+		else
+			self.FocusLost:Fire()
+		end
+	end)
+	glfw.SetWindowIconifyCallback(self.handle, function(handle, iconify)
+		if iconify == GL.TRUE then
+			self.Minimized:Fire()
+		else
+			self.Restored:Fire()
+		end
 	end)
 
 	local xp, yp = ffi.new("int[1]"), ffi.new("int[1]")
@@ -191,8 +211,34 @@ function Window:IsMinimized()
 	return glfw.GetWindowAttrib(self.handle, GLFW.ICONIFIED) == 1
 end
 
+function Window:IsClosing()
+	return glfw.WindowShouldClose(self.handle) ~= 0
+end
 function Window:Close()
 	glfw.SetWindowShouldClose(self.handle, 1)
+end
+
+function Window:PollEvents()
+	glfw.PollEvents()
+end
+function Window:WaitEvents()
+	glfw.WaitEvents()
+end
+
+function Window:PreRender()
+	self:Use()
+	gl.ClearDepth(1.0)
+	gl.ClearColor(0, 0, 0, 1)
+	gl.Clear(bit.bor(tonumber(GL.COLOR_BUFFER_BIT), tonumber(GL.DEPTH_BUFFER_BIT)))
+end
+
+function Window:PostRender()
+	glfw.SwapBuffers(self.handle)
+end
+
+function Window:Update(dt)
+	self:PollEvents()
+	self.Mouse:Update(dt)
 end
 
 return Window

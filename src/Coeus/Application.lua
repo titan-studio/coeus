@@ -39,25 +39,20 @@ function Application:Main()
 	self:Initialize()
 	self.Timer:Step()
 
-	while (glfw.WindowShouldClose(self.Window.handle) == 0) do
+	while not self.Window:IsClosing() do
 		self.Timer:Step()
-		self.Window.Mouse:Update(self.Timer:GetDelta())
+		self.Window:Update(self.Timer:GetDelta())
 		local start = self.Timer:GetTime()
 
-		glfw.PollEvents()
-		self.Window:Use()
-
-		gl.ClearDepth(1.0)
-		gl.ClearColor(0, 0, 0, 1)
-		gl.Clear(bit.bor(tonumber(GL.COLOR_BUFFER_BIT), tonumber(GL.DEPTH_BUFFER_BIT)))
+		self.Window:PreRender()
 		self:Render()
-		
+	
 		local err = gl.GetError()
 		if err ~= GL.NO_ERROR then
 			error("GL error: " .. err)
 		end
 
-		glfw.SwapBuffers(self.Window.handle)
+		self.Window:PostRender()
 
 		local diff = self.Timer:GetTime() - start
 		self.Timer:Sleep(math.max(0, (1 / self.TargetFPS) - diff))
