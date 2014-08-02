@@ -15,25 +15,62 @@ local ListenerPos = ffi.new("ALfloat[3]", {0, 0, 0})
 local ListenerVel = ffi.new("ALfloat[3]", {0, 0, 0})
 local ListenerOri = ffi.new("ALfloat[6]", {0, 0, -1, 0, 1, 0})
 
-local hertz = 440
 local test_data = {}
 
-local bt = 44000
-for index = 1, bt do
-	local percent = index / bt
+--
 
-	test_data[index] = math.ceil(127 * math.sin(hertz * percent * math.pi * 2))
+local ogg = Coeus.Bindings.libogg
+local vorbis = Coeus.Bindings.libvorbis
+local vorbisfile = Coeus.Bindings.libvorbisfile
+local stdio_ = Coeus.Bindings.stdio_
+
+local BUFFER_SIZE = 32768
+
+local buffer = {}
+local array = ffi.new("uint8_t[?]", BUFFER_SIZE)
+local endian = 0
+local bitStream = ffi.new("int[1]")
+local bytes = 0
+
+local format
+local freq
+
+local f = stdio_.fopen("test.ogg", "rb")
+local pInfo
+local oggFile = ffi.new("OggVorbis_File[1]")
+
+vorbisfile.ov_open(f, oggFile, nil, 0)
+pInfo = vorbisfile.ov_info(oggFile, -1)
+
+if (pInfo[0].channels == 1) then
+	format = OpenAL.AL_FORMAT_MONO16
+else
+	format = OpenAL.AL_FORMAT_STEREO16
 end
 
-local format = ffi.new("ALenum[1]")
-local size = ffi.new("ALsizei[1]")
-local data = ffi.new("int8_t[?]", #test_data, test_data)
-local freq = ffi.new("ALsizei[1]")
+local freq = pInfo[0].rate
+local total_size = 0
+
+repeat
+	bytes = vorbisfile.ov_read(oggFile, array, BUFFER_SIZE, endian, 2, 1, bitStream)
+	total_size = total_size + bytes
+
+	table.insert(buffer, ffi.string(array, bytes))
+until (bytes == 0)
+
+local bufstr = table.concat(buffer)
+for i = 1, total_size do
+	buffer[i] = string.byte(bufstr:sub(i, i))
+end
+
+vorbisfile.ov_clear(oggFile)
+
+local data = ffi.new("uint8_t[?]", total_size, buffer)
 local loop = ffi.new("ALboolean[1]", 1)
 
 local Buffer = ffi.new("unsigned int[1]")
 OpenAL.alGenBuffers(1, Buffer)
-OpenAL.alBufferData(Buffer[0], OpenAL.AL_FORMAT_MONO8, data, #test_data, bt)
+OpenAL.alBufferData(Buffer[0], format, data, total_size, freq)
 
 local pSource = ffi.new("int[1]")
 OpenAL.alGenSources(1, pSource)
