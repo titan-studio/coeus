@@ -85,6 +85,11 @@ function Mesh:SetData(vertices, indices, format)
 		end
 		gl.BufferData(GL.ELEMENT_ARRAY_BUFFER, 4 * #indices, data, GL.STATIC_DRAW)
 	end
+
+	local gl_error = gl.GetError()
+	if gl_error ~= GL.NO_ERROR then
+		print("GL error: " .. gl_error)
+	end
 end
 
 function Mesh:Render()

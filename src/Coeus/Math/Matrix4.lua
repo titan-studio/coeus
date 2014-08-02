@@ -127,11 +127,15 @@ function Matrix4:GetValues()
 end
 
 function Matrix4.GetTranslation(vector)
-	local out = Matrix4:New()
-	out.m[12] = vector.x
-	out.m[13] = vector.y
-	out.m[14] = vector.z
-	return out
+	if vector:GetClass() == Vector3 then
+		local out = Matrix4:New()
+		out.m[12] = vector.x
+		out.m[13] = vector.y
+		out.m[14] = vector.z
+		return out
+	else
+		return Vector3:New(vector.m[12], vector.m[13], vector.m[14])
+	end
 end
 
 function Matrix4.GetRotationX(angle)

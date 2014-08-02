@@ -28,6 +28,7 @@ function Material:Use()
 	local mvp = view_projection * model
 	
 	self.Shader:Send("ModelViewProjection", mvp)
+	self.Shader:Send("Model", model)
 end
 
 return Material

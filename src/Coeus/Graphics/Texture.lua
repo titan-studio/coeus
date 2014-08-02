@@ -14,10 +14,25 @@ local Texture = oop:Class() {
 	gl_target = GL.TEXTURE_2D
 }
 
-function Texture:_new()
+function Texture:_new(width, height, repeating)
 	local handle = ffi.new('unsigned int[1]')
 	gl.GenTextures(1, handle)
 	self.handle = handle[0]
+
+	self:Bind()
+	gl.TexParameterf(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR)
+	gl.TexParameterf(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR)
+	if repeating or repeating == nil then
+		--gl.TexParameterf(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.WRAP)
+		--gl.TexParameterf(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.WRAP)
+	else
+		gl.TexParameterf(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE)
+		gl.TexParameterf(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE)
+	end
+
+	if width ~= nil and height ~= nil then
+		gl.TexImage2D(GL.TEXTURE_2D, 0, GL.RGBA, width, height, 0, GL.RGBA, GL.UNSIGNED_BYTE, nil)
+	end
 end
 
 function Texture:Destroy()

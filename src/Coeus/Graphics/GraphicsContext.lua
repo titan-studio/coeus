@@ -33,13 +33,14 @@ end
 function GraphicsContext:BindTexture(texture)
 	local unused = 1
 	for i = 1, self.MaxTextureUnits do
-		if self.texture_units[i] == nil then
+		if self.texture_units[i] == nil or texture == self.texture_units[i] then
 			unused = i - 1
 			break
 		end
 	end
 	texture:Bind(tonumber(unused + GL.TEXTURE0))
-	self.texture_units[unused] = texture
+	self.texture_units[unused + 1] = texture
+
 	return unused
 end
 function GraphicsContext:UnbindTextures()

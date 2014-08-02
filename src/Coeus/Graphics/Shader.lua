@@ -106,6 +106,7 @@ function Shader:Send(name, ...)
 				data[idx+2] = values[i].z
 				idx = idx + 3
 			end
+			gl.Uniform3fv(uniform, #values, data)
 			return
 		end
 		if first.GetClass and first:GetClass() == Matrix4 then

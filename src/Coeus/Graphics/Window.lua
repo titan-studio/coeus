@@ -148,7 +148,7 @@ function Window:_new(title, width, height, mode)
 	gl.Enable(GL.DEPTH_TEST)
 	gl.DepthFunc(GL.LEQUAL)
 
-	gl.FrontFace(GL.CW)
+	gl.FrontFace(GL.CCW)
 	gl.Enable(GL.CULL_FACE)
 	gl.CullFace(GL.BACK)
 	gl.DepthMask(GL.TRUE)
