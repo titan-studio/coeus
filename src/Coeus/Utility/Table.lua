@@ -149,6 +149,28 @@ function Table.CopyMerge(source, target, break_lock)
 	return target
 end
 
+function Table.DeepCopyMerge(source, target, break_lock)
+	if (not target) then
+		return nil
+	end
+
+	for key, value in pairs(source) do
+		if (not target[key]) then
+			if (type(value) == "table") then
+				if (not value.__nocopy and not break_lock) then
+					target[key] = Table.DeepCopy(value)
+				else
+					target[key] = value
+				end
+			else
+				target[key] = value
+			end
+		end
+	end
+
+	return target
+end
+
 function Table.Invert(source, target)
 	target = target or {}
 

@@ -79,7 +79,7 @@ function Mesh:SetData(vertices, indices, format)
 		gl.BindBuffer(GL.ELEMENT_ARRAY_BUFFER, ibo)
 		self.ibo = ibo
 
-		data = ffi.new('int[' .. #indices .. ']')
+		data = ffi.new("int[?]", #indices)
 		for i=1,#indices do
 			data[i-1] = indices[i]
 		end
@@ -102,12 +102,13 @@ function Mesh:Render()
 end
 
 function Mesh:Destroy()
-	local buf = ffi.new('int[1]')
+	local buf = ffi.new("int[1]")
 	buf[0] = self.vbo
 	gl.DeleteBuffers(1, buf)
 	buf[0] = self.ibo
 	gl.DeleteBuffers(1, buf)
-	gl.DeleteVertexArrays(self.vao)
+	buf[0] = self.vao
+	gl.DeleteVertexArrays(1, buf)
 end
 
 return Mesh

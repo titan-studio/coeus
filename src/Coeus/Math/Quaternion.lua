@@ -2,6 +2,7 @@ local Coeus = (...)
 local oop = Coeus.Utility.OOP
 
 local Matrix4 = Coeus.Math.Matrix4
+local Vector3 = Coeus.Math.Vector3
 
 --TURN BACK NOW! THIS FILE HAS BEEN KNOWN TO CAUSE IRREVERSIBLE BRAIN DAMAGE
 
@@ -204,6 +205,7 @@ function Quaternion.Multiply(a, b)
 	if b.GetClass and b:GetClass() == Vector3 then
 		return a:TransformVector(b)
 	end
+
 	return Quaternion:New(
 		a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
 		a.w * b.y + a.y * b.w + a.z * b.x - a.x * b.z,
