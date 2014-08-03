@@ -4,7 +4,7 @@ local tests = require("tests")
 tests:Init(Coeus)
 --print(tests:RunTestFolder("Coeus"))
 
-require("audio_test")
+--require("audio_test")
 
 local Window = Coeus.Graphics.Window
 local Vector3 = Coeus.Math.Vector3
@@ -71,7 +71,7 @@ function TestApp:Initialize()
 	scene:AddEntity(test_obj)
 	test_obj:SetPosition(0, 2, 0)
 	local mesh_renderer = MeshRenderer:New(window.Graphics)
-	mesh_renderer.Mesh = Coeus.Utility.OBJLoader:New("test.obj"):GetMesh()
+	mesh_renderer.Mesh = Coeus.Utility.OBJLoader:New("assets/test.obj"):GetMesh()
 	test_obj:AddComponent(mesh_renderer)
 	local material = Material:New(window.Graphics)
 	material.Shader = Shader:New(window.Graphics, [[
@@ -112,7 +112,7 @@ function TestApp:Initialize()
 			NormalColor = vec4(norm, 1.0);
 		}
 	]])
-	material.Textures.tex = Coeus.Utility.PNGLoader:New("test.png"):GetTexture()
+	material.Textures.tex = Coeus.Utility.PNGLoader:New("assets/test.png"):GetTexture()
 	test_obj:AddComponent(material)
 
 	dir_light = Shader:New(window.Graphics, [[
@@ -151,7 +151,7 @@ void main() {
 	float cosine = max(dot(light_dir, normal), 0.0);
 	float specular = 0.0;
 
-	float depth = texture(DepthBuffer, texcoord);
+	float depth = texture(DepthBuffer, texcoord).x;
 
 	vec4 pixel_pos = vec4(
 		texcoord.x * 2.0 - 1.0,
@@ -205,7 +205,7 @@ void main() {
 
 	local mat2 = Material:New(window.Graphics)
 	mat2.Shader = material.Shader
-	mat2.Textures.tex = Coeus.Utility.PNGLoader:New("plane.png"):GetTexture()
+	mat2.Textures.tex = Coeus.Utility.PNGLoader:New("assets/plane.png"):GetTexture()
 
 	plane:AddComponent(mat2)
 

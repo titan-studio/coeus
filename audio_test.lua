@@ -35,7 +35,7 @@ local bytes = 0
 local format
 local freq
 
-local f = stdio_.fopen("test.ogg", "rb")
+local f = stdio_.fopen("assets/test.ogg", "rb")
 local pInfo
 local oggFile = ffi.new("OggVorbis_File[1]")
 
