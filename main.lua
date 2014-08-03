@@ -27,7 +27,6 @@ local Camera = Coeus.Graphics.Camera
 local Material = Coeus.Graphics.Material
 local MeshRenderer =  Coeus.Graphics.MeshRenderer
 local TextRenderer = Coeus.Graphics.Text.TextRenderer
-
 local window = Window:New("Coeus", 1280, 720, {fullscreen = false, resizable = true, vsync = true})
 local TestApp = Coeus.Application:New(window)
 local keyboard = window.Keyboard
@@ -71,7 +70,7 @@ function TestApp:Initialize()
 	scene:AddEntity(test_obj)
 	test_obj:SetPosition(0, 2, 0)
 	local mesh_renderer = MeshRenderer:New(window.Graphics)
-	mesh_renderer.Mesh = Coeus.Utility.OBJLoader:New("test.obj"):GetMesh()
+	mesh_renderer.Mesh = Coeus.Utility.OBJLoader:New("assets/test.obj"):GetMesh()
 	test_obj:AddComponent(mesh_renderer)
 	local material = Material:New(window.Graphics)
 	material.Shader = Shader:New(window.Graphics, [[
@@ -112,7 +111,7 @@ function TestApp:Initialize()
 			NormalColor = vec4(norm, 1.0);
 		}
 	]])
-	material.Textures.tex = Coeus.Utility.PNGLoader:New("test.png"):GetTexture()
+	material.Textures.tex = Coeus.Utility.PNGLoader:New("assets/test.png"):GetTexture()
 	test_obj:AddComponent(material)
 
 	dir_light = Shader:New(window.Graphics, [[
@@ -151,7 +150,7 @@ void main() {
 	float cosine = max(dot(light_dir, normal), 0.0);
 	float specular = 0.0;
 
-	float depth = texture(DepthBuffer, texcoord).r;
+	float depth = texture(DepthBuffer, texcoord).x;
 
 	vec4 pixel_pos = vec4(
 		texcoord.x * 2.0 - 1.0,
@@ -205,7 +204,7 @@ void main() {
 
 	local mat2 = Material:New(window.Graphics)
 	mat2.Shader = material.Shader
-	mat2.Textures.tex = Coeus.Utility.PNGLoader:New("plane.png"):GetTexture()
+	mat2.Textures.tex = Coeus.Utility.PNGLoader:New("assets/plane.png"):GetTexture()
 
 	plane:AddComponent(mat2)
 
@@ -261,7 +260,7 @@ function TestApp:Render()
 	dir_light:Send("InverseViewProjection", (window.Graphics.ActiveCamera:GetViewTransform() * window.Graphics.ActiveCamera:GetProjectionTransform()):GetInverse())
 	dir_light:Send("NormalBuffer", fb.textures[2])
 	dir_light:Send("DepthBuffer", fb.depth)
-	dir_light:Send("light_direction", Vector3:New(math.cos(os.clock()), math.sin(os.clock()), 0))
+	dir_light:Send("light_direction", Vector3:New(1, 1, 0))
 	dir_light:Send("light_color", Vector3:New(0.5, 0.5, 0.5))
 	light_buffer.mesh:Render()
 	light_buffer:Unbind()

@@ -79,10 +79,10 @@ function Coeus:LoadFile(name, path, safe)
 		end
 	end
 
-	self.meta[name] = meta
+	self.meta[id] = meta
 
 	if (object) then
-		self.loaded[name_to_id(name)] = object
+		self.loaded[id] = object
 
 		return object
 	end
@@ -104,7 +104,7 @@ function Coeus:LoadDirectory(name, path)
 		end
 	})
 
-	self.loaded[name_to_id(name)] = container
+	self.loaded[id] = container
 
 	return container
 end
