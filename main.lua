@@ -105,7 +105,7 @@ function TestApp:Initialize()
 		void main() {
 			vec3 norm;
 			norm = normalize(normal);
-			norm += 1.0;
+			norm += vec3(1.0);
 			norm *= 0.5;
 
 			DiffuseColor = texture(tex, texcoord);
@@ -151,7 +151,7 @@ void main() {
 	float cosine = max(dot(light_dir, normal), 0.0);
 	float specular = 0.0;
 
-	float depth = texture(DepthBuffer, texcoord);
+	float depth = texture(DepthBuffer, texcoord).r;
 
 	vec4 pixel_pos = vec4(
 		texcoord.x * 2.0 - 1.0,
