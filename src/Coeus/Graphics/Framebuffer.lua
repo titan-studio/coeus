@@ -3,6 +3,7 @@ local Coeus 		= (...)
 local OOP			= Coeus.Utility.OOP
 
 local Texture 		= Coeus.Graphics.Texture
+local ImageData 	= Coeus.Asset.Image.ImageData
 local Mesh			= Coeus.Graphics.Mesh
 local Shader		= Coeus.Graphics.Shader
 
@@ -21,11 +22,8 @@ local Framebuffer = OOP:Class() {
 	GraphicsContext = false,
 	width = 0, height = 0,
 }
-Framebuffer.Format = {
-	R8G8B8A8 = GL.RGBA8
-}
 
-function Framebuffer:_new(context, width, height, format, num_color_buffers, with_depth)
+function Framebuffer:_new(context, width, height, num_color_buffers, with_depth)
 	self.width = width
 	self.height = height
 	self.GraphicsContext = context
@@ -41,9 +39,14 @@ function Framebuffer:_new(context, width, height, format, num_color_buffers, wit
 	gl.BindFramebuffer(GL.FRAMEBUFFER, self.fbo)
 
 	self.draw_buffers_data = ffi.new("int[?]", num_color_buffers)
-	for i = 0, num_color_buffers do
-		local texture = Texture:New(width, height)
-		texture:Bind()
+	for i = 0, num_color_buffers - 1 do
+		local image_data = ImageData:New()
+		image_data.image = nil
+		image_data.Width = width
+		image_data.Height = height
+		image_data.format = ImageData.Format.RGBA
+
+		local texture = Texture:New(image_data)
 		gl.FramebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0 + i, GL.TEXTURE_2D, texture.handle, 0)
 		gl.DrawBuffer(GL.COLOR_ATTACHMENT0 + i)
 
@@ -52,10 +55,13 @@ function Framebuffer:_new(context, width, height, format, num_color_buffers, wit
 	end
 	
 	if with_depth then
-		self.depth = Texture:New()
-		self.depth:Bind()
+		local image_data = ImageData:New()
+		image_data.image = nil
+		image_data.Width = width
+		image_data.Height = height
+		image_data.format = ImageData.Format.Depth
 
-		gl.TexImage2D(GL.TEXTURE_2D, 0, GL.DEPTH_COMPONENT, width, height, 0, GL.DEPTH_COMPONENT, GL.UNSIGNED_BYTE, nil)
+		self.depth = Texture:New(image_data)
 		gl.FramebufferTexture2D(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.TEXTURE_2D, self.depth.handle, 0)
 	end
 

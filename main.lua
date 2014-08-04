@@ -37,6 +37,7 @@ local mouse = window.Mouse
 local PlaneMesh = Coeus.Graphics.Debug.PlaneMesh
 
 local Framebuffer = Coeus.Graphics.Framebuffer
+local Texture = Coeus.Graphics.Texture
 
 local fb = nil
 local light_buffer = nil
@@ -47,8 +48,8 @@ local point_mesh = nil
 local composite = nil
 
 --local testpng, err = Coeus.Asset.Image.Formats.PNG:Load("assets/test.png")
-local testpng, err = Coeus.Asset.Image.ImageLoader:Load("assets/test.png")
-print(testpng.Width, err)
+--local testpng, err = Coeus.Asset.Image.ImageLoader:Load("assets/test.png")
+--print(testpng.Width, err)
 
 function TestApp:Initialize()
 	local scene = Scene:New(window.Graphics)
@@ -71,9 +72,6 @@ function TestApp:Initialize()
 	plane_render.Mesh = PlaneMesh:New(30, 30, 5, 5)
 	plane:AddComponent(plane_render)
 
-	local w, h = window:GetSize()
-	fb = Framebuffer:New(window.Graphics, w, h, nil, 3, true)
-	light_buffer = Framebuffer:New(window.Graphics, w, h, nil, 1, false)
 
 
 	local test_obj = Entity:New()
@@ -123,7 +121,8 @@ function TestApp:Initialize()
 			NormalColor = vec4(norm, 1.0);
 		}
 	]])
-	material.Textures.tex = Coeus.Utility.PNGLoader:New("assets/test.png"):GetTexture()
+	local test_tex = Texture:New(Coeus.Asset.Image.ImageLoader:Load("assets/test.png"))
+	material.Textures.tex = test_tex
 	test_obj:AddComponent(material)
 
 	dir_light = Shader:New(window.Graphics, [[
@@ -184,11 +183,7 @@ void main() {
 }
 	]])
 
-	point_light = Shader:New(window.Graphics, [[
 
-	]], [[
-
-	]])
 
 	composite = Shader:New(window.Graphics, [[
 #version 330
@@ -222,7 +217,11 @@ void main() {
 
 	local mat2 = Material:New(window.Graphics)
 	mat2.Shader = material.Shader
-	mat2.Textures.tex = Coeus.Utility.PNGLoader:New("assets/plane.png"):GetTexture()
+
+	local plane_tex = Texture:New(Coeus.Asset.Image.ImageLoader:Load("assets/plane.png"))
+
+	mat2.Textures.tex = plane_tex
+
 
 	plane:AddComponent(mat2)
 
@@ -242,6 +241,10 @@ void main() {
 	self.look_pitch = 0
 	self.look_yaw = 0
 	self.look_roll = 0
+
+	local w, h = window:GetSize()
+	fb = Framebuffer:New(window.Graphics, w, h, 3, true)
+	light_buffer = Framebuffer:New(window.Graphics, w, h, 1, false)
 end
 
 local des_rot = Quaternion:New()
@@ -262,7 +265,7 @@ function TestApp:Render()
 	end
 	local yaw = Quaternion.FromAngleAxis(self.look_yaw, Vector3:New(0, 1, 0))
 	local pitch = Quaternion.FromAngleAxis(self.look_pitch, Vector3:New(1, 0, 0))
-	local roll = Quaternion.FromAngleAxis(self.look_roll, Vector3:New(0, 0, 1))
+	--local roll = Quaternion.FromAngleAxis(self.look_roll, Vector3:New(0, 0, 1))
 	des_rot = pitch * yaw
 	rot = Quaternion.Slerp(rot, des_rot, self.Timer:GetDelta() * 20)
 	

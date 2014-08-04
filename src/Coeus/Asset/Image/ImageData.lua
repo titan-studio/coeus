@@ -5,8 +5,15 @@ local ImageData = OOP:Class(Coeus.Asset.Format) {
 	Width = 0,
 	Height = 0,
 
-	data = nil,
-	size = nil
+	image = nil,
+	size = nil,
+	format = 0,
+}
+
+ImageData.Format = {
+	RGBA 			= 0,
+	Depth			= 1,
+	DepthStencil 	= 2
 }
 
 return ImageData

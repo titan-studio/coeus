@@ -24,7 +24,8 @@ function OBJLoader:_new(filename)
 	local line_num = 0
 	local line_str = ""
 	local more
-	for line in file:lines() do 
+	local line = file:read("*l")
+	while line do
 		line_num = line_num + 1
 		if more then
 			line_str = line_str .. line
@@ -37,6 +38,7 @@ function OBJLoader:_new(filename)
 		else
 			self:ParseLine(line_str)
 		end
+		line = file:read("*l")
 	end
 
 	--And then play the matching game
@@ -102,20 +104,22 @@ function OBJLoader:ParseLine(line)
 		self.texcoords[#self.texcoords + 1] = self:ParseVector2(arg_str)
 	elseif cmd == 'f' then
 		local face = {}
-		for c in arg_str:gmatch'(%S+)' do
+		for c in arg_str:gmatch("(%S+)") do
 			local v, t, n = c:match("^([^/]+)/?([^/]*)/?([^/]*)")
-			v = tonumber(v) or 0
-			t = tonumber(t) or 0
-			n = tonumber(n) or 0
+			
+			v = tonumber(v)
+			t = tonumber(t)
+			n = tonumber(n)
 
 			face[#face + 1] = {
-				v = v,
-				t = t,
-				n = n
+				v = v or 0,
+				t = t or 0,
+				n = n or 0
 			}
+			
 		end
+		
 		self.faces[#self.faces + 1] = face
-
 	end
 end
 

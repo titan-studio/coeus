@@ -140,9 +140,6 @@ function Entity:GetScale()
 end
 
 function Entity:SetPosition(x, y, z)
-	if self.name ~="Entity" then
-	print(self.name, x, y, z)
-end
 	if type(x) ~= "number" then
 		self:SetPosition(x.x, x.y, x.z)
 		return

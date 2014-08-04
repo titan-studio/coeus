@@ -25,13 +25,13 @@ function PNG:Load(filename)
 		}
 	end
 
-	local image_data = ImageData:New()
-	image_data.Width = tonumber(width[0])
-	image_data.Height = tonumber(height[0])
-	image_data.data = file_data
-	image_data.size = img_size
+	local out = ImageData:New()
+	out.Width = tonumber(width[0]) or 0
+	out.Height = tonumber(height[0]) or 0
+	out.image = image_data[0]
+	out.size = img_size
 
-	return image_data
+	return out
 end
 
 function PNG:Match(filename)
