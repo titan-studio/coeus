@@ -99,12 +99,12 @@ function Table.DeepCopy(source, target, break_lock)
 	target = target or {}
 
 	for key, value in pairs(source) do
-		if (type(value) == "table") then
-			if (value.__nocopy and not break_lock) then
-				target[key] = value
-			else
-				target[key] = Table.DeepCopy(value)
-			end
+		local typeof = type(value)
+
+		if (typeof == "table") then
+			target[key] = Table.DeepCopy(value)
+		elseif (typeof == "userdata" and value.Copy) then
+			target[key] = value:Copy()
 		else
 			target[key] = value
 		end
@@ -134,12 +134,12 @@ function Table.CopyMerge(source, target, break_lock)
 
 	for key, value in pairs(source) do
 		if (not target[key]) then
-			if (type(value) == "table") then
-				if (not value.__nocopy and not break_lock) then
-					target[key] = Table.Copy(value)
-				else
-					target[key] = value
-				end
+			local typeof = type(value)
+
+			if (typeof == "table") then
+				target[key] = Table.Copy(value)
+			elseif (typeof == "userdata" and value.Copy) then
+				target[key] = value:Copy()
 			else
 				target[key] = value
 			end
@@ -156,12 +156,12 @@ function Table.DeepCopyMerge(source, target, break_lock)
 
 	for key, value in pairs(source) do
 		if (not target[key]) then
-			if (type(value) == "table") then
-				if (not value.__nocopy and not break_lock) then
-					target[key] = Table.DeepCopy(value)
-				else
-					target[key] = value
-				end
+			local typeof = type(value)
+
+			if (typeof == "table") then
+				target[key] = Table.DeepCopy(value)
+			elseif (typeof == "userdata" and value.Copy) then
+				target[key] = value:Copy()
 			else
 				target[key] = value
 			end
