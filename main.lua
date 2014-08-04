@@ -1,10 +1,12 @@
 local Coeus = require("src.Coeus")
 
+Coeus:FullyLoadDirectory("Asset")
+
 local tests = require("tests")
 tests:Init(Coeus)
 --print(tests:RunTestFolder("Coeus"))
 
-require("audio_test")
+--require("audio_test")
 
 local Window = Coeus.Graphics.Window
 local Vector3 = Coeus.Math.Vector3
@@ -43,6 +45,10 @@ local dir_light = nil
 local point_light = nil
 local point_mesh = nil
 local composite = nil
+
+--local testpng, err = Coeus.Asset.Image.Formats.PNG:Load("assets/test.png")
+local testpng, err = Coeus.Asset.Image.ImageLoader:Load("assets/test.png")
+print(testpng.Width, err)
 
 function TestApp:Initialize()
 	local scene = Scene:New(window.Graphics)

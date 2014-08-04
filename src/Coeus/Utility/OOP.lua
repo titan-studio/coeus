@@ -16,6 +16,20 @@ function OOP:Class(...)
 	end
 end
 
+function OOP:Static(...)
+	local new = Table.DeepCopy(self.StaticObject)
+	new:Inherit(...)
+
+	return function(target)
+		if (target) then
+			Table.Merge(new, target)
+			return target
+		else
+			return new
+		end
+	end
+end
+
 function OOP:Wrap(object, userdata)
 	local interface = userdata or newproxy(true)
 	local imeta = getmetatable(interface)
@@ -88,6 +102,16 @@ function OOP.Object:PointTo(object)
 end
 
 function OOP.Object:Destroy()
+end
+
+OOP.StaticObject = {}
+
+function OOP.StaticObject:Inherit(...)
+	for key, item in ipairs({...}) do
+		Table.DeepCopyMerge(item, self)
+	end
+
+	return self
 end
 
 return OOP

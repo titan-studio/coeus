@@ -6,6 +6,10 @@ local function name_to_file(name)
 	return name:gsub("%.", "/") .. ".lua"
 end
 
+local function file_to_name(name)
+	return name:gsub("%.[^%.]*$", ""):gsub("/", "%.")
+end
+
 local function name_to_directory(name)
 	return name:gsub("%.", "/")
 end
@@ -49,11 +53,13 @@ end
 
 function Coeus:LoadFile(name, path, safe)
 	local id = name_to_id(name)
+	local abs_name = self.Root .. name
+
 	if (self.loaded[id]) then
 		return self.loaded[id]
 	end
 
-	path = path or name_to_file(name)
+	path = path or name_to_file(abs_name)
 
 	local chunk, err = loadfile(path)
 
@@ -90,11 +96,13 @@ end
 
 function Coeus:LoadDirectory(name, path)
 	local id = name_to_id(name)
+	local abs_name = self.Root .. name
+
 	if (self.loaded[id]) then
 		return self.loaded[id]
 	end
 
-	path = path or name_to_directory(name)
+	path = path or name_to_directory(abs_name)
 
 	local container = setmetatable({}, {
 		__index = function(container, key)
@@ -107,6 +115,22 @@ function Coeus:LoadDirectory(name, path)
 	self.loaded[id] = container
 
 	return container
+end
+
+function Coeus:FullyLoadDirectory(name, path)
+	local abs_name = self.Root .. name
+	path = path or name_to_directory(abs_name)
+
+	local directory = self:LoadDirectory(name, path)
+
+	for filepath in lfs.dir(path) do
+		if (filepath ~= "." and filepath ~= "..") then
+			local filename = file_to_name(filepath)
+			directory[filename] = self:Load(name .. "." .. filename)
+		end
+	end
+
+	return directory
 end
 
 function Coeus:GetLoadedModules()

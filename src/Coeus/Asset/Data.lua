@@ -1,6 +1,6 @@
 local Coeus = ...
 local OOP = Coeus.Utility.OOP
 
-local Loader = OOP:Static()()
+local Data = OOP:Class()()
 
-return Loader
+return Data
