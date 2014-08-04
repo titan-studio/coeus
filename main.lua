@@ -301,17 +301,23 @@ function TestApp:Render()
 	local strafe = 0
 
 	if keyboard:IsKeyDown("w") then
-		dist = -5 * delta
+		dist = -1
 	end
 	if keyboard:IsKeyDown("s") then
-		dist = 5 * delta
+		dist = 1
 	end
 
 	if keyboard:IsKeyDown("a") then
-		strafe = -4 * delta
+		strafe = -1
 	end
 	if keyboard:IsKeyDown("d") then
-		strafe = 4 * delta
+		strafe = 1
+	end
+
+	local len = math.sqrt(dist^2 + strafe^2)
+	if (len > 0) then
+		dist = (dist / len) * 5 * delta
+		strafe = (strafe / len) * 5 * delta
 	end
 	
 	if keyboard:IsKeyDown(256) then
