@@ -40,6 +40,8 @@ local fb = nil
 local light_buffer = nil
 
 local dir_light = nil
+local point_light = nil
+local point_mesh = nil
 local composite = nil
 
 function TestApp:Initialize()
@@ -54,8 +56,10 @@ function TestApp:Initialize()
 	scene:AddEntity(cam)
 	window.Graphics.ActiveCamera = cam:GetComponent(Camera)
 
-	local plane = Entity:New()
+	local plane = Entity:New() plane.name = "plane"
 	plane:SetPosition(0, 0, 0)
+	
+	
 	scene:AddEntity(plane)
 	local plane_render = MeshRenderer:New(window.Graphics)
 	plane_render.Mesh = PlaneMesh:New(30, 30, 5, 5)
@@ -67,8 +71,10 @@ function TestApp:Initialize()
 
 
 	local test_obj = Entity:New()
+	test_obj.name = "test_obj"
 	scene:AddEntity(test_obj)
 	test_obj:SetPosition(0, 2, 0)
+	plane:SetPosition(0, 0, 0)
 	local mesh_renderer = MeshRenderer:New(window.Graphics)
 	mesh_renderer.Mesh = Coeus.Utility.OBJLoader:New("assets/test.obj"):GetMesh()
 	test_obj:AddComponent(mesh_renderer)
@@ -170,6 +176,12 @@ void main() {
 
 	LightColor = vec4(vec3(cosine) * light_color, max(0.0, min(1.0, specular)));
 }
+	]])
+
+	point_light = Shader:New(window.Graphics, [[
+
+	]], [[
+
 	]])
 
 	composite = Shader:New(window.Graphics, [[

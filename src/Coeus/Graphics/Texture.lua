@@ -53,6 +53,6 @@ function Texture:Unbind()
 	gl.ActiveTexture(self.unit)
 	gl.BindTexture(self.gl_target, 0)
 	self.unit = -1
-end	
+end
 
 return Texture

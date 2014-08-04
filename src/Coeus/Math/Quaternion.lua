@@ -22,7 +22,7 @@ end
 
 function Quaternion.FromMatrix4(matrix)
 	local m = matrix.m
-	local trace = m[0] + m[5] + m[10]
+	local trace = m[1] + m[6] + m[11]
 	local root
 
 	if trace > 0 then
@@ -30,44 +30,44 @@ function Quaternion.FromMatrix4(matrix)
 		local w = root * 0.5
 		root = 0.5 / root
 		return Quaternion:New(
-			(m[9] - m[6]) * root,
-			(m[2] - m[8]) * root,
-			(m[4] - m[1]) * root,
+			(m[10] - m[7]) * root,
+			(m[ 3] - m[9]) * root,
+			(m[ 5] - m[2]) * root,
 			w
 		)
 	else
 		local i = 0
-		if m[5] > m[0] then
+		if m[6] > m[1] then
 			i = 1
 		else
 			i = 2
 		end
-		local n = {1,2,0}
-		local j = n[i-1]
-		local k = n[j-1]
+		local n = {1, 2, 0}
+		local j = n[i - 1]
+		local k = n[j - 1]
 
 		local ii, jj, kk, kj, jk, ji, ij, ki, ik
 		if i == 0 then
-			ii = m[0] -- i = 0
-			jj = m[5] -- j = 1
-			kk = m[10] --k = 2
-			kj = m[9]; jk = m[6]
-			ji = m[4]; ij = m[1]
-			ki = m[8]; ik = m[2]
+			ii = m[1] -- i = 0
+			jj = m[6] -- j = 1
+			kk = m[11] --k = 2
+			kj = m[10]; jk = m[7]
+			ji = m[5]; ij = m[2]
+			ki = m[9]; ik = m[3]
 		elseif i == 1 then
-			ii = m[5] -- i = 1
-			jj = m[10] -- j = 2
-			kk = m[0] -- k = 0
-			kj = m[2]; jk = m[8]
-			ji = m[9]; ij = m[6]
-			ki = m[1]; ik = m[4]
+			ii = m[6] -- i = 1
+			jj = m[11] -- j = 2
+			kk = m[1] -- k = 0
+			kj = m[3]; jk = m[9]
+			ji = m[10]; ij = m[7]
+			ki = m[2]; ik = m[5]
 		elseif i == 2 then
-			ii = m[10] -- i = 2
-			jj = m[0] -- j = 0
-			kk = m[5] -- k = 1
-			kj = m[1]; jk = m[4]
-			ji = m[2]; ij = m[8]
-			ki = m[6]; ik = m[9]
+			ii = m[11] -- i = 2
+			jj = m[1] -- j = 0
+			kk = m[6] -- k = 1
+			kj = m[2]; jk = m[5]
+			ji = m[3]; ij = m[9]
+			ki = m[7]; ik = m[10]
 		end
 		local root = math.sqrt(ii - jj - kk + 1)
 		local quat = {}

@@ -57,8 +57,6 @@ function Application:Main()
 		local diff = self.Timer:GetTime() - start
 		self.Timer:Sleep(math.max(0, (1 / self.TargetFPS) - diff))
 	end
-	
-	self:Destroy()
 end
 
 return Application

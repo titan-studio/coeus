@@ -113,7 +113,7 @@ function Shader:Send(name, ...)
 			local data = ffi.new('float[' .. (16 * #values) .. ']')
 			local idx = 0
 			for i=1,#values do
-				for j=0,15 do
+				for j=1, 16 do
 					data[idx] = values[i].m[j]
 					idx = idx + 1
 				end
@@ -124,7 +124,7 @@ function Shader:Send(name, ...)
 		if first.GetClass and first:GetClass() == Texture then
 			local data = ffi.new('int[' .. #values .. ']')
 			for i = 1, #values do
-				data[i-1] = self.context:BindTexture(values[i])
+				data[i - 1] = self.context:BindTexture(values[i])
 			end
 			gl.Uniform1iv(uniform, #values, data)
 			return
@@ -136,7 +136,7 @@ function Shader:Send(name, ...)
 	--If a single number...
 	local data = ffi.new('float[' .. #values .. ']')
 	for i = 1, #values do
-		data[i-1] = values[i]
+		data[i - 1] = values[i]
 	end
 	gl.Uniform1fv(uniform, #values, data)
 end

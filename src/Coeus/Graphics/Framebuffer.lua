@@ -124,4 +124,11 @@ function Framebuffer:RenderTo(shader)
 	self.mesh:Render()
 end
 
+function Framebuffer:Destroy()
+	self.textures = {}
+	local fb = ffi.new("int[1]", self.fbo)
+	gl.BindFramebuffer(GL.FRAMEBUFFER, 0)
+	gl.DeleteFramebuffers(1, fb)
+end
+
 return Framebuffer
