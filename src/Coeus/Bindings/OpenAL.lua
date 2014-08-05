@@ -1,5 +1,7 @@
+local Coeus = ...
 local ffi = require("ffi")
-local oal = (ffi.os == "Windows") and ffi.load("lib/win32/OpenAL.dll") or ffi.C
+local so = ffi.load(Coeus.BinDir .. "OpenAL")
+local oal = (ffi.os == "Windows") and so or ffi.C
 
 --alc.h
 ffi.cdef([[

@@ -5,7 +5,7 @@ local glfw
 local glfw_lib
 
 if (ffi.os == "Windows") then
-	glfw_lib = ffi.load("lib/win32/glfw3.dll")
+	glfw_lib = ffi.load(Coeus.BinDir .. "glfw3")
 else
 	glfw_lib = ffi.load("libglfw.so.3")
 end
@@ -388,5 +388,7 @@ GLFWglproc glfwGetProcAddress(const char* procname);
 ]]
 
 glfw.glfw.Init()
+
+Coeus.Bindings.OpenGL.loader = glfw.glfw.GetProcAddress
 
 return glfw

@@ -1,13 +1,5 @@
 local Coeus = require("src.Coeus")
 
-Coeus:FullyLoadDirectory("Asset")
-
-local tests = require("tests")
-tests:Init(Coeus)
---print(tests:RunTestFolder("Coeus"))
-
---require("audio_test")
-
 local Window = Coeus.Graphics.Window
 local Vector3 = Coeus.Math.Vector3
 local Matrix4 = Coeus.Math.Matrix4
