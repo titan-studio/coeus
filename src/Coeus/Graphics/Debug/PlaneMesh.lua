@@ -27,7 +27,13 @@ function PlaneMesh:_new(x_scale, y_scale, tex_x, tex_y)
 		3, 1, 2
 	}
 
-	self:SetData(vertices, indices, Mesh.DataFormat.PositionTexCoordNormalInterleaved)
+	local mesh_data = Coeus.Asset.Model.MeshData:New()
+	mesh_data.Vertices = vertices
+	mesh_data.Indices = indices
+	mesh_data.Format.TexCoords = true
+	mesh_data.Format.Normals = true
+
+	self:SetData(mesh_data)
 end
 
 return PlaneMesh

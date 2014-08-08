@@ -10,6 +10,8 @@ local GLFW = GLFW.GLFW
 local gl = OpenGL.gl
 local GL = OpenGL.GL
 
+local MeshData = Coeus.Asset.Model.MeshData
+
 local Mesh = oop:Class() {
 	vbo = -1,
 	ibo = -1,
@@ -19,12 +21,6 @@ local Mesh = oop:Class() {
 	num_indices = 0,
 
 	render_groups = {}
-}
-
-Mesh.DataFormat = {
-	Position 							= 0,
-	PositionTexCoordInterleaved			= 1,
-	PositionTexCoordNormalInterleaved 	= 2
 }
 
 function Mesh:_new()
@@ -38,35 +34,33 @@ function Mesh:_new()
 	self.vbo = vbo
 end
 
-function Mesh:SetData(vertices, indices, format)
-	self.num_vertices = #vertices
+function Mesh:SetData(data)
+	local vertices = data.Vertices
+	local indices = data.Indices
 
 	gl.BindVertexArray(self.vao)
 
-	if format == Mesh.DataFormat.Position then
-		gl.EnableVertexAttribArray(0)
-		gl.VertexAttribPointer(0, 3, GL.FLOAT, GL.FALSE, 3 * 4, ffi.cast('void *', 0))
-
-		self.num_vertices = self.num_vertices / 3
-	elseif format == Mesh.DataFormat.PositionTexCoordInterleaved then
-		gl.EnableVertexAttribArray(0)
-		gl.VertexAttribPointer(0, 3, GL.FLOAT, GL.FALSE, 5 * 4, ffi.cast('void *', 0))
-		gl.EnableVertexAttribArray(1)
-		gl.VertexAttribPointer(1, 2, GL.FLOAT, GL.FALSE, 5 * 4, ffi.cast('void *', 3 * 4))
-
-		self.num_vertices = self.num_vertices / 5
-	elseif format == Mesh.DataFormat.PositionTexCoordNormalInterleaved then
-		gl.EnableVertexAttribArray(0)
-		gl.VertexAttribPointer(0, 3, GL.FLOAT, GL.FALSE, 8 * 4, ffi.cast('void *', 0))
-		gl.EnableVertexAttribArray(1)
-		gl.VertexAttribPointer(1, 2, GL.FLOAT, GL.FALSE, 8 * 4, ffi.cast('void *', 3 * 4))
-		gl.EnableVertexAttribArray(2)
-		gl.VertexAttribPointer(2, 3, GL.FLOAT, GL.FALSE, 8 * 4, ffi.cast('void *', 5 * 4))
-
-		self.num_vertices = self.num_vertices / 8
+	local stride = MeshData.CalculateVertexStride(data.Format)
+	local offset = 0
+	for i, v in ipairs(MeshData.DefaultLocations) do
+		if data.Format[v] then
+			gl.EnableVertexAttribArray(i - 1)
+			gl.VertexAttribPointer(
+				i - 1, MeshData.FormatSize[v], GL.FLOAT, GL.FALSE, stride * 4,
+				ffi.cast('void *', offset * 4)	
+			)
+			
+			offset = offset + MeshData.FormatSize[v]
+		end
 	end
 
-	local data = ffi.new('float['..#vertices..']')
+	if #vertices % stride ~= 0 then
+		print("WARNING! It's possible you forgot to set a format flag on your MeshData. Double check the spelling too!")
+	end
+
+	self.num_vertices = #vertices / stride
+
+	local data = ffi.new("float[?]", #vertices)
 	for i=1,#vertices do
 		data[i-1] = vertices[i]
 	end
@@ -85,6 +79,7 @@ function Mesh:SetData(vertices, indices, format)
 		end
 		gl.BufferData(GL.ELEMENT_ARRAY_BUFFER, 4 * #indices, data, GL.STATIC_DRAW)
 	end
+
 
 	local gl_error = gl.GetError()
 	if gl_error ~= GL.NO_ERROR then

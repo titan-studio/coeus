@@ -181,9 +181,9 @@ function Entity:BuildTransform()
 	if not self.dirty_transform then return end
 	self.dirty_transform = false
 
-	self.local_transform = Matrix4.GetScale(self.scale) * 
-						   Matrix4.GetTranslation(self.position) *
-						   self.rotation:ToRotationMatrix() 
+	self.local_transform = Matrix4.GetTranslation(self.position) *
+						   self.rotation:ToRotationMatrix() *
+						   Matrix4.GetScale(self.scale)
 						   
 	self.render_transform = self.local_transform-- * self.render_transform
 end

@@ -28,4 +28,8 @@ function BaseComponent:Render()
 
 end
 
+function BaseComponent:RenderLight()
+
+end
+
 return BaseComponent

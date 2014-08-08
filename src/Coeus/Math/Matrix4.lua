@@ -132,6 +132,7 @@ function Matrix4.GetTranslation(vector)
 		out.m[13] = vector.x
 		out.m[14] = vector.y
 		out.m[15] = vector.z
+		out.m[16] = 1
 		return out
 	else
 		return Vector3:New(vector.m[13], vector.m[14], vector.m[15])
