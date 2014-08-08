@@ -1,6 +1,7 @@
 local Coeus = ...
 local ffi = require("ffi")
-local libogg = (ffi.os == "Windows") and ffi.load("lib/win32/libogg.dll") or ffi.C
+local so = ffi.load(Coeus.BinDir .. "libogg")
+local libogg = (ffi.os == "Windows") and so or ffi.C
 
 --os_types.h
 ffi.cdef([[
