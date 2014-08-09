@@ -66,7 +66,8 @@ function GraphicsContext:_new(window)
 	local initialize_fbos = function(w, h)
 		self.GeometryFramebuffer = Framebuffer:New(self, w, h, {
 			Coeus.Asset.Image.ImageData.Format.RGBA,
-			Coeus.Asset.Image.ImageData.Format.RGBA
+			Coeus.Asset.Image.ImageData.Format.RGBA,
+			Coeus.Asset.Image.ImageData.Format.Single
 		}, true, false)
 		self.LightFramebuffer = Framebuffer:New(self, w, h, {
  			Coeus.Asset.Image.ImageData.Format.RGBA
@@ -87,11 +88,14 @@ uniform mat4 Model;
 out vec2 texcoord;
 out vec3 normal;
 out vec2 depth;
+out float f_log_z;
+out float linear_depth;
 
 void main() {
-	//float Fcoef = 2.0 / log2(1000.0 + 1.0);
 	gl_Position = ModelViewProjection * vec4(position, 1.0);
-	//gl_Position.z = log2(max(1e-6, 1.0 + gl_Position.w)) * Fcoef - 1.0;
+	f_log_z = 1.0 + gl_Position.w;
+	depth = gl_Position.zw;
+
 	texcoord = texcoord_;
 	normal = (Model * vec4(normal_, 0.0)).xyz;
 }
@@ -100,12 +104,16 @@ void main() {
 
 layout(location=0) out vec4 DiffuseColor;
 layout(location=1) out vec4 NormalColor;
+layout(location=2) out float LinearDepth;
 
 uniform sampler2D ModelTexture;
+uniform float ZNear;
+uniform float ZFar;
 
 in vec2 texcoord;
 in vec3 normal;
 in vec2 depth;
+in float f_log_z;
 
 void main() {
 	vec3 norm = normalize(normal);
@@ -113,6 +121,11 @@ void main() {
 
 	DiffuseColor = texture(ModelTexture, texcoord);
 	NormalColor = vec4(norm, 1.0);
+
+	LinearDepth = gl_FragCoord.z;
+
+	float coefficient_half = (2.0 / log2(ZFar + ZNear)) * 0.5;
+	gl_FragDepth = log2(f_log_z) * coefficient_half;
 }
 	]])
 	self.Shaders.CompositeFBOs = Shader:New(self, [[

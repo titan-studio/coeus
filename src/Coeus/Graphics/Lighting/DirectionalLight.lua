@@ -82,7 +82,7 @@ end
 
 function DirectionalLight:Render(light)
 	if not light then return end
-	
+
 	local camera = self.GraphicsContext.ActiveCamera
 	if not camera then 
 		return 
@@ -101,7 +101,7 @@ function DirectionalLight:Render(light)
 	self.shader:Send("InverseViewProjection", inverse_view_proj)
 
 	self.shader:Send("NormalBuffer", geom_fbo.textures[2])
-	self.shader:Send("DepthBuffer", geom_fbo.depth)
+	self.shader:Send("DepthBuffer", geom_fbo.textures[3])
 
 	self.shader:Send("LightDirection", self.LightDirection)
 	self.shader:Send("LightColor", self.LightColor)

@@ -29,6 +29,8 @@ function Material:Use()
 	
 	self.Shader:Send("ModelViewProjection", mvp)
 	self.Shader:Send("Model", model)
+	self.Shader:Send("ZNear", camera.near)
+	self.Shader:Send("ZFar", camera.far)
 end
 
 return Material

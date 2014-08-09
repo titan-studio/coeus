@@ -137,7 +137,7 @@ function PointLight:Render(light)
 	self.shader:Send("InverseViewProjection", inv_view_proj)
 
 	self.shader:Send("NormalBuffer", geom_fbo.textures[2])
-	self.shader:Send("DepthBuffer", geom_fbo.depth)
+	self.shader:Send("DepthBuffer", geom_fbo.textures[3])
 
 	local w,h = self.GraphicsContext.Window:GetSize()
 	self.shader:Send("ScreenSize", Vector3:New(w, h, 0))
