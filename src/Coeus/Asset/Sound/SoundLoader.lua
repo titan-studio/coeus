@@ -1,15 +1,17 @@
 local Coeus = ...
 local OOP = Coeus.Utility.OOP
 
-local Loader = OOP:Static() {
-	Formats = {}
+local SoundLoader = OOP:Class(Coeus.Asset.Loader) {
+	Formats = Coeus.FullyLoadDirectory(Coeus.Asset.Sound.Formats)
 }
 
-function Loader:Load(path)
+function SoundLoader:Load(path, static)
+	static = not not static
+
 	local loader
 
 	for name, member in pairs(self.Formats) do
-		if (member:Match(path)) then
+		if (member:Match(path, static)) then
 			loader = member
 			break
 		end
@@ -23,4 +25,4 @@ function Loader:Load(path)
 	return loader:Load(path)
 end
 
-return Loader
+return SoundLoader

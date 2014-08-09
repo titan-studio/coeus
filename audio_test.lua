@@ -20,7 +20,6 @@ local test_data = {}
 --
 
 local ogg = Coeus.Bindings.libogg
-local vorbis = Coeus.Bindings.libvorbis
 local vorbisfile = Coeus.Bindings.libvorbisfile
 local stdio_ = Coeus.Bindings.stdio_
 
@@ -66,6 +65,8 @@ end
 vorbisfile.ov_clear(oggFile)
 
 local data = ffi.new("uint8_t[?]", total_size, buffer)
+--
+
 local loop = ffi.new("ALboolean[1]", 1)
 
 local Buffer = ffi.new("unsigned int[1]")

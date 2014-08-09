@@ -5,9 +5,9 @@ local OOP = Coeus.Utility.OOP
 local ImageData = Coeus.Asset.Image.ImageData
 local lodepng = Coeus.Bindings.lodepng
 
-local PNG = OOP:Static(Coeus.Asset.Format)()
+local PNGFormat = OOP:Static(Coeus.Asset.Format)()
 
-function PNG:Load(filename)
+function PNGFormat:Load(filename)
 	local err_code = ffi.new("unsigned int")
 	local image_data = ffi.new("unsigned char*[1]")
 	local width = ffi.new("unsigned int[1]")
@@ -34,8 +34,8 @@ function PNG:Load(filename)
 	return out
 end
 
-function PNG:Match(filename)
+function PNGFormat:Match(filename)
 	return not not filename:match("%.png$")
 end
 
-return PNG
+return PNGFormat
