@@ -45,4 +45,11 @@ function Scene:Render()
 	end
 end
 
+function Scene:RenderLight()
+	for i, v in ipairs(self.entities) do
+		v:RenderLight()
+	end
+end
+
+
 return Scene

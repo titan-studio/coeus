@@ -31,6 +31,9 @@ local PlaneMesh = Coeus.Graphics.Debug.PlaneMesh
 local Framebuffer = Coeus.Graphics.Framebuffer
 local Texture = Coeus.Graphics.Texture
 
+local DirectionalLight = Coeus.Graphics.Lighting.DirectionalLight
+local PointLight = Coeus.Graphics.Lighting.PointLight
+
 local fb = nil
 local light_buffer = nil
 
@@ -64,6 +67,30 @@ function TestApp:Initialize()
 	plane_render.Mesh = PlaneMesh:New(30, 30, 5, 5)
 	plane:AddComponent(plane_render)
 
+	local light_ent = Entity:New()
+	scene:AddEntity(light_ent)
+	local light_comp = DirectionalLight:New(window.Graphics)
+	light_ent:AddComponent(light_comp)
+	light_comp.LightDirection = Vector3:New(1, 1, 0)
+	light_comp.LightColor = Vector3:New(0.5, 0.5, 0.5)
+	local light_ent2 = Entity:New()
+	scene:AddEntity(light_ent2)
+	local light_comp2 = DirectionalLight:New(window.Graphics)
+	light_ent2:AddComponent(light_comp2)
+	light_comp2.LightDirection = Vector3:New(-1, -1, 0)
+	light_comp2.LightColor = Vector3:New(0.3, 0.0, 0.0)
+
+	self.plights = {}
+	for i = 1, 10 do 
+		local point_ent = Entity:New()
+		scene:AddEntity(point_ent)
+		point_ent:SetPosition(0, 1, 0)
+		local point_comp = PointLight:New(window.Graphics)
+		point_ent:AddComponent(point_comp)
+		point_comp.LightColor = Vector3:New(math.random(), math.random(), math.random())
+		point_ent.ang_offset = (math.pi*2) / ((i-1)/9)
+		table.insert(self.plights, point_ent)
+	end
 
 
 	local test_obj = Entity:New()
@@ -75,136 +102,10 @@ function TestApp:Initialize()
 	mesh_renderer.Mesh = Coeus.Utility.OBJLoader:New("assets/test.obj"):GetMesh()
 	test_obj:AddComponent(mesh_renderer)
 	local material = Material:New(window.Graphics)
-	material.Shader = Shader:New(window.Graphics, [[
-		#version 330
-		layout(location=0) in vec3 position;
-		layout(location=1) in vec2 texcoord_;
-		layout(location=2) in vec3 normal_;
-
-		uniform mat4 ModelViewProjection;
-		uniform mat4 Model;
-
-		out vec2 texcoord;
-		out vec3 normal;
-
-		void main() {
-			gl_Position = ModelViewProjection * vec4(position, 1.0);
-			texcoord = texcoord_;
-			normal = (Model * vec4(normal_, 0.0)).xyz;
-		}
-		]],[[
-		#version 330
-		
-		layout(location=0) out vec4 DiffuseColor;
-		layout(location=1) out vec4 NormalColor;
-
-		uniform sampler2D tex;
-
-		in vec2 texcoord;
-		in vec3 normal;
-
-		void main() {
-			vec3 norm;
-			norm = normalize(normal);
-			norm += vec3(1.0);
-			norm *= 0.5;
-
-			DiffuseColor = texture(tex, texcoord);
-			NormalColor = vec4(norm, 1.0);
-		}
-	]])
+	material.Shader = window.Graphics.Shaders.RenderGeometry
 	local test_tex = Texture:New(Coeus.Asset.Image.ImageLoader:Load("assets/test.png"))
-	material.Textures.tex = test_tex
+	material.Textures.ModelTexture = test_tex
 	test_obj:AddComponent(material)
-
-	dir_light = Shader:New(window.Graphics, [[
-#version 330
-layout(location=0) in vec3 position;
-layout(location=1) in vec2 texcoord_;
-
-out vec2 texcoord;
-
-void main() {
-	gl_Position = vec4(position, 1.0);
-	texcoord = texcoord_;
-}
-		]],[[
-#version 330
-
-layout(location=0) out vec4 LightColor;
-
-uniform vec3 light_direction;
-uniform vec3 light_color;
-uniform vec3 eye_pos;
-uniform mat4 InverseViewProjection;
-uniform sampler2D NormalBuffer;
-uniform sampler2D DepthBuffer;
-
-in vec2 texcoord;
-
-void main() {
-	vec4 normal = vec4(texture(NormalBuffer, texcoord).xyz, 0.0);
-	normal.xyz *= 2.0;
-	normal.xyz -= vec3(1.0);
-
-	vec4 light_dir = vec4(light_direction, 0.0);
-	light_dir = normalize(light_dir);
-
-	float cosine = max(dot(light_dir, normal), 0.0);
-	float specular = 0.0;
-
-	float depth = texture(DepthBuffer, texcoord).x;
-
-	vec4 pixel_pos = vec4(
-		texcoord.x * 2.0 - 1.0,
-	  -(texcoord.y * 2.0 - 1.0),
-		depth,
-		1.0
-	);
-	pixel_pos = InverseViewProjection * pixel_pos;
-	pixel_pos /= pixel_pos.w;
-	vec3 to_pixel = normalize(eye_pos - pixel_pos.xyz);
-	
-	if (cosine > 0.0) {
-		vec3 half_vec = normalize(light_dir.xyz + to_pixel);
-		float half_vec_cos = max(dot(half_vec, normal.xyz), 0.0);
-		specular = pow(clamp(half_vec_cos, 0.0, 1.0), 64.0);
-	}
-
-	LightColor = vec4(vec3(cosine) * light_color, max(0.0, min(1.0, specular)));
-}
-	]])
-
-
-
-	composite = Shader:New(window.Graphics, [[
-#version 330
-layout(location=0) in vec3 position;
-layout(location=1) in vec2 texcoord_;
-
-out vec2 texcoord;
-
-void main() {
-	gl_Position = vec4(position, 1.0);
-	texcoord = texcoord_;
-}
-		]],[[
-#version 330
-
-layout(location=0) out vec4 FinalColor;
-
-uniform sampler2D DiffuseBuffer;
-uniform sampler2D LightBuffer;
-
-in vec2 texcoord;
-
-void main() {
-	vec4 diffuse = texture(DiffuseBuffer, texcoord);
-	vec4 light = texture(LightBuffer, texcoord);
-
-	FinalColor = vec4(diffuse.xyz * light.xyz, 1.0);
-}
-	]])
 
 
 	local mat2 = Material:New(window.Graphics)
@@ -212,7 +113,7 @@ void main() {
 
 	local plane_tex = Texture:New(Coeus.Asset.Image.ImageLoader:Load("assets/plane.png"))
 
-	mat2.Textures.tex = plane_tex
+	mat2.Textures.ModelTexture = plane_tex
 
 
 	plane:AddComponent(mat2)
@@ -234,9 +135,6 @@ void main() {
 	self.look_yaw = 0
 	self.look_roll = 0
 
-	local w, h = window:GetSize()
-	fb = Framebuffer:New(window.Graphics, w, h, 3, true)
-	light_buffer = Framebuffer:New(window.Graphics, w, h, 1, false)
 end
 
 local des_rot = Quaternion:New()
@@ -260,33 +158,13 @@ function TestApp:Render()
 	--local roll = Quaternion.FromAngleAxis(self.look_roll, Vector3:New(0, 0, 1))
 	des_rot = pitch * yaw
 	rot = Quaternion.Slerp(rot, des_rot, self.Timer:GetDelta() * 20)
-	
-	fb:Bind()
-	fb:Clear()
+
+	for i, light in ipairs(self.plights) do
+		local ang = light.ang_offset + os.clock()
+		light:SetPosition(math.cos(ang) * 4, 0, math.sin(ang) * 4)
+	end
 
 	window.Graphics:Render()
-	fb:Unbind()
-
-	light_buffer:Bind()
-	dir_light:Use()
-	dir_light:Send("eye_pos", cam:GetRenderTransform():GetTranslation())
-	dir_light:Send("InverseViewProjection", (window.Graphics.ActiveCamera:GetViewTransform() * window.Graphics.ActiveCamera:GetProjectionTransform()):GetInverse())
-	dir_light:Send("NormalBuffer", fb.textures[2])
-	dir_light:Send("DepthBuffer", fb.depth)
-	dir_light:Send("light_direction", Vector3:New(1, 1, 0))
-	dir_light:Send("light_color", Vector3:New(0.5, 0.5, 0.5))
-	light_buffer.mesh:Render()
-	light_buffer:Unbind()
-
-	composite:Use()
-
-	composite:Send("DiffuseBuffer", fb.textures[1])
-	composite:Send("LightBuffer", light_buffer.textures[1])
-	fb.mesh:Render()
-
-	--fb:Render()
-	window.Graphics:UnbindTextures()
-
 
 
 	local dist = 0

@@ -87,8 +87,13 @@ function Texture:SetData(image_data)
 			type		= GL.UNSIGNED_BYTE
 		},
 		[ImageData.Format.DepthStencil] = {
-			internal	= GL.DEPTH_STENCIL,
-			format 		= GL.DEPTH_STENCIL,
+			internal	= GL.DEPTH32F_STENCIL8,
+			format 		= GL.DEPTH_COMPONENT,
+			type		= GL.UNSIGNED_BYTE
+		},
+		[ImageData.Format.Single] = {
+			internal	= GL.R32F,
+			format 		= GL.RED,
 			type		= GL.UNSIGNED_BYTE
 		}
 	}
@@ -98,7 +103,6 @@ function Texture:SetData(image_data)
 	if image_data.image then
 		dat = image_data.image
 	end
-	print(dat, width, height)
 	gl.TexImage2D(GL.TEXTURE_2D, 0, format.internal, width, height, 0, format.format, format.type, dat)
 end
 

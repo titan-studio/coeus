@@ -69,7 +69,12 @@ function OBJLoader:_new(filename)
 	end
 
 	local mesh = Mesh:New()
-	mesh:SetData(vertex_data, index_data, Mesh.DataFormat.PositionTexCoordNormalInterleaved)
+	local mesh_data = Coeus.Asset.Model.MeshData:New()
+	mesh_data.Vertices = vertex_data
+	mesh_data.Indices = index_data
+	mesh_data.Format.TexCoords = true
+	mesh_data.Format.Normals = true
+	mesh:SetData(mesh_data)
 
 	self.mesh = mesh
 end

@@ -23,7 +23,7 @@ local Framebuffer = OOP:Class() {
 	width = 0, height = 0,
 }
 
-function Framebuffer:_new(context, width, height, num_color_buffers, with_depth)
+function Framebuffer:_new(context, width, height, formats, with_depth, with_stencil)
 	self.width = width
 	self.height = height
 	self.GraphicsContext = context
@@ -38,13 +38,14 @@ function Framebuffer:_new(context, width, height, num_color_buffers, with_depth)
 	gl.GetIntegerv(GL.DRAW_FRAMEBUFFER_BINDING, prev_fbo)
 	gl.BindFramebuffer(GL.FRAMEBUFFER, self.fbo)
 
-	self.draw_buffers_data = ffi.new("int[?]", num_color_buffers)
-	for i = 0, num_color_buffers - 1 do
+	self.draw_buffers_data = ffi.new("int[?]", #formats)
+	for i = 0, #formats - 1 do
 		local image_data = ImageData:New()
 		image_data.image = nil
 		image_data.Width = width
 		image_data.Height = height
-		image_data.format = ImageData.Format.RGBA
+		image_data.format = formats[i+1]
+
 
 		local texture = Texture:New(image_data)
 		gl.FramebufferTexture2D(GL.FRAMEBUFFER, GL.COLOR_ATTACHMENT0 + i, GL.TEXTURE_2D, texture.handle, 0)
@@ -53,21 +54,34 @@ function Framebuffer:_new(context, width, height, num_color_buffers, with_depth)
 		self.textures[#self.textures + 1] = texture
 		self.draw_buffers_data[i] = GL.COLOR_ATTACHMENT0 + i
 	end
-	
+
 	if with_depth then
 		local image_data = ImageData:New()
 		image_data.image = nil
 		image_data.Width = width
 		image_data.Height = height
-		image_data.format = ImageData.Format.Depth
+		if with_stencil == true then
+			image_data.format = ImageData.Format.DepthStencil
+		else
+			image_data.format = ImageData.Format.Depth
+		end
 
 		self.depth = Texture:New(image_data)
-		gl.FramebufferTexture2D(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.TEXTURE_2D, self.depth.handle, 0)
+
+		if with_stencil == true then
+			gl.FramebufferTexture2D(GL.FRAMEBUFFER, GL.DEPTH_STENCIL_ATTACHMENT, GL.TEXTURE_2D, self.depth.handle, 0)
+		else
+			gl.FramebufferTexture2D(GL.FRAMEBUFFER, GL.DEPTH_ATTACHMENT, GL.TEXTURE_2D, self.depth.handle, 0)
+		end
 	end
 
 	gl.BindFramebuffer(GL.FRAMEBUFFER, prev_fbo[0])
+	local status = gl.CheckFramebufferStatus(GL.FRAMEBUFFER)
+	--print("status: " .. status)
 
-	self.shader = Shader:New(self.GraphicsContext, [[
+	self.shader = self.GraphicsContext.Shaders.FramebufferRender
+	if not self.shader then
+		self.shader = Shader:New(self.GraphicsContext, [[
 #version 330
 layout(location=0) in vec3 position;
 layout(location=1) in vec2 texcoord_;
@@ -90,18 +104,10 @@ in vec2 texcoord;
 void main() {
 	FragColor = texture(FBOTexture, texcoord);
 }
-	]])
-
-	self.mesh = Mesh:New()
-	self.mesh:SetData({
-		-1.0, -1.0, 0.0, 	0.0, 0.0,
-		 1.0, -1.0, 0.0,	1.0, 0.0,
-		-1.0,  1.0, 0.0, 	0.0, 1.0,
-		 1.0,  1.0, 0.0,	1.0, 1.0
-	}, {
-		0, 1, 2,
-		2, 1, 3
-	}, Mesh.DataFormat.PositionTexCoordInterleaved)
+		]])
+		self.GraphicsContext.Shaders.FramebufferRender = self.shader
+	end
+	self.mesh = self.GraphicsContext.FullscreenQuad
 end
 
 function Framebuffer:Bind()
@@ -121,12 +127,7 @@ function Framebuffer:Render(shader)
 	local shader = shader or self.shader
 
 	shader:Use()
-	shader:Send("FBOTexture", self.textures[2])
-	self.mesh:Render()
-end
-
-function Framebuffer:RenderTo(shader)
-	shader:Use()
+	shader:Send("FBOTexture", self.textures[1])
 	self.mesh:Render()
 end
 

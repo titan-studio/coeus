@@ -13,7 +13,8 @@ local ImageData = OOP:Class(Coeus.Asset.Format) {
 ImageData.Format = OOP:Static() {
 	RGBA 			= 0,
 	Depth			= 1,
-	DepthStencil 	= 2
+	DepthStencil 	= 2,
+	Single			= 3
 }
 
 return ImageData

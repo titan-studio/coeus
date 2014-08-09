@@ -82,7 +82,7 @@ function Window:_new(title, width, height, mode)
 	glfw.WindowHint(GLFW.OPENGL_FORWARD_COMPAT, GL.TRUE)
 	glfw.WindowHint(GLFW.OPENGL_DEBUG_CONTEXT, GL.TRUE)
 
-	glfw.WindowHint(GLFW.DEPTH_BITS, 24)
+	glfw.WindowHint(GLFW.DEPTH_BITS, 32)
 
 	glfw.WindowHint(GLFW.RESIZABLE, resizable and GL.TRUE or GL.FALSE)
 
@@ -228,7 +228,7 @@ end
 function Window:PreRender()
 	self:Use()
 	gl.ClearDepth(1.0)
-	gl.ClearColor(0, 0, 0, 1)
+	gl.ClearColor(0, 0, 0, 0)
 	gl.Clear(bit.bor(tonumber(GL.COLOR_BUFFER_BIT), tonumber(GL.DEPTH_BUFFER_BIT)))
 end
 
