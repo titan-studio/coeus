@@ -1,6 +1,8 @@
 local Coeus = ...
 local OOP = Coeus.Utility.OOP
 
+local ffi = require("ffi")
+
 local ImageData = OOP:Class(Coeus.Asset.Format) {
 	Width = 0,
 	Height = 0,
@@ -27,8 +29,8 @@ function ImageData:Map(func)
 	for i = 0, self.Width - 1 do
 		for j = 0, self.Height - 1 do
 			local bytes = {func(self, i, j, self.image, ctr)}
-			for i = 0, bpp - 1 do
-				self.image[ctr + i] = bytes[i] or 0
+			for i = 1, bpp do
+				self.image[ctr + i - 1] = bytes[i] or 0
 			end
 			ctr = ctr + bpp
 		end

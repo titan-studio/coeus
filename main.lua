@@ -111,7 +111,20 @@ function TestApp:Initialize()
 	local mat2 = Material:New(window.Graphics)
 	mat2.Shader = material.Shader
 
-	local plane_tex = Texture:New(Coeus.Asset.Image.ImageLoader:Load("assets/plane.png"))
+	local plane_data = Coeus.Asset.Image.ImageData:New()
+	plane_data.Width = 100
+	plane_data.Height = 100
+	plane_data:Map(function(img_data, x, y, buffer, offset)
+		local r, g, b, a = 0, 0, 0, 0
+
+		r = (x / plane_data.Width) * 255
+		g = (y / plane_data.Height) * 255
+		b = 255
+		a = 255
+
+		return r, g, b, a
+	end)	
+	local plane_tex = Texture:New(plane_data)
 
 	mat2.Textures.ModelTexture = plane_tex
 
