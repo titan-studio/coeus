@@ -100,7 +100,7 @@ end
 
 function PointLight:Render(light)
 	if not light then return end
-	
+
 	local camera = self.GraphicsContext.ActiveCamera
 	if not camera then 
 		return 
@@ -139,7 +139,8 @@ function PointLight:Render(light)
 	self.shader:Send("NormalBuffer", geom_fbo.textures[2])
 	self.shader:Send("DepthBuffer", geom_fbo.depth)
 
-	self.shader:Send("ScreenSize", Vector3:New(1280, 720, 0))
+	local w,h = self.GraphicsContext.Window:GetSize()
+	self.shader:Send("ScreenSize", Vector3:New(w, h, 0))
 
 	self.shader:Send("LightPosition", light_pos)
 	self.shader:Send("LightRadius", self.LightRadius)
