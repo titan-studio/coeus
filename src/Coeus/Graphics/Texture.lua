@@ -55,7 +55,7 @@ function Texture:UpdateTextureParameters()
 		}
 	}
 	local min = filter_lookup[self.mipmapping][self.filter_min] or GL.NEAREST
-	local mag = filter_lookup[self.mipmapping][self.filter_max] or GL.NEAREST
+	local mag = filter_lookup[self.mipmapping][self.filter_mag] or GL.NEAREST
 
 	gl.TexParameterf(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, min)
 	gl.TexParameterf(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, mag)
