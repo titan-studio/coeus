@@ -1,4 +1,5 @@
 local Coeus = require("src.Coeus")
+local ffi = require("ffi")
 
 local Window = Coeus.Graphics.Window
 local Vector3 = Coeus.Math.Vector3
@@ -25,6 +26,11 @@ local window = Window:New("Coeus", 1280, 720, {fullscreen = false, resizable = t
 local TestApp = Coeus.Application:New(window)
 local keyboard = window.Keyboard
 local mouse = window.Mouse
+local SoundLoader = Coeus.Asset.Sound.SoundLoader
+local SoundEmitter = Coeus.Sound.SoundEmitter
+local SoundData = Coeus.Asset.Sound.SoundData
+
+local OpenAL = Coeus.Bindings.OpenAL
 
 local PlaneMesh = Coeus.Graphics.Debug.PlaneMesh
 
@@ -41,6 +47,10 @@ local dir_light = nil
 local point_light = nil
 local point_mesh = nil
 local composite = nil
+
+local aldevice = OpenAL.alcOpenDevice(nil)
+local alcontext = OpenAL.alcCreateContext(aldevice, nil)
+OpenAL.alcMakeContextCurrent(alcontext)
 
 --local testpng, err = Coeus.Asset.Image.Formats.PNG:Load("assets/test.png")
 --local testpng, err = Coeus.Asset.Image.ImageLoader:Load("assets/test.png")
@@ -148,6 +158,12 @@ function TestApp:Initialize()
 	self.look_yaw = 0
 	self.look_roll = 0
 
+	--[[
+	local testdata = SoundLoader:Load("assets/test.ogg", true)
+	local emitter = SoundEmitter:New(testdata)
+	emitter:SetLooping(true)
+	emitter:Play()
+	]]
 end
 
 local des_rot = Quaternion:New()

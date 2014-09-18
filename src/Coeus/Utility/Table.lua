@@ -95,7 +95,7 @@ function Table.Copy(source, target)
 	return target
 end
 
-function Table.DeepCopy(source, target, break_lock)
+function Table.DeepCopy(source, target)
 	target = target or {}
 
 	for key, value in pairs(source) do
@@ -127,7 +127,7 @@ function Table.Merge(source, target)
 	return target
 end
 
-function Table.CopyMerge(source, target, break_lock)
+function Table.CopyMerge(source, target)
 	if (not target) then
 		return nil
 	end
@@ -149,7 +149,7 @@ function Table.CopyMerge(source, target, break_lock)
 	return target
 end
 
-function Table.DeepCopyMerge(source, target, break_lock)
+function Table.DeepCopyMerge(source, target)
 	if (not target) then
 		return nil
 	end

@@ -8,9 +8,11 @@ function OOP:Class(...)
 
 	return function(target)
 		if (target) then
+			new.Is:GetInternal()[target] = true
 			Table.Merge(new, target)
 			return target
 		else
+			new.Is:GetInternal()[new] = true
 			return new
 		end
 	end
@@ -22,9 +24,11 @@ function OOP:Static(...)
 
 	return function(target)
 		if (target) then
+			new.Is:GetInternal()[target] = true
 			Table.Merge(new, target)
 			return target
 		else
+			new.Is:GetInternal()[new] = true
 			return new
 		end
 	end
@@ -46,8 +50,10 @@ function OOP:Wrap(object, userdata)
 		end
 	end
 
-	for key, value in pairs(object.__metatable) do
-		imeta[key] = value
+	if (object.__metatable) then
+		for key, value in pairs(object.__metatable) do
+			imeta[key] = value
+		end
 	end
 
 	return interface
@@ -57,16 +63,28 @@ OOP.Object = {
 	__metatable = {}
 }
 
+OOP.Object.Is = OOP:Wrap({[OOP.Object] = true})
+
 --Class Methods
 function OOP.Object:Inherit(...)
+	local is = Table.Copy(self.Is:GetInternal())
+
 	for key, item in ipairs({...}) do
 		Table.DeepCopyMerge(item, self)
+
+		if (item.Is) then
+			for key, value in pairs(item.Is:GetInternal()) do
+				is[key] = value or is[key]
+			end
+		end
 
 		local imeta = item.__metatable or getmetatable(item)
 		if (imeta) then
 			Table.Merge(imeta, self.__metatable)
 		end
 	end
+
+	self.Is = OOP:Wrap(is)
 
 	return self
 end
@@ -105,13 +123,7 @@ function OOP.Object:Destroy()
 end
 
 OOP.StaticObject = {}
-
-function OOP.StaticObject:Inherit(...)
-	for key, item in ipairs({...}) do
-		Table.DeepCopyMerge(item, self)
-	end
-
-	return self
-end
+OOP.StaticObject.Is = OOP:Wrap({[OOP.StaticObject] = true})
+OOP.StaticObject.Inherit = OOP.Object.Inherit
 
 return OOP

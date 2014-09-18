@@ -1,4 +1,6 @@
 local Coeus = ...
+local ffi = require("ffi")
+
 local OOP = Coeus.Utility.OOP
 local ogg = Coeus.Bindings.libogg
 local vorbisfile = Coeus.Bindings.libvorbisfile
@@ -13,7 +15,7 @@ local BUFFER_SIZE = 32768
 
 function OGGFormat:Load(filename)
 	local buffer = {}
-	local parray = ffi.new("uint8_t[?]", BUFFER_SIZE)
+	local array = ffi.new("uint8_t[?]", BUFFER_SIZE)
 	local endian = 0
 	local pbit_stream = ffi.new("int[1]")
 
@@ -44,13 +46,12 @@ function OGGFormat:Load(filename)
 	until (bytes == 0)
 
 	local bufstr = table.concat(buffer)
+	local data = ffi.new("uint8_t[?]", total_size)
 	for i = 1, total_size do
-		buffer[i] = string.byte(bufstr:sub(i, i))
+		data[i - 1] = string.byte(bufstr:sub(i, i))
 	end
 
 	vorbisfile.ov_clear(oggFile)
-
-	local data = ffi.new("uint8_t[?]", total_size, buffer)
 
 	local out = SoundData:New()
 	out.format = format

@@ -5,11 +5,11 @@ local Loader = OOP:Static() {
 	Formats = {}
 }
 
-function Loader:Load(path)
+function Loader:Load(path, ...)
 	local loader
 
 	for name, member in pairs(self.Formats) do
-		if (member:Match(path)) then
+		if (member:Match(path, ...)) then
 			loader = member
 			break
 		end
@@ -20,7 +20,7 @@ function Loader:Load(path)
 		return
 	end
 
-	return loader:Load(path)
+	return loader:Load(path, ...)
 end
 
 return Loader
