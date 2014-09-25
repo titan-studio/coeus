@@ -37,7 +37,11 @@ freely, subject to the following restrictions:
 #include <string>
 #endif /*__cplusplus*/
 
+#ifdef _WIN32
 #define WExport __declspec(dllexport)
+#else
+#define WExport
+#endif
 
 /*
 The following #defines are used to create code sections. They can be disabled
