@@ -2,6 +2,8 @@
 
 3D game engine in pure LuaJIT with a focus on fast development and high quality games. Official IRC is at #coeus on irc.oftc.net.
 
+Make sure to have ./?/init.lua in your LUA_PATH to use Coeus.
+
 Binaries for Windows (32-bit) are included in the lib/win32 folder. They were built with Visual Studio 2013. You'll still need a LuaJIT install with LuaSocket and LuaFileSystem, however, and it might need to be built with Visual Studio as well.
 
 ## Dependencies
