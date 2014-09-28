@@ -1,3 +1,5 @@
+package.path = package.path .. ";?/init.lua"
+
 local Coeus = require("src.Coeus")
 local ffi = require("ffi")
 
