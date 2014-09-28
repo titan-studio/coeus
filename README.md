@@ -1,6 +1,6 @@
 # Coeus Game Engine
 
-3D game engine in pure LuaJIT with a focus on fast development and high quality games. Official IRC is at #coeus on irc.oftc.net.
+3D game engine in pure LuaJIT with a focus on fast development and high quality games. Official IRC is at #titan-studio on irc.freenode.net.
 
 Make sure to have ./?/init.lua in your LUA_PATH to use Coeus.
 
