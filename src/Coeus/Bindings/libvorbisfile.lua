@@ -3,7 +3,7 @@ local ffi = require("ffi")
 local libvorbisfile
 
 if (ffi.os == "Windows") then
-	libvorbisfile = ffi.load(Coeus.BinDir .. "libvorbisfile")
+	libvorbisfile = ffi.load("libvorbisfile")
 else
 	libvorbisfile = ffi.load("libvorbisfile")
 end

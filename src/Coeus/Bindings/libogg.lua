@@ -3,7 +3,7 @@ local ffi = require("ffi")
 local libogg
 
 if (ffi.os == "Windows") then
-	libogg = ffi.load(Coeus.BinDir .. "libogg")
+	libogg = ffi.load("libogg")
 else
 	libogg = ffi.load("ogg")
 end

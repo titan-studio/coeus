@@ -3,7 +3,7 @@ local ffi = require("ffi")
 local openal
 
 if (ffi.os == "Windows") then
-	openal = ffi.load(Coeus.BinDir .. "OpenAL")
+	openal = ffi.load("openal")
 else
 	openal = ffi.load("openal")
 end
