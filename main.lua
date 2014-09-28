@@ -1,3 +1,7 @@
+if (not package.path:match("%.[/\\]%?[/\\]init%.lua")) then
+	package.path = "./?/init.lua;" .. package.path
+end
+
 local Coeus = require("src.Coeus")
 local ffi = require("ffi")
 

@@ -48,9 +48,9 @@ local Coeus = {
 }
 
 if (Coeus.Release) then
-	Coeus.BinDir = "bin/"
+	Coeus.BinDir = "./bin/"
 else
-	Coeus.BinDir = "bin/" .. Coeus.Platform .. Coeus.Architecture .. "/"
+	Coeus.BinDir = "./bin/" .. Coeus.Platform .. Coeus.Architecture .. "/"
 end
 
 function Coeus:Load(name, safe)
