@@ -2,7 +2,7 @@ local Coeus = ...
 local ffi = require("ffi")
 local libvorbis
 
-if (ffi.os == "Windows")
+if (ffi.os == "Windows") then
 	libvorbis = ffi.load(Coeus.BinDir .. "libvorbis")
 else
 	libvorbis = ffi.load("libvorbis")
