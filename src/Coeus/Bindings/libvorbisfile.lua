@@ -1,7 +1,12 @@
 local Coeus = ...
 local ffi = require("ffi")
-local so = ffi.load(Coeus.BinDir .. "libvorbisfile")
-local libvorbisfile = (ffi.os == "Windows") and so or ffi.C
+local libvorbisfile
+
+if (ffi.os == "Windows") then
+	libvorbisfile = ffi.load(Coeus.BinDir .. "libvorbisfile")
+else
+	libvorbisfile = ffi.load("libvorbisfile")
+end
 
 Coeus:Load("Bindings.libvorbis")
 Coeus:Load("Bindings.stdio_")

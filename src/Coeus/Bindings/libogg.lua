@@ -1,7 +1,12 @@
 local Coeus = ...
 local ffi = require("ffi")
-local so = ffi.load(Coeus.BinDir .. "libogg")
-local libogg = (ffi.os == "Windows") and so or ffi.C
+local libogg
+
+if (ffi.os == "Windows") then
+	libogg = ffi.load(Coeus.BinDir .. "libogg")
+else
+	libogg = ffi.load("ogg")
+end
 
 --os_types.h
 ffi.cdef([[
