@@ -1,7 +1,12 @@
 local Coeus = ...
 local ffi = require("ffi")
-local so = ffi.load(Coeus.BinDir .. "OpenAL")
-local oal = (ffi.os == "Windows") and so or ffi.C
+local openal
+
+if (ffi.os == "Windows") then
+	openal = ffi.load(Coeus.BinDir .. "OpenAL")
+else
+	openal = ffi.load("openal")
+end
 
 --alc.h
 ffi.cdef([[
@@ -372,4 +377,4 @@ typedef void          (*LPALSPEEDOFSOUND)(ALfloat value);
 typedef void          (*LPALDISTANCEMODEL)(ALenum distanceModel);
 ]])
 
-return oal
+return openal

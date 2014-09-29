@@ -414,7 +414,11 @@ int main(int arg, char **argv)
 extern "C" {
 #endif
 
+#ifdef _WIN32
 #define WExport __declspec(dllexport)
+#else
+#define WExport
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 //

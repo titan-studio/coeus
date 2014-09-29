@@ -1,5 +1,6 @@
 local Coeus = ...
 local OOP = Coeus.Utility.OOP
+local OpenAL = Coeus.Bindings.OpenAL
 
 local SoundCommon = {}
 
@@ -11,7 +12,7 @@ SoundCommon.Format = OOP:Static() {
 }
 
 local F = SoundCommon.Format
-SoundCommon.OpenAL_Format = OOP:Static() {
+SoundCommon.OpenALFormat = OOP:Static() {
 	[F.Mono8] = OpenAL.AL_FORMAT_MONO8,
 	[F.Mono16] = OpenAL.AL_FORMAT_MONO16,
 	[F.Stereo8] = OpenAL.AL_FORMAT_STEREO8,

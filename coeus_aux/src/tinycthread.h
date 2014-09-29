@@ -28,7 +28,11 @@ freely, subject to the following restrictions:
 #ifndef _TINYCTHREAD_H_
 #define _TINYCTHREAD_H_
 
+#ifdef _WIN32
 #define WExport __declspec(dllexport)
+#else
+#define WExport
+#endif
 
 /**
 * @file
