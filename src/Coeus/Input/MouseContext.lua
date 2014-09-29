@@ -26,6 +26,9 @@ local MouseContext = OOP:Class() {
 	delta_x = 0,
 	delta_y = 0,
 
+	double_click_time = 0.250,
+
+
 	ButtonDown = Event:New(),
 	ButtonUp = Event:New(),
 	EnterWindow = Event:New(),
