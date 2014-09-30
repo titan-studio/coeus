@@ -116,8 +116,6 @@ struct iqmpose
     // output = (input*scale)*rotation + translation
 };
 
-ushort frames[]; // frames is a big unsigned short array where each group of framechannels components is one frame
-
 struct iqmanim
 {
     uint name;
@@ -136,9 +134,6 @@ struct iqmbounds
     float bbmins[3], bbmaxs[3]; // the minimum and maximum coordinates of the bounding box for this animation frame
     float xyradius, radius; // the circular radius in the X-Y plane, as well as the spherical radius
 };
-
-char text[]; // big array of all strings, each individual string being 0 terminated, with the first string always being the empty string "" (i.e. text[0] == 0)
-char comment[];
 
 struct iqmextension
 {
