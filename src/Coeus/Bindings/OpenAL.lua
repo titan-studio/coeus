@@ -1,12 +1,6 @@
 local Coeus = ...
 local ffi = require("ffi")
-local openal
-
-if (ffi.os == "Windows") then
-	openal = ffi.load(Coeus.BinDir .. "OpenAL")
-else
-	openal = ffi.load("openal")
-end
+local openal = ffi.load("openal")
 
 --alc.h
 ffi.cdef([[

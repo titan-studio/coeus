@@ -1,12 +1,6 @@
 local Coeus = ...
 local ffi = require("ffi")
-local libvorbis
-
-if (ffi.os == "Windows") then
-	libvorbis = ffi.load(Coeus.BinDir .. "libvorbis")
-else
-	libvorbis = ffi.load("libvorbis")
-end
+local libvorbis = ffi.load("libvorbis")
 
 Coeus:Load("Bindings.libogg")
 

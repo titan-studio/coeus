@@ -13,6 +13,8 @@ ffi.cdef([[
 	typedef unsigned long DWORD;
 	typedef unsigned long ULONG_PTR;
 	typedef void *HANDLE;
+	typedef const char *LPCSTR;
+	typedef int BOOL;
 
 	typedef struct _LIST_ENTRY {
 	   struct _LIST_ENTRY *Flink;
@@ -51,6 +53,7 @@ ffi.cdef([[
 
 	void Sleep(DWORD milliseconds);
 	MMRESULT timeBeginPeriod(unsigned int uperiod);
+	BOOL SetDllDirectoryA(LPCSTR lpPathName);
 ]])
 
 return ffi.C

@@ -1,4 +1,5 @@
 local PATH = (...)
+local ffi = require("ffi")
 local lfs = require("lfs")
 local Coeus
 
@@ -260,5 +261,9 @@ local GLFW = GLFW.GLFW
 local gl = OpenGL.gl
 local GL = OpenGL.GL
 OpenGL.loader = glfw.GetProcAddress
+
+if (ffi.os == "Windows") then
+	Coeus.Bindings.Win32_.SetDllDirectoryA(Coeus.BinDir)
+end
 
 return Coeus
