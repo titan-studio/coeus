@@ -1,7 +1,7 @@
 local Coeus = (...)
-local oop = Coeus.Utility.OOP
+local OOP = Coeus.Utility.OOP
 
-local Vector3 = oop:Class() {
+local Vector3 = OOP:Class() {
 	x = 0,
 	y = 0,
 	z = 0
@@ -63,7 +63,7 @@ function Vector3.Cross(a, b)
 end
 
 function Vector3:LengthSquared()
-	return (self.x^2)+(self.y^2)+(self.z^2)
+	return (self.x^2) + (self.y^2) + (self.z^2)
 end
 function Vector3:Length()
 	return math.sqrt(self:LengthSquared())
@@ -90,6 +90,10 @@ end
 
 function Vector3:GetValues()
 	return {self.x, self.y, self.z}
+end
+
+function Vector3:XY() 
+	return Coeus.Math.Vector2:New(self.x, self.y)
 end
 
 Vector3:AddMetamethods({
