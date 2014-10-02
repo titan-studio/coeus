@@ -37,13 +37,12 @@ And the associated `config-debug.lua`:
 --config-debug.lua
 local config = {
 	Debug = true,
-	BinDir = "C:/path/to/coeus/bin/win32/", --Path to Coeus binaries
-	CoeusDir = "C:/path/to/coeus/src/" --Path to Coeus sources
+	BinDir = "C:/path/to/coeus/bin/win32/",
+	SourceDir = "C:/path/to/coeus/src/"
 }
 
---Update Lua's path to add Coeus automatically
-config.SourceDir = config.CoeusDir .. "Coeus/"
-package.path = package.path .. ";" .. config.CoeusDir .. "?/init.lua"
+--update path to add Coeus
+package.path = package.path .. ";" .. config.SourceDir .. "?/init.lua"
 
 return config
 ```

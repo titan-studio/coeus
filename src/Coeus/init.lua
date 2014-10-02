@@ -48,7 +48,8 @@ local Coeus = {
 	Platform = platform_short[jit.os], --What are we running on?
 	Architecture = arch_short[jit.arch], --How many bits do we have?
 	BinDir = "./bin/", --Location of binaries
-	SourceDir = "./src/Coeus/", --Location of source files
+	SourceDir = "./src/", --Location of all source files
+	CoeusDir = "./src/Coeus/", --Location of Coeus source files
 
 	Version = {0, 1, 0, "alpha"}, --The current version of the engine in the form MAJOR.MINOR.PATCH-STAGE
 
@@ -73,6 +74,9 @@ function Coeus:Initialize(config)
 	self.BinDir = fix_directory(self.BinDir)
 	self.SourceDir = fix_directory(self.SourceDir)
 
+	--Build CoeusDir
+	self.CoeusDir = self.SourceDir .. "Coeus/"
+
 	--Force Windows to load binaries from here
 	if (ffi.os == "Windows") then
 		Coeus.Bindings.Win32_.SetDllDirectoryA(Coeus.BinDir)
@@ -95,8 +99,8 @@ function Coeus:Load(name, safe)
 		return self:LoadVFSEntry(name, safe)
 	end
 
-	local file = self.SourceDir .. name_to_file(name)
-	local dir = self.SourceDir .. name_to_directory(name)
+	local file = self.CoeusDir .. name_to_file(name)
+	local dir = self.CoeusDir .. name_to_directory(name)
 
 	local file_mode = lfs.attributes(file, "mode")
 	local dir_mode = lfs.attributes(dir, "mode")
@@ -146,7 +150,7 @@ function Coeus:LoadFile(name, path, safe)
 		return self.loaded[id]
 	end
 
-	path = path or (self.SourceDir .. name_to_file(name))
+	path = path or (self.CoeusDir .. name_to_file(name))
 
 	local chunk, err = loadfile(path)
 
@@ -176,7 +180,7 @@ function Coeus:LoadDirectory(name, path)
 		return self.loaded[id]
 	end
 
-	path = path or (self.SourceDir .. name_to_directory(name))
+	path = path or (self.CoeusDir .. name_to_directory(name))
 
 	local container = setmetatable({}, {
 		__index = function(container, key)
@@ -198,7 +202,7 @@ end
 ]]
 function Coeus:FullyLoadDirectory(name, path)
 	local id = name_to_id(name)
-	path = path or (self.SourceDir .. name_to_directory(name))
+	path = path or (self.CoeusDir .. name_to_directory(name))
 
 	local directory = self:LoadDirectory(name, path)
 
