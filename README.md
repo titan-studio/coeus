@@ -1,6 +1,6 @@
 # Coeus
 
-Coeus is a 3D game engine in pure LuaJIT with a focus on fast development and high quality games. Currently confirmed to run on both Windows and Linux.
+Coeus is a 3D game engine in pure LuaJIT with a focus on fast development and high quality games. Currently confirmed to run on both Windows and Linux. Check out some of the demos in our [Coeus Demos Repository](https://github.com/titan-studio/coeus-demos)
 
 Official IRC is at #titan-interactive on irc.freenode.net.
 
