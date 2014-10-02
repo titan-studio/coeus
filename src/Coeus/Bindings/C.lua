@@ -14,12 +14,16 @@ struct _iobuf {
 	char *_tmpfname;
 };
 typedef struct _iobuf FILE;
+typedef int32_t size_t;
 
 enum {
 	SEEK_CUR = 1,
 	SEEK_END = 2,
 	SEEK_SET = 0
 };
+
+void* malloc(size_t size);
+void free(void* ptr);
 
 FILE* fopen(const char* filename, const char* mode);
 int fclose(FILE* stream);

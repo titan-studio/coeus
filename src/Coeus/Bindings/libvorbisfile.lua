@@ -3,7 +3,7 @@ local ffi = require("ffi")
 local libvorbisfile = ffi.load("libvorbisfile")
 
 Coeus:Load("Bindings.libvorbis")
-Coeus:Load("Bindings.stdio_")
+Coeus:Load("Bindings.C")
 
 --vorbisfile.h
 ffi.cdef([[

@@ -19,6 +19,14 @@ local function name_to_id(name)
 	return name:lower()
 end
 
+local function fix_directory(dir)
+	if (not dir:match("[/\\]$")) then
+		return dir .. "/"
+	else
+		return dir
+	end
+end
+
 local platform_short = {
 	Windows = "win",
 	Linux = "linux",
@@ -35,27 +43,50 @@ local arch_short = {
 }
 
 local Coeus = {
-	Release = false,
-	Platform = platform_short[jit.os],
-	Architecture = arch_short[jit.arch],
-	BinDir = "", --defined below
+	--Public members
+	Debug = true, --Is this build a developer build?
+	Platform = platform_short[jit.os], --What are we running on?
+	Architecture = arch_short[jit.arch], --How many bits do we have?
+	BinDir = "./bin/", --Location of binaries
+	SourceDir = "./src/Coeus/", --Location of source files
 
-	Root = (PATH and PATH .. ".") or "",
-	Version = {0, 0, 0},
+	Version = {0, 0, 0}, --The current version of the engine in the form MAJOR.MINOR.REVISION
 
-	vfs = {},
-	loaded = {},
+	--Private members
+	vfs = {}, --A virtual file system handler, used by the build system.
+	loaded = {}, --A list of all loaded modules; useful for iteration
 	meta = {}
 }
 
-if (Coeus.Release) then
-	Coeus.BinDir = "./bin/"
-else
-	Coeus.BinDir = "./bin/" .. Coeus.Platform .. Coeus.Architecture .. "/"
+--[[
+	Initialize Coeus with an optional configuration structure.
+]]
+function Coeus:Initialize(config)
+	--Load in an optional config option and patch Coeus with it.
+	if (config) then
+		for key, value in pairs(config) do
+			self[key] = value
+		end
+	end
+
+	--Make sure BinDir and SourceDir end with trailing slashes
+	self.BinDir = fix_directory(self.BinDir)
+	self.SourceDir = fix_directory(self.SourceDir)
+
+	--Force Windows to load binaries from here
+	if (ffi.os == "Windows") then
+		Coeus.Bindings.Win32_.SetDllDirectoryA(Coeus.BinDir)
+	end
+
+	--Set our OpenGL method loader to GLFW
+	Coeus.Bindings.OpenGL.loader = Coeus.Bindings.GLFW.glfw.GetProcAddress
 end
 
+--[[
+	Loads a module given an identifying string.
+	The module can exist either on the real filesystem or in the VFS.
+]]
 function Coeus:Load(name, safe)
-	local abs_name = self.Root .. name
 	local id = name_to_id(name)
 
 	if (self.loaded[id]) then
@@ -64,8 +95,8 @@ function Coeus:Load(name, safe)
 		return self:LoadVFSEntry(name, safe)
 	end
 
-	local file = name_to_file(abs_name)
-	local dir = name_to_directory(abs_name)
+	local file = self.SourceDir .. name_to_file(name)
+	local dir = self.SourceDir .. name_to_directory(name)
 
 	local file_mode = lfs.attributes(file, "mode")
 	local dir_mode = lfs.attributes(dir, "mode")
@@ -81,6 +112,10 @@ function Coeus:Load(name, safe)
 	end
 end
 
+--[[
+	Loads a Lua chunk with the associated module metadata.
+	Used internally and called by all Load* methods.
+]]
 function Coeus:LoadChunk(chunk, meta)
 	meta = meta or {}
 	local success, object = pcall(chunk, self, meta)
@@ -101,15 +136,17 @@ function Coeus:LoadChunk(chunk, meta)
 	end
 end
 
+--[[
+	Loads a file located on the real filesystem.
+]]
 function Coeus:LoadFile(name, path, safe)
 	local id = name_to_id(name)
-	local abs_name = self.Root .. name
 
 	if (self.loaded[id]) then
 		return self.loaded[id]
 	end
 
-	path = path or name_to_file(abs_name)
+	path = path or (self.SourceDir .. name_to_file(name))
 
 	local chunk, err = loadfile(path)
 
@@ -128,15 +165,18 @@ function Coeus:LoadFile(name, path, safe)
 	})
 end
 
+--[[
+	Loads a directory and returns a virtual directory object.
+	All members are lazy loaded.
+]]
 function Coeus:LoadDirectory(name, path)
 	local id = name_to_id(name)
-	local abs_name = self.Root .. name
 
 	if (self.loaded[id]) then
 		return self.loaded[id]
 	end
 
-	path = path or name_to_directory(abs_name)
+	path = path or (self.SourceDir .. name_to_directory(name))
 
 	local container = setmetatable({}, {
 		__index = function(container, key)
@@ -152,10 +192,13 @@ function Coeus:LoadDirectory(name, path)
 	return container
 end
 
+--[[
+	Iterates through a directory and fully loads its structure.
+	This is useful when treating folders as collections, like in the built-in Asset module.
+]]
 function Coeus:FullyLoadDirectory(name, path)
-	local abs_name = self.Root .. name
 	local id = name_to_id(name)
-	path = path or name_to_directory(abs_name)
+	path = path or (self.SourceDir .. name_to_directory(name))
 
 	local directory = self:LoadDirectory(name, path)
 
@@ -179,6 +222,10 @@ function Coeus:FullyLoadDirectory(name, path)
 	return directory
 end
 
+--[[
+	Returns a shallow copy of the list of modules currently loaded.
+	Useful if the list needs to be mutated.
+]]
 function Coeus:GetLoadedModules()
 	local buffer = {}
 	for key, value in pairs(self.loaded) do
@@ -190,6 +237,10 @@ function Coeus:GetLoadedModules()
 	return buffer
 end
 
+--[[
+	Loads a file from the virtual file system tables.
+	Called automatically if the file we're looking for is determined to be on the VFS.
+]]
 function Coeus:LoadVFSEntry(name, safe)
 	local id = name_to_id(name)
 	local entry = self.vfs[id]
@@ -231,10 +282,18 @@ function Coeus:LoadVFSEntry(name, safe)
 	end
 end
 
+--[[
+	Registers a new directory in the virtual file system table
+	Used by the automagic build system
+]]
 function Coeus:AddVFSDirectory(name)
 	self.vfs[name_to_id(name)] = {directory = true}
 end
 
+--[[
+	Registers a new file in the virtual file system table
+	Used by the automagic build system
+]]
 function Coeus:AddVFSFile(name, body)
 	self.vfs[name_to_id(name)] = {file = true, body = body}
 end
@@ -251,19 +310,5 @@ setmetatable(Coeus, {
 
 --Load built-in modules
 --@builtins
-
-local GLFW = Coeus.Bindings.GLFW
-local OpenGL = Coeus.Bindings.OpenGL
-
-local glfw = GLFW.glfw
-local GLFW = GLFW.GLFW
-
-local gl = OpenGL.gl
-local GL = OpenGL.GL
-OpenGL.loader = glfw.GetProcAddress
-
-if (ffi.os == "Windows") then
-	Coeus.Bindings.Win32_.SetDllDirectoryA(Coeus.BinDir)
-end
 
 return Coeus

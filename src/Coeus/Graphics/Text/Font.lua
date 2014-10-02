@@ -2,7 +2,7 @@ local ffi			= require("ffi")
 local Coeus 		= (...)
 local OOP			= Coeus.Utility.OOP
 local tt			= Coeus.Bindings.stb_truetype
-local stdio			= Coeus.Bindings.stdio_
+local C			= Coeus.Bindings.C
 
 local OpenGL		= Coeus.Bindings.OpenGL
 local gl = OpenGL.gl
@@ -50,12 +50,12 @@ Font.TexturePadding = 1
 function Font:_new(filename, height)
 	self.height = height or 12
 
-	local file = stdio.fopen(filename, "rb")
-	stdio.fseek(file, 0, stdio.SEEK_END)
-	local file_size = stdio.ftell(file)
-	stdio.fseek(file, 0, stdio.SEEK_SET)
+	local file = C.fopen(filename, "rb")
+	C.fseek(file, 0, C.SEEK_END)
+	local file_size = C.ftell(file)
+	C.fseek(file, 0, C.SEEK_SET)
 	local buffer = ffi.new("unsigned char[" .. tonumber(file_size) .. "]")
-	stdio.fread(buffer, 1, file_size, file)
+	C.fread(buffer, 1, file_size, file)
 
 	self.font = ffi.new("stbtt_fontinfo[1]")
 	local ascent = ffi.new("int[1]")

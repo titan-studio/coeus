@@ -4,7 +4,7 @@ local ffi = require("ffi")
 local OOP = Coeus.Utility.OOP
 local ogg = Coeus.Bindings.libogg
 local vorbisfile = Coeus.Bindings.libvorbisfile
-local stdio_ = Coeus.Bindings.stdio_
+local C = Coeus.Bindings.C
 
 local SoundCommon = Coeus.Asset.Sound.Common
 local SoundData = Coeus.Asset.Sound.SoundData
@@ -21,7 +21,7 @@ function OGGFormat:Load(filename)
 
 	local format, frequency
 
-	local f = stdio_.fopen(filename, "rb")
+	local f = C.fopen(filename, "rb")
 	local pinfo
 	local pogg_file = ffi.new("OggVorbis_File[1]")
 

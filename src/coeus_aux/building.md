@@ -6,5 +6,5 @@ This library contains lodepng, stb_truetype, tinycthread, and a custom threading
 ## Windows (MSVC)
 Set output mode to dynamic link library and disable SDL.
 
-## Other platforms
-Things should work out.
+## Linux
+Use the included makefile with `make linux64`.

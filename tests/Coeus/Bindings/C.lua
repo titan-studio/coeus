@@ -1,11 +1,11 @@
 local Coeus = ...
 
 return {
-	Name = "Bindings.stdio_",
+	Name = "Bindings.C",
 
 	Tests = {
 		Load = function(self, result)
-			Coeus:Load("Bindings.stdio_")
+			Coeus:Load("Bindings.C")
 		end
 	}
 }
