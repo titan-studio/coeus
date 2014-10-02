@@ -50,7 +50,7 @@ local Coeus = {
 	BinDir = "./bin/", --Location of binaries
 	SourceDir = "./src/Coeus/", --Location of source files
 
-	Version = {0, 0, 0}, --The current version of the engine in the form MAJOR.MINOR.REVISION
+	Version = {0, 1, 0, "alpha"}, --The current version of the engine in the form MAJOR.MINOR.PATCH-STAGE
 
 	--Private members
 	vfs = {}, --A virtual file system handler, used by the build system.
