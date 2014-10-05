@@ -8,7 +8,10 @@ Binaries for Windows (32-bit) are published in the GitHub releases section. They
 
 # Main Setup
 
-## Windows
+## Windows (Automatic)
+Run `install.bat` and select a location to install to, like `C:\coeus`. Copy your binaries to the `bin` folder inside of it, like `C:\coeus\bin`. The environment variables `COEUS_SRC_PATH` and `COEUS_BIN_PATH` will be set automatically.
+
+## Windows (Manual)
 Create a directory to install Coeus. For this example, we'll use `C:\Coeus`. Make sure this directory will not be moved.
 
 Compile all dependencies (or use the dependencies from the 'releases' section of GitHub) and put them into `C:\Coeus\bin`.
