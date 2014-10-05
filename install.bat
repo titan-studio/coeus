@@ -9,6 +9,7 @@ goto SETARG
 :PROMPT
 set /P Install_Dir=Install Coeus to: 
 if [%Install_Dir%] == [] goto PROMPT
+goto INSTALL
 
 :SETARG
 set Install_Dir=%1
