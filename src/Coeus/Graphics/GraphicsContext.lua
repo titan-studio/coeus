@@ -6,7 +6,8 @@ local OpenGL = Coeus.Bindings.OpenGL
 local gl = OpenGL.gl
 local GL = OpenGL.GL
 
-local RenderPass = Coeus.Graphics.RenderPass
+local Scene = Coeus.Graphics.Scene
+local Layer = Coeus.Graphics.Layer
 local Framebuffer = Coeus.Graphics.Framebuffer
 local Mesh = Coeus.Graphics.Mesh
 local Shader = Coeus.Graphics.Shader
@@ -20,9 +21,7 @@ local GraphicsContext = OOP:Class() {
 	render_passes = {},
 
 	ActiveCamera = false,
-
-	all_scenes = {},
-	active_scenes = {},
+	ActiveScene = false,
 
 	Shaders = {},
 
@@ -30,9 +29,6 @@ local GraphicsContext = OOP:Class() {
 
 	GeometryFramebuffer = false,
 	LightFramebuffer = false,
-
-	PointLights = {},
-	DirectionalLights = {}
 }
 
 function GraphicsContext:_new(window)
@@ -41,10 +37,6 @@ function GraphicsContext:_new(window)
 	local texture_units = ffi.new('int[1]')
 	gl.GetIntegerv(GL.MAX_TEXTURE_IMAGE_UNITS, texture_units)
 	self.MaxTextureUnits = texture_units[0]
-
-	self.render_passes[#self.render_passes+1] = RenderPass:New(self, "Default Pass", RenderPass.PassTag.Default, 1)
-	self.render_passes[#self.render_passes+1] = RenderPass:New(self, "Transparent Pass", RenderPass.PassTag.Transparent, 2)
-	self.render_passes[#self.render_passes+1] = RenderPass:New(self, "HUD", RenderPass.PassTag.HUD, 3)
 
 	self.FullscreenQuad = Mesh:New()
 	local mesh_data = Coeus.Asset.Model.MeshData:New()
@@ -60,8 +52,6 @@ function GraphicsContext:_new(window)
 	}
 	mesh_data.Format.TexCoords = true
 	self.FullscreenQuad:SetData(mesh_data)
-
-	self.UnitSphere = Coeus.Utility.OBJLoader:New("assets/UnitSphere.obj"):GetMesh()
 
 	local initialize_fbos = function(w, h)
 		self.GeometryFramebuffer = Framebuffer:New(self, w, h, {
@@ -178,57 +168,21 @@ function GraphicsContext:UnbindTextures()
 	self.texture_units = {}
 end
 
-function GraphicsContext:AddScene(scene)
-	for i, v in pairs(self.all_scenes) do
-		if v == scene then
-			return
-		end
+function GraphicsContext:Render()
+	if not self.ActiveScene then
+		return
 	end
-	self.all_scenes[#self.all_scenes + 1] = scene
-end
-function GraphicsContext:RemoveScene(scene)
-	self:SetSceneActive(scene, false)
-	for i, v in pairs(self.all_scenes) do
-		if v == scene then
-			table.remove(self.all_scenes, i)
-		end
-	end
-end
-function GraphicsContext:SetSceneActive(scene, active)
-	local found = false
-	for i, v in pairs(self.all_scenes) do
-		if v == scene then
-			found = true
-		end
-	end
-	if not found then
-		return false
-	end
-	for i, v in pairs(self.active_scenes) do
-		if active then
-			if v == scene then
-				return false
-			end
-		else
-			table.remove(self.active_scenes, i)
-			return true
-		end
-	end
-	self.active_scenes[#self.active_scenes + 1] = scene
-	return true
-end
 
-
-function GraphicsContext:Render()	
 	gl.Enable(GL.DEPTH_TEST)
 	gl.DepthMask(GL.TRUE)
 
+	self.ActiveScene:RenderLayers(Coeus.Graphics.Layer.Flag.UnlitBackground)
+
 	self.GeometryFramebuffer:Bind()
 	self.GeometryFramebuffer:Clear()
-	for i, v in ipairs(self.render_passes) do
-		v:Render()
-		break
-	end
+	--Render geometry layers here
+	self.ActiveScene:RenderLayers(Coeus.Graphics.Layer.Flag.Geometry)
+	--eventually render transparent stuff somewhere
 	self.GeometryFramebuffer:Unbind()
 
 	gl.Disable(GL.DEPTH_TEST)
@@ -239,13 +193,8 @@ function GraphicsContext:Render()
 	self.LightFramebuffer:Bind()
 	self.LightFramebuffer:Clear()
 	
-	for i, v in ipairs(self.PointLights) do
-		v:Render(true)
-	end
-
-	for i, v in ipairs(self.DirectionalLights) do
-		v:Render(true)
-	end
+	--Render lights here
+	self.ActiveScene:RenderLayers(Coeus.Graphics.Layer.Flag.Lights)
 
 	self.LightFramebuffer:Unbind()
 	gl.BlendFunc(GL.ONE, GL.ZERO)
@@ -254,6 +203,8 @@ function GraphicsContext:Render()
 	self.Shaders.CompositeFBOs:Send("DiffuseBuffer", self.GeometryFramebuffer.textures[1])
 	self.Shaders.CompositeFBOs:Send("LightBuffer", self.LightFramebuffer.textures[1])
 	self.FullscreenQuad:Render()
+
+	self.ActiveScene:RenderLayers(Coeus.Graphics.Layer.Flag.Unlit2D)
 
 	self:UnbindTextures()
 end

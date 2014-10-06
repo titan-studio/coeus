@@ -34,6 +34,11 @@ local MouseContext = OOP:Class() {
 	EnterWindow = Event:New(),
 	LeaveWindow = Event:New()
 }
+MouseContext.Buttons = {
+	Left = 0,
+	Right = 2,
+	Middle = 1
+}
 
 function MouseContext:_new(window)
 	self.window = window

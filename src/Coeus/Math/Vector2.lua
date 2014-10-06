@@ -69,6 +69,10 @@ function Vector2.Lerp(a, b, alpha)
 	return a + (alpha * (b - a))
 end
 
+function Vector2:GetAngle()
+	return math.atan2(self.y, self.x)
+end
+
 --[[
 	TODO:
 		- Add :Project method

@@ -71,6 +71,7 @@ void main() {
 ]]
 
 function DirectionalLight:_new(context)
+	self.layer_flag = Coeus.Graphics.Layer.Flag.Lights
 	self.GraphicsContext = context
 	table.insert(self.GraphicsContext.DirectionalLights, self)
 	self.shader = self.GraphicsContext.Shaders.DirectionalLight
