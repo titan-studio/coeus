@@ -42,13 +42,14 @@ function Application:Main()
 	while not self.Window:IsClosing() do
 		self.Timer:Step()
 		self.Window:Update(self.Timer:GetDelta())
+		self:Update(self.Timer:GetDelta())
 		local start = self.Timer:GetTime()
 
 		self.Window:PreRender()
 		self:Render()
 	
 		local err = gl.GetError()
-		if err ~= GL.NO_ERROR then
+		if err ~= GL.NO_ERROR and Coeus.Debug then
 			error("GL error: " .. err)
 		end
 
