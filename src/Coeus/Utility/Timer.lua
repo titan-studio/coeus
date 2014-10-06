@@ -38,14 +38,13 @@ end
 function Timer:Step()
 	self.current = self.GetTime()
 	self.delta = self.current - self.previous
-	self.fps = 1 / self.delta
 	self.previous = self.current
 
 	self.frame_time = self.frame_time + self.delta
 	self.frame_count = self.frame_count + 1
 
 	if self.frame_time > self.FPSUpdatePeriod then
-		self.FPS = self.frame_count / self.frame_time
+		self.fps = self.frame_count / self.frame_time
 
 		self.frame_time = 0
 		self.frame_count = 0
