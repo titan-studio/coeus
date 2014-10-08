@@ -11,31 +11,31 @@ GLFW = GLFW.GLFW
 local gl = GL.gl
 GL = GL.GL
 
-local Application = OOP:Class() {
+local OldApplication = OOP:Class() {
 	Window = false,
 	Timer = false,
 
 	TargetFPS = 60
 }
 
-function Application:_new(window)
+function OldApplication:_new(window)
 	self.Window = window
 	self.Timer = Timer:New()
 end
 
-function Application:Initialize()
+function OldApplication:Initialize()
 end
 
-function Application:Update(dt)
+function OldApplication:Update(dt)
 end
 
-function Application:Render()
+function OldApplication:Render()
 end
 
-function Application:Destroy()
+function OldApplication:Destroy()
 end
 
-function Application:Main()
+function OldApplication:Main()
 	self:Initialize()
 	self.Timer:Step()
 
@@ -60,4 +60,4 @@ function Application:Main()
 	end
 end
 
-return Application
+return OldApplication
