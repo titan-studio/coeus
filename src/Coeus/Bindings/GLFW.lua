@@ -1,3 +1,5 @@
+print("load glfw")
+
 local Coeus = ...
 
 local ffi = require("ffi")

@@ -83,10 +83,6 @@ function Coeus:Initialize(config)
 	if (ffi.os == "Windows") then
 		Coeus.Bindings.Win32_.SetDllDirectoryA(Coeus.Config.BinDir)
 	end
-
-	--Set our OpenGL method loader to GLFW
-	Coeus.Bindings.OpenGL.loader = Coeus.Bindings.GLFW.glfw.GetProcAddress
-	Coeus.Sound:Initialize()
 end
 
 function Coeus:Terminate()

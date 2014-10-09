@@ -27,4 +27,6 @@ Sound = {
 	end
 }
 
+Sound:Initialize()
+
 return Sound
