@@ -84,6 +84,7 @@ function Coeus:Initialize(config)
 
 	--Set our OpenGL method loader to GLFW
 	Coeus.Bindings.OpenGL.loader = Coeus.Bindings.GLFW.glfw.GetProcAddress
+	Coeus.Sound.Initialize()
 end
 
 --[[
