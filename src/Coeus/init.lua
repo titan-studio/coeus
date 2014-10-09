@@ -44,18 +44,20 @@ local arch_short = {
 
 local Coeus = {
 	--Public members
-	Debug = true, --Is this build a developer build?
-	Platform = platform_short[jit.os], --What are we running on?
-	Architecture = arch_short[jit.arch], --How many bits do we have?
-	BinDir = "./bin/", --Location of binaries
-	SourceDir = "./src/", --Location of all source files
-	CoeusDir = "./src/Coeus/", --Location of Coeus source files
+	Config = {
+		Debug = true, --Is this build a developer build?
+		Platform = platform_short[jit.os], --What are we running on?
+		Architecture = arch_short[jit.arch], --How many bits do we have?
+		BinDir = "./bin/", --Location of binaries
+		SourceDir = "./src/", --Location of all source files
+		CoeusDir = "./src/Coeus/", --Location of Coeus source files
 
-	Version = {0, 1, 0, "alpha"}, --The current version of the engine in the form MAJOR.MINOR.PATCH-STAGE
+		Version = {0, 2, 0, "alpha"}, --The current version of the engine in the form MAJOR.MINOR.PATCH-STAGE
+	},
 
 	--Private members
 	vfs = {}, --A virtual file system handler, used by the build system.
-	loaded = {}, --A list of all loaded modules; useful for iteration
+	loaded = {}, --A dictionary of all loaded modules
 	meta = {}
 }
 
@@ -66,54 +68,78 @@ function Coeus:Initialize(config)
 	--Load in an optional config option and patch Coeus with it.
 	if (config) then
 		for key, value in pairs(config) do
-			self[key] = value
+			self.Config[key] = value
 		end
 	end
 
 	--Make sure BinDir and SourceDir end with trailing slashes
-	self.BinDir = fix_directory(self.BinDir)
-	self.SourceDir = fix_directory(self.SourceDir)
+	self.Config.BinDir = fix_directory(self.Config.BinDir)
+	self.Config.SourceDir = fix_directory(self.Config.SourceDir)
 
 	--Build CoeusDir
-	self.CoeusDir = self.SourceDir .. "Coeus/"
+	self.Config.CoeusDir = self.Config.SourceDir .. "Coeus/"
 
 	--Force Windows to load binaries from here
 	if (ffi.os == "Windows") then
-		Coeus.Bindings.Win32_.SetDllDirectoryA(Coeus.BinDir)
+		Coeus.Bindings.Win32_.SetDllDirectoryA(Coeus.Config.BinDir)
 	end
 
 	--Set our OpenGL method loader to GLFW
 	Coeus.Bindings.OpenGL.loader = Coeus.Bindings.GLFW.glfw.GetProcAddress
-	Coeus.Sound.Initialize()
+	Coeus.Sound:Initialize()
+end
+
+function Coeus:Terminate()
+	for key, item in pairs(self.loaded) do
+		if (type(item) == "table") then
+			local term = rawget(item, "Terminate")
+			if (term) then
+				term(item)
+			end
+		end
+	end
 end
 
 --[[
 	Loads a module given an identifying string.
 	The module can exist either on the real filesystem or in the VFS.
 ]]
-function Coeus:Load(name, safe)
+function Coeus:Load(name, flags)
+	flags = flags or {}
 	local id = name_to_id(name)
 
 	if (self.loaded[id]) then
 		return self.loaded[id]
 	elseif (self.vfs[id]) then
-		return self:LoadVFSEntry(name, safe)
+		return self:LoadVFSEntry(name, flags)
 	end
 
-	local file = self.CoeusDir .. name_to_file(name)
-	local dir = self.CoeusDir .. name_to_directory(name)
+	local file = self.Config.CoeusDir .. name_to_file(name)
+	local dir = self.Config.CoeusDir .. name_to_directory(name)
 
 	local file_mode = lfs.attributes(file, "mode")
 	local dir_mode = lfs.attributes(dir, "mode")
 
 	if (file_mode == "file") then
-		return self:LoadFile(name, file, safe)
+		return self:LoadFile(name, file, flags)
 	elseif (dir_mode == "directory") then
-		return self:LoadDirectory(name, dir)
+		return self:LoadDirectory(name, dir, flags)
 	elseif (not file_mode and not dir_mode) then
-		error("Unable to load module '" .. (name or "nil") .. "': file does not exist.")
+		local err = "Unable to load module '" .. (name or "nil") .. "': file does not exist."
+
+		if (flags.safe) then
+			return false, err
+		else
+			error(err)
+		end
 	else
-		error("Unknown error in loading module '" .. (name or "nil") .. "'")
+		local err = "Unknown error in loading module '" .. (name or "nil") .. "'"
+
+		if (flags.safe) then
+			return false, err
+		else
+			error(err)
+		end
 	end
 end
 
@@ -121,13 +147,17 @@ end
 	Loads a Lua chunk with the associated module metadata.
 	Used internally and called by all Load* methods.
 ]]
-function Coeus:LoadChunk(chunk, meta)
+function Coeus:LoadChunk(chunk, meta, flags)
+	flags = flags or {}
 	meta = meta or {}
 	local success, object = pcall(chunk, self, meta)
 
 	if (not success) then
-		error(object)
-		return nil, object
+		if (flags.safe) then
+			return nil, object
+		else
+			error(object)
+		end
 	end
 
 	if (meta.id) then
@@ -144,19 +174,20 @@ end
 --[[
 	Loads a file located on the real filesystem.
 ]]
-function Coeus:LoadFile(name, path, safe)
+function Coeus:LoadFile(name, path, flags)
+	flags = flags or {}
 	local id = name_to_id(name)
 
 	if (self.loaded[id]) then
 		return self.loaded[id]
 	end
 
-	path = path or (self.CoeusDir .. name_to_file(name))
+	path = path or (self.Config.CoeusDir .. name_to_file(name))
 
 	local chunk, err = loadfile(path)
 
 	if (not chunk) then
-		if (safe) then
+		if (flags.safe) then
 			return nil, err
 		else
 			error(err)
@@ -181,50 +212,45 @@ function Coeus:LoadDirectory(name, path)
 		return self.loaded[id]
 	end
 
-	path = path or (self.CoeusDir .. name_to_directory(name))
+	path = path or (self.Config.CoeusDir .. name_to_directory(name))
 
-	local container = setmetatable({}, {
-		__index = function(container, key)
-			local piece = self:Load(name .. "." .. key)
-			container[key] = piece
+	local container = {
+		FullyLoad = function(this)
+			for filepath in lfs.dir(path) do
+				if (filepath ~= "." and filepath ~= "..") then
+					local filename = file_to_name(filepath)
+					this[filename] = self:Load(name .. "." .. filename)
+				end
+			end
+		end,
+
+		Get = function(this, key, flags)
+			local piece = self:Load(name .. "." .. key, flags)
+			this[key] = piece
 
 			return piece
 		end
+	}
+
+	local patch = self:Load(name .. "._", {safe = true})
+
+	if (patch) then
+		for key, value in pairs(container) do
+			if (not patch[key]) then
+				patch[key] = value
+			end
+		end
+
+		container = patch
+	end
+
+	setmetatable(container, {
+		__index = container.Get
 	})
 
 	self.loaded[id] = container
 
 	return container
-end
-
---[[
-	Iterates through a directory and fully loads its structure.
-	This is useful when treating folders as collections, like in the built-in Asset module.
-]]
-function Coeus:FullyLoadDirectory(name, path)
-	local id = name_to_id(name)
-	path = path or (self.CoeusDir .. name_to_directory(name))
-
-	local directory = self:LoadDirectory(name, path)
-
-	--This is not quite ideal
-	if (self.vfs[id]) then
-		for name in pairs(self.vfs) do
-			local shortname = name:match("^" .. id .. "%.(.+)$")
-			if (shortname) then
-				directory[shortname] = self:LoadVFSEntry(name)
-			end
-		end
-	end
-
-	for filepath in lfs.dir(path) do
-		if (filepath ~= "." and filepath ~= "..") then
-			local filename = file_to_name(filepath)
-			directory[filename] = self:Load(name .. "." .. filename)
-		end
-	end
-
-	return directory
 end
 
 --[[
@@ -246,7 +272,8 @@ end
 	Loads a file from the virtual file system tables.
 	Called automatically if the file we're looking for is determined to be on the VFS.
 ]]
-function Coeus:LoadVFSEntry(name, safe)
+function Coeus:LoadVFSEntry(name, flags)
+	flags = flags or {}
 	local id = name_to_id(name)
 	local entry = self.vfs[id]
 
@@ -254,7 +281,7 @@ function Coeus:LoadVFSEntry(name, safe)
 		local chunk, err = loadstring(entry.body)
 
 		if (not chunk) then
-			if (safe) then
+			if (flags.safe) then
 				return nil, err
 			else
 				error(err)
@@ -279,7 +306,7 @@ function Coeus:LoadVFSEntry(name, safe)
 
 		return container
 	else
-		if (safe) then
+		if (flags.safe) then
 			return nil, "Could not load VFS entry"
 		else
 			error("Could not load VFS entry")
@@ -310,6 +337,10 @@ setmetatable(Coeus, {
 		self[key] = entry
 
 		return entry
+	end,
+
+	__gc = function(self)
+		self:Terminate()
 	end
 })
 

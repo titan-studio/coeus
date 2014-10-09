@@ -2,7 +2,7 @@ local Coeus = ...
 local OOP = Coeus.Utility.OOP
 
 local ImageLoader = OOP:Static(Coeus.Asset.Loader) {
-	Formats = Coeus:FullyLoadDirectory("Asset.Image.Formats")
+	Formats = Coeus.Asset.Image.Formats:FullyLoad()
 }
 
 return ImageLoader
