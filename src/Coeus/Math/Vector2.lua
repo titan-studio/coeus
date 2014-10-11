@@ -73,11 +73,37 @@ function Vector2:GetAngle()
 	return math.atan2(self.y, self.x)
 end
 
---[[
-	TODO:
-		- Add :Project method
-		- Add :Rotate method
-]]
+function Vector2:Rotate(angle)
+	local sin, cos = math.sin(angle), math.cos(angle)
+	self.x = cos * self.x - sin * self.y
+	self.y = sin * self.x - cos * self.y
+end
+
+function Vector2:GetRotated(angle)
+	local sin, cos = math.sin(angle), math.cos(angle)
+	return Vector2:New(
+		cos * self.x - sin * self.y,
+		sin * self.x - cos * self.y
+	)
+end
+
+function Vector2:Perpendicular()
+	return Vector2:New(-self.y, self.x)
+end
+
+function Vector2:MirrorOver(other)
+	local s = 2 * (self.x * other.x + self.y + other.y) / (other.x^2 + other.y^2)
+	return Vector2:New(s * other.x, s * other.y)
+end
+
+function Vector2:Project(other)
+	local s = (self.x * other.x + self.y * other.y) / (other.x * other.x + other.y * other.y)
+	return Vector2:New(s * other.x, s * other.y)
+end
+
+function Vector2:Cross(other)
+	return self.x * other.y - self.y * other.x
+end
 
 function Vector2:GetValues()
 	return {self.x, self.y}
@@ -99,6 +125,13 @@ Vector2:AddMetamethods({
 	end,
 	__div = function(a, b)
 		return Vector2.Divide(a, b)
+	end,
+	__unm = function(a)
+		return Vector2:New(-a.x, -a.y)
+	end,
+	__eq = function(a, b)
+		return Coeus.Math.Numeric.CompareReal(a.x, b.x) and
+			   Coeus.Math.Numeric.CompareReal(a.y, b.y)
 	end
 })
 

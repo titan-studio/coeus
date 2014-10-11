@@ -108,6 +108,14 @@ Vector3:AddMetamethods({
 	end,
 	__div = function(a, b)
 		return Vector3.Divide(a, b)
+	end,
+	__unm = function(a)
+		return Vector2:New(-a.x, -a.y, -a.z)
+	end,
+	__eq = function(a, b)
+		return Coeus.Math.Numeric.CompareReal(a.x, b.x) and
+			   Coeus.Math.Numeric.CompareReal(a.y, b.y) and
+			   Coeus.Math.Numeric.CompareReal(a.z, b.z)
 	end
 })
 
