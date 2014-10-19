@@ -1,8 +1,8 @@
 local Coeus = (...)
-local oop = Coeus.Utility.OOP
+local OOP = Coeus.Utility.OOP
 local Vector3 = Coeus.Math.Vector3
 
-local Matrix4 = oop:Class() {
+local Matrix4 = OOP:Class() {
 	m = {}
 }
 

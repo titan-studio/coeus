@@ -36,6 +36,17 @@ function Quaternion.FromMatrix4(matrix)
 			w
 		)
 	else
+		--This section is adapted from some C++ code from the Ogre3D framework
+		--and as such is completely nonsensical in Lua because we lack convenient
+		--pointer math. Therefore, it uses a bunch of if statements to get similar
+		--functionality.
+		--
+		--There is probably a more elegant solution to this, but I don't personally
+		--understand the math enough to implement it myself.
+		--If anyone more knowledgeable than I stumbles upon this, please feel
+		--free to clean it up a little bit.
+		--
+		--	Kyle
 		local i = 0
 		if m[6] > m[1] then
 			i = 1

@@ -15,6 +15,10 @@ local MouseContext = OOP:Class() {
 	window = false,
 	buttons = {},
 
+	x = 0,
+	y = 0,
+	xp = ffi.new("double[1]"),
+	yp = ffi.new("double[1]"),
 	last_x = 0,
 	last_y = 0,
 
@@ -98,9 +102,8 @@ function MouseContext:IsLocked()
 end
 
 function MouseContext:Update()
-	local xp, yp = ffi.new("double[1]"), ffi.new("double[1]")
-	glfw.GetCursorPos(self.window.handle, xp, yp)
-	self.x, self.y = xp[0], yp[0]
+	glfw.GetCursorPos(self.window.handle, self.xp, self.yp)
+	self.x, self.y = self.xp[0], self.yp[0]
 
 	self.delta_x = self.x - self.last_x
 	self.delta_y = self.y - self.last_y

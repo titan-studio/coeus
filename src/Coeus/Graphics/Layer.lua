@@ -6,7 +6,9 @@ local Layer = OOP:Class() {
 	context = false,
 	name = "Unnamed Layer",
 	flag = false,
-	components = {},
+	actors = {},
+
+	Sorted = false
 }
 Layer.Flag = {
 	None = 0,
@@ -32,19 +34,31 @@ function Layer:_new(context, flag, name)
 	end
 end
 
-function Layer:RegisterComponent(component)
-	for i, v in ipairs(self.components) do
-		if v == component then
+function Layer:Resort()
+	table.sort(self.actors, function(a, b)
+		return a.DrawOrder < b.DrawOrder
+	end)
+end
+
+function Layer:RegisterActor(actor)
+	for i, v in ipairs(self.actors) do
+		if v == actor then
 			return
 		end
 	end
-	table.insert(self.components, component)
+	table.insert(self.actors, actor)
+	if self.Sorted then
+		self:Resort()
+	end
 end
 
-function Layer:DeregisterComponent(component)
-	for i, v in ipairs(self.components) do
-		if v == component then
-			table.remove(self.components, i)
+function Layer:DeregisterActor(actor)
+	for i, v in ipairs(self.actors) do
+		if v == actor then
+			table.remove(self.actors, i)
+			if self.Sorted then
+				self:Resort()
+			end
 			return true
 		end
 	end
@@ -52,7 +66,7 @@ function Layer:DeregisterComponent(component)
 end
 
 function Layer:Render()
-	for i, v in ipairs(self.components) do
+	for i, v in ipairs(self.actors) do
 		v:Render()
 	end
 end

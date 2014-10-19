@@ -1,14 +1,14 @@
-local Coeus 		= (...)
-local oop 			= Coeus.Utility.OOP 
+local Coeus = (...)
+local OOP = Coeus.Utility.OOP
+
 local Table 		= Coeus.Utility.Table
+local Event 		= Coeus.Utility.Event
 
 local Matrix4 		= Coeus.Math.Matrix4
 local Vector3 		= Coeus.Math.Vector3
 local Quaternion 	= Coeus.Math.Quaternion
 
-local Event 		= Coeus.Utility.Event
-
-local Entity = oop:Class() {
+local BaseActor = OOP:Class() {
 	scene = false,
 
 	parent 		= false,
@@ -22,33 +22,41 @@ local Entity = oop:Class() {
 	position = Vector3:New(),
 	rotation = Quaternion:New(),
 
-	components = {},
+	layer_flag = Coeus.Graphics.Layer.Flag.None,
+	layer = false,
 
-	name = "Entity",
+	Name = "Base Actor",
+	DrawOrder = 1
 
+	ChildAdded = Event:New(),
+	ChildRemoved = Event:New()
 }
 
-function Entity:_new()
+
+function BaseActor:_new()
 
 end
 
-function Entity:SetName(name)
-	self.name = name
-end
-function Entity:GetName()
-	return self.name
-end
-
-
-function Entity:SetScene(scene)
+function BaseActor:SetScene(scene)
 	self.scene = scene
 	for i,v in pairs(self.children) do
 		v:SetScene(scene)
 	end
 end
 
+function BaseActor:SetupLayer()
+	if self.layer then
+		self.layer:DeregisterEntity(self)
+	end
 
-function Entity:AddChild(child)
+	local found = self.scene:GetLayersByFlag(self.layer_flag)
+	if #found > 0 then
+		self.layer = found[1]
+		self.layer:RegisterEntity(self)
+	end
+end
+
+function BaseActor:AddChild(child, dont_set_layer)
 	for i,v in pairs(self.children) do
 		if v == child then return end
 	end
@@ -58,23 +66,30 @@ function Entity:AddChild(child)
 	end
 	child.parent = self
 	child:SetScene(self.scene)
+
+	if not dont_set_layer then
+		child:SetupLayer()
+	end
+
+	self.ChildAdded:Fire(child)
 end
 
-function Entity:RemoveChild(child)
+function BaseActor:RemoveChild(child)
 	for i,v in pairs(self.children) do
 		if v == child then
 			v.parent = false
+			self.ChildRemoved:Fire(child)
 			table.remove(self.children, i)
 			return
 		end
 	end
 end
 
-function Entity:SetParent(parent)
+function BaseActor:SetParent(parent)
 	parent:AddChild(self)
 end
 
-function Entity:FindFirstChild(name, recursive)
+function BaseActor:FindFirstChild(name, recursive)
 	for i,v in pairs(self.children) do
 		if v.name == name then
 			return v
@@ -86,46 +101,26 @@ function Entity:FindFirstChild(name, recursive)
 	return nil
 end
 
-function Entity:GetChildren()
+function BaseActor:GetChildren()
 	return Table.Copy(self.children)
 end
 
-
-function Entity:AddComponent(component)
-	if self.components[component:GetClass()] then return end
-	self.components[component:GetClass()] = component
-	component.entity = self
-end
-
-function Entity:RemoveComponent(component)
-	local comp = self.components[component:GetClass()]
-	if comp then
-		comp.entity = false
-		self.components[component:GetClass()] = nil
-	end
-end
-
-function Entity:GetComponent(component_type)
-	return self.components[component_type]
-end
-
-
-function Entity:SetLocalTransform(matrix)
+function BaseActor:SetLocalTransform(matrix)
 	self.local_transform = matrix:Copy()
 	self:DirtyTransform()
 end
-function Entity:GetLocalTransform()
+function BaseActor:GetLocalTransform()
 	self:BuildTransform()
 	return self.local_transform:Copy()
 end
 
-function Entity:GetRenderTransform()
+function BaseActor:GetRenderTransform()
 	self:BuildTransform()
 	return self.render_transform:Copy()
 end
 
 
-function Entity:SetScale(x, y, z)
+function BaseActor:SetScale(x, y, z)
 	if type(x) ~= "number" then
 		self:SetScale(x.x, x.y, x.z)
 		return
@@ -135,11 +130,11 @@ function Entity:SetScale(x, y, z)
 	self.scale.z = z or x
 	self:DirtyTransform()
 end
-function Entity:GetScale()
+function BaseActor:GetScale()
 	return self.scale:Copy()
 end
 
-function Entity:SetPosition(x, y, z)
+function BaseActor:SetPosition(x, y, z)
 	if type(x) ~= "number" then
 		self:SetPosition(x.x, x.y, x.z)
 		return
@@ -149,11 +144,11 @@ function Entity:SetPosition(x, y, z)
 	self.position.z = z
 	self:DirtyTransform()
 end
-function Entity:GetPosition()
+function BaseActor:GetPosition()
 	return self.position:Copy()
 end
 
-function Entity:SetRotation(x, y, z, w)
+function BaseActor:SetRotation(x, y, z, w)
 	if type(x) ~= "number" then
 		self:SetRotation(x.x, x.y, x.z, x.w)
 		return
@@ -164,12 +159,12 @@ function Entity:SetRotation(x, y, z, w)
 	self.rotation.w = w
 	self:DirtyTransform()
 end
-function Entity:GetRotation()
+function BaseActor:GetRotation()
 	return self.rotation:Copy()
 end
 
 
-function Entity:DirtyTransform()
+function BaseActor:DirtyTransform()
 	self.dirty_transform = true
 
 	for i,v in pairs(self.children) do
@@ -177,7 +172,7 @@ function Entity:DirtyTransform()
 	end
 end
 
-function Entity:BuildTransform()
+function BaseActor:BuildTransform()
 	if not self.dirty_transform then return end
 	self.dirty_transform = false
 
@@ -189,23 +184,16 @@ function Entity:BuildTransform()
 end
 
 
-function Entity:Update(dt)
-	for i,v in pairs(self.components) do
-		v:Update(dt)
-	end
+function BaseActor:Update(dt)
 	for i,v in pairs(self.children) do
 		v:Update(dt)
 	end
 end
 
-function Entity:Render()
+function BaseActor:Render()
 	self:BuildTransform()
-	for i,v in pairs(self.components) do
-		v:Render()
-	end
-	for i,v in pairs(self.children) do 
-		v:Render()
-	end
+	
 end
 
-return Entity
+
+return BaseActor
