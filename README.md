@@ -30,14 +30,15 @@ Move the `src` directory into your new Coeus folder.
 Optionally, create the environment variable `COEUS_SRC_PATH` and set it to `/usr/Coeus/src`. This lets you use the sample configuration file (given below) for your projects and let LuaJIT automatically locate Coeus.
 
 # Dependencies
+At the present, all of the following should be compiled to dynamic libraries:
 - LuaJIT 2.0.3
 - LuaFileSystem
 - OpenGL 3.3
-- OpenAL-soft 1.1
-- GLFW 3.0.4
+- OpenAL-soft 1.1 (named openal.dll on Windows)
+- GLFW 3.0.4 (named glfw3.dll on Windows)
 - libvorbis 1.3.4
 - libogg 1.3.2
-- zlib 1.2.8
+- zlib 1.2.8 (named zlib1 on Windows)
 - coeus_aux, which includes:
 	- lodepng 20140624
 	- stb_freetype v0.8b

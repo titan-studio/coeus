@@ -1,3 +1,4 @@
+local Coeus = ...
 local ffi = require("ffi")
 
 -- glcorearb.h
@@ -2119,12 +2120,7 @@ typedef void (APIENTRYP PFNGLTEXPAGECOMMITMENTARBPROC) (GLenum target, GLint lev
 local openGL = {
 	GL = {},
 	gl = {},
-	loader = nil,
-
-	import = function(self)
-		rawset(_G, "GL", self.GL)
-		rawset(_G, "gl", self.gl)
-	end
+	loader = nil
 }
 
 if ffi.os == "Windows" then

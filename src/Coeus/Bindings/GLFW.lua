@@ -1,3 +1,5 @@
+print("load glfw")
+
 local Coeus = ...
 
 local ffi = require("ffi")
@@ -5,7 +7,7 @@ local glfw
 local glfw_lib
 
 if (ffi.os == "Windows") then
-	glfw_lib = ffi.load(Coeus.BinDir .. "glfw3")
+	glfw_lib = ffi.load("glfw3")
 else
 	glfw_lib = ffi.load("libglfw.so.3")
 end
