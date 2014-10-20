@@ -1,10 +1,10 @@
 local Coeus 	= (...)
 local OOP 		= Coeus.Utility.OOP 
 
-local BaseComponent = Coeus.Entity.BaseComponent
+local Actor			= Coeus.Actor
 local Matrix4		= Coeus.Math.Matrix4
 
-local Camera = OOP:Class(BaseComponent) {
+local Camera = OOP:Class(Actor) {
 	fov = 60,
 	near = 0.5,
 	far = 1000,
