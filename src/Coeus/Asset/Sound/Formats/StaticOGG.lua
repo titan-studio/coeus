@@ -50,7 +50,7 @@ function OGGFormat:Load(filename)
 			data = ffi.cast("uint8_t*", C.realloc(data, buffer_size))
 		end
 
-		ffi.copy(data + written_size, array, CHUNK_SIZE)
+		ffi.copy(data + written_size, array, bytes)
 		written_size = total_size
 	until (bytes == 0)
 
