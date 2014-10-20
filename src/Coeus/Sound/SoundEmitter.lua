@@ -2,6 +2,7 @@ local Coeus = ...
 local ffi = require("ffi")
 local OOP = Coeus.Utility.OOP
 local OpenAL = Coeus.Bindings.OpenAL
+local SoundLoader = Coeus.Asset.Sound.SoundLoader
 local SoundData = Coeus.Asset.Sound.SoundData
 --local SoundStream = Coeus.Asset.Sound.SoundStream
 
@@ -11,10 +12,11 @@ local SoundEmitter = OOP:Class() {
 	looping = false,
 	pitch = 1,
 	position = {0, 0, 0},
-	velocity = {0, 0, 0}
+	velocity = {0, 0, 0},
+	loader = nil --By default, use the global SoundLoader
 }
 
-function SoundEmitter:_new(data_source, stream)
+function SoundEmitter:_new(data_source, static)
 	local p_source = ffi.new("int[1]")
 	OpenAL.alGenSources(1, p_source)
 	self.al_source = p_source[0]
@@ -22,8 +24,11 @@ function SoundEmitter:_new(data_source, stream)
 	local typeof = type(data_source)
 
 	if (typeof == "string") then
-		--todo: load file
-	elseif (typeof == "userdata") then
+		data_source = SoundLoader:Load(data_source, static)
+		typeof = type(data_source)
+	end
+
+	if (typeof == "userdata") then
 		if (data_source.Is[SoundData]) then
 			OpenAL.alSourcei(self.al_source, OpenAL.AL_BUFFER, data_source:GetALBuffer())
 			OpenAL.alSourcef(self.al_source, OpenAL.AL_PITCH, 1)
@@ -41,6 +46,12 @@ function SoundEmitter:_new(data_source, stream)
 	else
 		error("Could not create SoundEmitter: invalid argument #1 of type '" .. typeof .. "'")
 	end
+end
+
+function SoundEmitter:IsStopped()
+	local pstate = ffi.new("ALenum[1]")
+	OpenAL.alGetSourcei(self.al_source, OpenAL.AL_SOURCE_STATE, pstate)
+	return (pstate[0] == OpenAL.AL_STOPPED)
 end
 
 function SoundEmitter:GetLooping()

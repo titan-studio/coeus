@@ -10,6 +10,7 @@ local GLFW = GLFW.GLFW
 
 local Timer = OOP:Class() { 
 	FPSUpdatePeriod = 1,
+	SleepUntilPollingRate = 0.1,
 
 	current = 0,
 	previous = 0,
@@ -33,6 +34,12 @@ end
 
 function Timer:Sleep(time)
 	CPSleep(time)
+end
+
+function Timer:SleepUntil(result_method, ...)
+	while (not result_method(...)) do
+		self:Sleep(self.SleepUntilPollingRate)
+	end
 end
 
 function Timer:Step()

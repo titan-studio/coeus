@@ -23,6 +23,7 @@ enum {
 };
 
 void* malloc(size_t size);
+void* realloc(void* ptr, size_t size);
 void free(void* ptr);
 
 FILE* fopen(const char* filename, const char* mode);

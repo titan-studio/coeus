@@ -11,22 +11,22 @@ local SoundData = Coeus.Asset.Sound.SoundData
 
 local OGGFormat = OOP:Static(Coeus.Asset.Format)()
 
-local BUFFER_SIZE = 32768
+local CHUNK_SIZE = 524288
 
 function OGGFormat:Load(filename)
-	local buffer = {}
-	local array = ffi.new("uint8_t[?]", BUFFER_SIZE)
-	local endian = 0
+	local buffer_size = CHUNK_SIZE
+	local data = ffi.cast("uint8_t*", C.malloc(buffer_size))
+
+	local array = ffi.cast("uint8_t*", C.malloc(CHUNK_SIZE))
 	local pbit_stream = ffi.new("int[1]")
 
-	local format, frequency
+	local format
 
 	local f = C.fopen(filename, "rb")
-	local pinfo
 	local pogg_file = ffi.new("OggVorbis_File[1]")
 
 	vorbisfile.ov_open(f, pogg_file, nil, 0)
-	pinfo = vorbisfile.ov_info(pogg_file, -1)
+	local pinfo = vorbisfile.ov_info(pogg_file, -1)
 
 	if (pinfo[0].channels == 1) then
 		format = SoundCommon.Format.Mono16
@@ -37,18 +37,25 @@ function OGGFormat:Load(filename)
 	local frequency = pinfo[0].rate
 	local bytes = 0
 	local total_size = 0
+	local written_size = 0
 
 	repeat
-		bytes = vorbisfile.ov_read(pogg_file, array, BUFFER_SIZE, endian, 2, 1, pbit_stream)
+		bytes = vorbisfile.ov_read(pogg_file, array, CHUNK_SIZE, 0, 2, 1, pbit_stream)
 		total_size = total_size + bytes
 
-		table.insert(buffer, ffi.string(array, bytes))
+		if (buffer_size < total_size) then
+			while (buffer_size < total_size) do
+				buffer_size = buffer_size * 2
+			end
+			data = ffi.cast("uint8_t*", C.realloc(data, buffer_size))
+		end
+
+		ffi.copy(data + written_size, array, CHUNK_SIZE)
+		written_size = total_size
 	until (bytes == 0)
 
-	local bufstr = table.concat(buffer)
-	local data = ffi.new("uint8_t[?]", total_size)
-	for i = 1, total_size do
-		data[i - 1] = string.byte(bufstr:sub(i, i))
+	if (buffer_size < total_size) then
+		data = ffi.cast("uint8_t*", C.realloc(data, total_size))
 	end
 
 	vorbisfile.ov_clear(oggFile)
@@ -58,7 +65,9 @@ function OGGFormat:Load(filename)
 	out.frequency = frequency
 	out.size = total_size
 	out.channels = tonumber(pinfo[0].channels)
-	out.data = data
+	out.data = ffi.gc(data, C.free)
+
+	C.free(array)
 
 	return out
 end

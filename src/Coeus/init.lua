@@ -218,6 +218,8 @@ function Coeus:LoadDirectory(name, path)
 					this[filename] = self:Load(name .. "." .. filename)
 				end
 			end
+
+			return this
 		end,
 
 		Get = function(this, key, flags)
