@@ -6,6 +6,25 @@ Official IRC is at #titan-interactive on irc.freenode.net.
 
 Binaries for Windows (32-bit) are published in the GitHub releases section. They were built with Visual Studio 2013. You'll still need a LuaJIT install with LuaFileSystem, however, and it might need to be built with Visual Studio as well. This might change in the future.
 
+## Features
+Coeus aims to be a full featured suite for developing games and virtual reality simulations. As such, there will soon be many layers of tools for every step of the process of creating a game catering to every position in a typical game studio.
+
+The following is a high level list of Coeus's features so far:
+- Most engine code written in Lua(JIT)
+- High performance low-level graphics code based on OpenGL
+- Windows and Linux support (and the beginnings of write-once-run-anywhere)
+- Bindings for a lot of well-known C libraries for extreme performance
+- Sound engine
+- Support for PNG image files
+- Support for IQE and OBJ 3D model files
+- Support for Ogg Vorbis sound files
+- Streamlined asset loading system that infers model format and abstracts its use
+- Threading
+- Customized inline dependency resolution system
+- Deferred shading with point and directional lights
+- Mersenne Twister pseudorandom number generator
+- Solid 2D/3D math library (Vector3, Quaternion, Matrix4, and Vector2)
+
 # Main Setup
 
 ## Windows (Automatic)
