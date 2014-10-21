@@ -116,6 +116,26 @@ function Quaternion:ToRotationMatrix()
 	)
 end
 
+function Quaternion.FromEulerAngles(x, y, z)
+	if type(x) ~= "number" then
+		y = x.y
+		z = x.z
+		x = x.x
+	end
+
+	local c1 = math.cos(x / 2)
+	local c2 = math.cos(y / 2)
+	local c3 = math.cos(z / 2)
+	local s1 = math.sin(x / 2)
+	local s2 = math.sin(y / 2)
+	local s3 = math.sin(z / 2)
+
+	self.x = s1 * c2 * c3 + c1 * s2 * s3
+	self.y = c1 * s2 * c3 - s1 * c2 * s3
+	self.z = c1 * c2 * s3 + s1 * s2 * c3
+	self.w = c1 * c2 * c3 - s1 * s2 * s3
+end
+
 function Quaternion.FromAngleAxis(angle, axis)
 	local half_angle = 0.5 * angle
 	local sin = math.sin(half_angle)
