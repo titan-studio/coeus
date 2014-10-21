@@ -4,6 +4,7 @@ local ffi = require("ffi")
 local OOP = Coeus.Utility.OOP
 local ModelData = Coeus.Asset.Model.ModelData
 local MeshData = Coeus.Asset.Model.MeshData
+local ModelJoint = Coeus.Graphics.ModelJoint
 
 local IQE = OOP:Static(Coeus.Asset.Format)()
 
@@ -69,146 +70,111 @@ end
 
 local Commands = {}
 function Commands:mesh(args)
-	self.current_mesh = {}
+	args = merge_quoted(args)
+
+	self.current_mesh = MeshData:New()
+	self.current_mesh.Name = args[1]
+	table.insert(self.model.Meshes, self.current_mesh)
 end
 function Commands:material(args)
 	args = merge_quoted(args)
-
 	self.data.material = self.data.material or {}
 	self.data.material[args[1]] = self.data.material[args[1]] or {}
 	table.insert(self.data.material[args[1]], self.current_mesh)
 	self.current_material = self.data.material[args[1]]
 end
 
+--The following four commands build the vertex buffer for the active mesh
 function Commands:vp(args)
 	local mesh = self.current_material[#self.current_material]
-	mesh.vp = mesh.vp or {}
-	local vp = {}
 	for i, v in ipairs(args) do
-		table.insert(vp, tonumber(v))
+		table.insert(mesh.Vertices, tonumber(v))
 	end
-	if #vp == 3 then
-		table.insert(vp, 1)
-	end
-	table.insert(mesh.vp, vp)
+	mesh.Format.Positions = true
 end
 function Commands:vt(args)
 	local mesh = self.current_material[#self.current_material]
-	mesh.vt = mesh.vt or {}
-	local vt = {}
 	for i, v in ipairs(args) do
-		table.insert(vt, tonumber(v))
+		table.insert(mesh.Vertices, tonumber(v))
 	end
-	table.insert(mesh.vt, vt)
+	mesh.Format.TexCoords = true
+end
+function Commands:vn(args)
+	local mesh = self.current_material[#self.current_material]
+	for i, v in ipairs(args) do
+		table.insert(mesh.Vertices, tonumber(v))
+	end
+	mesh.Format.Normals = true
 end
 function Commands:vb(args)
 	local mesh = self.current_material[#self.current_material]
-	self.rigged = true
-	mesh.vb = mesh.vb or {}
-	local vb = {}
 	for i, v in ipairs(args) do
-		table.insert(vb, tonumber(v))
+		if i % 2 ~= 0 then
+			table.insert(mesh.Vertices, tonumber(v))
+		end
 	end
-	table.insert(mesh.vb, vb)
+	for i, v in ipairs(args) do
+		if i % 2 == 0 then
+			table.insert(mesh.Vertices, tonumber(v))
+		end
+	end
+	mesh.Format.BoneIDs = true
+	mesh.Format.BoneWeights = true
 end
-
-function Commands:v0(args, cmd)
-	merge_quoted(args)
-	cmd = cmd or "v0"
+function Commands:vc(args)
 	local mesh = self.current_material[#self.current_material]
-	mesh[cmd] = mesh[cmd] or {}
-	local v0 = {}
 	for i, v in ipairs(args) do
-		table.insert(v0, tonumber(v))
+		table.insert(mesh.Vertices, tonumber(v))
 	end
-	table.insert(mesh[cmd], v0)
-end
-
-function Commands:v1(args)
-	Commands.v0(self, args, "v1")
-end
-function Commands:v2(args)
-	Commands.v0(self, args, "v2")
-end
-function Commands:v3(args)
-	Commands.v0(self, args, "v3")
-end
-function Commands:v4(args)
-	Commands.v0(self, args, "v4")
-end
-function Commands:v5(args)
-	Commands.v0(self, args, "v5")
-end
-function Commands:v6(args)
-	Commands.v0(self, args, "v6")
-end
-function Commands:v7(args)
-	Commands.v0(self, args, "v7")
-end
-function Commands:v8(args)
-	Commands.v0(self, args, "v8")
-end
-function Commands:v9(args)
-	Commands.v0(self, args, "v9")
+	mesh.Format.Color = true
 end
 
 function Commands:vertexarray(args)
 	args = merge_quoted(args)
 
-	self.data.vertexarray = self.data.vertexarray or {}
-	local va = {}
-	va.type = args[1]
-	va.component = args[2]
-	va.size = tonumber(args[3])
-	va.name = args[4] or args[1]
-	table.insert(self.data.vertexarray, va)
-	self.current_vertexarray = self.data.vertexarray[#self.data.vertexarray]
+	--to be implemented (maybe)
 end
 
 function Commands:fa(args)
 	local mesh = self.current_material[#self.current_material]
-	mesh.fa = mesh.fa or {}
-	local fa = {}
-	for i, v in ipairs(args) do
-		table.insert(fa, tonumber(v))
-	end
-	table.insert(mesh.fa, fa)
+	
+	--to be implemented (maybe)
 end
 function Commands:fm(args)
 	local mesh = self.current_material[#self.current_material]
-	mesh.fm = mesh.fm or {}
-	local fm = {}
-	for i, v in ipairs(args) do
-		table.insert(fm, tonumber(v))
+	if not mesh.Indices then
+		mesh.Indices = {}
 	end
-	table.insert(mesh.fm, fm)
+	for i, v in ipairs(args) do
+		table.insert(mesh.Indices, tonumber(v))
+	end
 end
 
 function Commands:smoothuv(args)
 	local mesh = self.current_material[#self.current_material]
 	local n = tonumber(args[1])
-	mesh.smoothuv = false
+	mesh.SmoothByUV = false
 
 	if n > 0 then
-		mesh.smoothuv = true
+		mesh.SmoothByUV = true
 	end
 end
 function Commands:smoothgroup(args)
 	local mesh = self.current_material[#self.current_material]
 	local n = tonumber(args[1])
-	mesh.smoothgroup = -1
+	mesh.SmoothingGroup = -1
 
 	if n then
-		mesh.smoothgroup = n
+		mesh.SmoothingGroup = n
 	end
 end
 function Commands:smoothangle(args)
 	local mesh = self.current_material[#self.current_material]
 	local angle = tonumber(args[1])
-	mesh.smoothangle = 180
+	mesh.SmoothingAngle = math.rad(180)
 
 	if angle then
-		mesh.smoothangle = angle
+		mesh.SmoothingAngle = math.rad(angle)
 	end
 end
 function Commands:fs(args)
@@ -228,117 +194,113 @@ function Commands:vs(args)
 end
 
 function Commands:pq(args)
-	local pq = {}
+	--First off, let's build the translation, rotation, and scale
+	local pose = {}
+	local data = {}
 	for i, v in ipairs(args) do
-		table.insert(pq, tonumber(v))
-	end
-	if #pq == 6 then
-		--If there are 6 args, then the pq command was given
-		-- Tx Ty Tz Qx Qy Qz
-		--and is lacking Qw
- 		table.insert(pq, -1)
-	end
-	if #pq == 7 then
-		--If there are 7 args, then the pq command was not given
-		--a scale. The scale defaults to 1,1,1.
-		table.insert(pq, 1)
-		table.insert(pq, 1)
-		table.insert(pq, 1)
+		data[i] = tonumber(v)
 	end
 
-	local joint
+	if #data == 6 then
+		table.insert(data, -1)
+	end
+	
+	pose.Translation = Vector3:New(data[1], data[2], data[3])
+	pose.Rotation = Quaternion:New(data[4], data[5], data[6], data[7])
+	pose.Scale = Vector3:New(data[8] or 1, data[9] or 1, data[10] or 1)
+
 	if not self.current_animation then
-		joint = self.current_joint
-		joint.pq = pq
+		self.current_joint.Pose = pose
 	else
-		joint = self.current_frame
-		joint.pq = joint.pq or {}
-		table.insert(joint.pq, pq)
+		table.insert(self.current_frame.Poses, pose)
 	end
 end
 function Commands:pm(args)
-	local pm = {}
+	local pose = {}
+	local data = {}
 	for i, v in ipairs(args) do
-		table.insert(pm, tonumber(v))
-	end
-	if #pm == 12 then
-		--If there are 12 args, then the pm command was given
-		-- Tx Ty Tz Ax Ay Az Bx By Bz Cx Cy Cz
-		--and is lacking Sx Sy Sz for scale.
-		--Scale defaults to 1,1,1.
-		table.insert(pm, 1)
-		table.insert(pm, 1)
-		table.insert(pm, 1)
+		data[i] = tonumber(v)
 	end
 
-	local joint
+	local m = {}
+	local j = 1
+	for i = 4, 12, 3 do
+		m[j] = data[i + 0]
+		m[j + 1] = data[i + 1]
+		m[j + 2] = data[i + 2]
+		m[j + 3] = 0
+
+		j = j + 4
+	end
+	table.insert(m, 0)
+	table.insert(m, 0)
+	table.insert(m, 0)
+	table.insert(m, 1)
+
+	pose.Translation = Vector3:New(data[1], data[2], data[3])
+	pose.Rotation = Quaternion.FromMatrix4(Matrix4:New(m))
+	pose.Scale = Vector3:New(data[13] or 1, data[14] or 1, data[15] or 1)
+
 	if not self.current_animation then
-		joint = self.current_joint
-		joint.pm = pm
+		self.current_joint.Pose = pose
 	else
-		joint = self.current_frame
-		joint.pm = joint.pm or {}
-		table.insert(joint.pm, pm)
+		table.insert(self.current_frame.Poses, pose)
 	end
 end
 function Commands:pa(args)
-	local pa = {}
+	local pose = {}
+	local data = {}
 	for i, v in ipairs(args) do
-		table.insert(pa, tonumber(v))
-	end
-	if #pa == 6 then
-		--If there are 6 args, the pa command was given
-		-- Tx Ty Tz Rx Ry Rz
-		--and is lacking Sx Sy Sz. This defaults to 1,1,1
-		table.insert(pa, 1)
-		table.insert(pa, 1)
-		table.insert(pa, 1)
+		data[i] = tonumber(v)
 	end
 
-	local joint
+	pose.Translation = Vector3:New(data[1], data[2], data[3])
+	pose.Rotation = Quaternion.FromEulerAngles(data[4], data[5], data[6])
+	pose.Scale = Vector3:New(data[7] or 1, data[8] or 1, data[9] or 1)
+
 	if not self.current_animation then
-		joint = self.current_joint
-		joint.pa = pa
+		self.current_joint.Pose = pose
 	else
-		joint = self.current_frame
-		joint.pa = joint.pa or {}
-		table.insert(joint.pa, pa)
+		table.insert(self.current_frame.Poses, pose)
 	end
 end
 
 function Commands:joint(args)
 	args = merge_quoted(args)
-	self.data.joint = self.data.joint or {}
-	local joint = {}
-	joint.name = args[1]
-	joint.parent = tonumber(args[2]) + 1
-	table.insert(self.data.joint, joint)
+
+	local joint = ModelJoint:New()
+	joint.Name = args[1]
+	joint.Parent = self.model.Joints[tonumber(args[2]) + 1] or false
+	joint.Model = self.model
+	table.insert(self.model.Joints, joint)
+	self.model.Type = ModelData.Type.Skeletal
 
 	self.current_joint = joint
 end
 
 function Commands:animation(args)
 	args = merged_quote(args)
-	self.data.animation = self.data.animation or {}
-	local name = args[1] or tostring(math.random(0, 99999))
-	self.data.animation[name] = {}
-	self.current_animation = self.data.animation[name]
+
+	local name = args[1] or tostring(self.last_anim_num)
+	self.last_anim_num = self.last_anim_num + 1
+
+	self.model.Animations[name] = ModelAnimation:New()
+	self.current_animation = self.model.Animations[name]
+	self.current_animation.Name = name
+	self.current_animation.Model = self.model
 	self.current_frame = false
 end
 function Commands:loop(args)
-	self.current_animation.loop = true
+	self.current_animation.Looping = true
 end
 function Commands:framerate(args)
-	self.current_animation.framerate = tonumber(args[1])
+	self.current_animation.Framerate = tonumber(args[1])
 end
 function Commands:frame(args)
 	local animation = self.current_animation
-	animation.frame = animation.frame or {}
-	table.insert(animation.frame, {})
-	self.current_frame = animation.frame[#animation.frame]
+	table.insert(animation.Frames, {})
+	self.current_frame = animation.Frames[#animation.Frames]
 end
-
-
 
 function IQE:Load(filename)
 	local file, err = io.open(filename, 'r')
@@ -350,7 +312,23 @@ function IQE:Load(filename)
 	local line_str = ""
 	local more
 	local line = file:read("*l")
-	local state = {}
+
+	local out = ModelData:New()
+	local state = {
+		current_mesh = false,
+		current_material = false,
+		current_joint = false,
+		current_animation = false,
+		current_frame = false,
+		current_vertexarray = false,
+
+		last_anim_num = 1,
+
+		data = {},
+		materials = {},
+		model = out
+	}
+
 	while line do
 		line_num = line_num + 1
 		if more then
@@ -363,6 +341,7 @@ function IQE:Load(filename)
 			more = true
 		else
 			--pass it off to a command
+			line_str = line_str:gsub("^%s*(.-)%s*$", "%1")
 			local split = string_split(line_str, " ")
 			local cmd = split[1]
 			local func = Commands[cmd]
@@ -374,8 +353,6 @@ function IQE:Load(filename)
 		line = file:read("*l")
 	end
 
-	local out = ModelData:New()
-	--process the model data...
 	return out
 end
 

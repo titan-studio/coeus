@@ -6,6 +6,10 @@ local MeshData = OOP:Class() {
 	Vertices = {},
 	Indices = false,
 
+	SmoothingGroup = -1,
+	SmoothingAngle = math.rad(180),
+	SmoothByUv = false,
+
 	Format = {
 		Positions 		= true,
 		TexCoords 		= false,
