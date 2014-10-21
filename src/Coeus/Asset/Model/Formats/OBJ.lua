@@ -78,7 +78,7 @@ function OBJ:Load(filename)
 	return out
 end
 
-function OBJLoader:ParseVector3(str)
+function OBJ:ParseVector3(str)
 	local x, y, z = str:match("^(%S+) +(%S+) +(%S+)")
 	x = tonumber(x) or 0
 	y = tonumber(y) or 0
@@ -87,7 +87,7 @@ function OBJLoader:ParseVector3(str)
 	return {x=x,y=y,z=z}
 end
 
-function OBJLoader:ParseVector2(str)
+function OBJ:ParseVector2(str)
 	local x, y, z = str:match("^(%S+) +(%S+)")
 	x = tonumber(x) or 0
 	y = tonumber(y) or 0
