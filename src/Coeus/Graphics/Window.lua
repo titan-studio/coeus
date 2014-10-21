@@ -36,6 +36,9 @@ local Window = OOP:Class() {
 	Keyboard = false,
 	Mouse = false,
 	Graphics = false,
+	Application = false,
+
+	IsClosed = false,
 
 	Resized 	= Event:New(),
 	Moved 		= Event:New(),
@@ -115,6 +118,8 @@ function Window:_new(title, width, height, mode)
 	end)
 	glfw.SetWindowCloseCallback(self.handle, function(handle)
 		self.Closed:Fire()
+		glfw.DestroyWindow(self.handle)
+		self.IsClosed = true
 	end)
 	glfw.SetWindowPosCallback(self.handle, function(handle, x, y)
 		self.Moved:Fire(x, y)
@@ -234,6 +239,10 @@ end
 
 function Window:PostRender()
 	glfw.SwapBuffers(self.handle)
+end
+
+function Window:Render()
+
 end
 
 function Window:Update(dt)
