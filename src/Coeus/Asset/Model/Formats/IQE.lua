@@ -91,6 +91,7 @@ function Commands:vp(args)
 		table.insert(mesh.Vertices, tonumber(v))
 	end
 	mesh.Format.Positions = true
+	self.model.VertexCount = self.model.VertexCount + 1
 end
 function Commands:vt(args)
 	local mesh = self.current_material[#self.current_material]
@@ -147,6 +148,7 @@ function Commands:fm(args)
 	end
 	for i, v in ipairs(args) do
 		table.insert(mesh.Indices, tonumber(v))
+		self.model.TriangleCount = self.model.TriangleCount + 1
 	end
 end
 

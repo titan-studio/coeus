@@ -6,7 +6,10 @@ local ModelData = OOP:Class() {
 	Meshes = {},
 	Materials = {},
 	Joints = {},
-	Animations = {}
+	Animations = {},
+
+	TriangleCount = 0,
+	VertexCount = 0
 }
 ModelData.Type = {
 	Static		= 0,
