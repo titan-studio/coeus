@@ -49,7 +49,6 @@ local function create_shader(source, type)
 	return shader
 end
 
-
 function Shader:_new(context, vertex_source, fragment_source, geometry_source)
 	self.context = context
 
