@@ -1,6 +1,6 @@
 --[[
-Initialization and termination logic for the audio system.
-Creates an OpenAL context and device.
+	Initialization and termination logic for the audio system.
+	Creates an OpenAL context and device.
 ]]
 
 local Coeus = ...

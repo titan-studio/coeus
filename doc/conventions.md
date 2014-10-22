@@ -1,8 +1,9 @@
 # Coeus Coding Conventions
 
-## General Guidelines
+## Globals
 Globals should be avoided at all costs; modules should return an object instead of putting one in the global scope.
 
+## Modules
 Modules should have the following elements in order:
 
 1. Comments describing the purpose of the module and where it's generally useful
@@ -14,9 +15,10 @@ Modules should have the following elements in order:
 This would look something like:
 ```lua
 --[[
-Demonstration Library
-This library exists to show the recommending coding style for the Coeus
-core codebase.
+	Demonstration Library
+	
+	This library exists to show the recommending coding style for the Coeus core
+	codebase.
 ]]
 --#EnableExtension TypedLiterals
 
@@ -87,8 +89,17 @@ local data_index = {
 }
 ```
 
+In multiline comments, a line break should occur when a width of more than 80 characters would be reached by the next word, assuming tabs are four spaces wide. A line break should also occur after the opening of a multiline comment. When writing comments, it is recommended that a ruler is enabled in your text editor.
+```lua
+--[[
+	This is a multiline comment describing absolutely nothing, but still
+	important for making sure that all code conforms to the standards set forth
+	in this document.
+]]
+```
+
 ## Indentation
-Indentation should be done with tabs, not spaces. It is assumed that your editor is configured to have a tab width of four spaces, but this does not necessarily have to be the case. Idents should occur after the start of a function, a multiple line table, or any branching or looping statement.
+Indentation should be done with tabs, not spaces. It is assumed that your editor is configured to have a tab width of four spaces, but this does not necessarily have to be the case. Idents should occur after the start of a function, a multiple line table, or any statement creating a new scope.
 ```lua
 local big_data = {
 	1, 2, 3,
@@ -113,13 +124,20 @@ repeat
 until (calm)
 ```
 
+In multiline comments, a tab should proceed each line within the comment.
+```lua
+--[[
+	This is a simple multiline comment.
+]]
+```
+
 ## Parentheses
 Liberal use of parentheses for clarity and functionality is encouraged, and required in conditionals.
 ```lua
 --This is okay for clarity purposes
 local result = (5 * 6) + 7
 
---This is technically okay, but probably should be refactored
+--This is technically sound, but probably should be refactored
 print((("Hello, world!"):gsub("..", "!?")))
 
 --Wrap conditions in parentheses
@@ -132,5 +150,20 @@ end
 --Wrap them here too
 while (bar_of_soap) do
 	print("foo!")
+end
+```
+
+## Semicolons
+Semicolons, both to terminate statements and to separate table elements, are discouraged.
+
+## Function Declarations
+When defining a method (as inside a class or object) it's best to use Lua's dedicated method syntax. This lets anyone reading the code know that the function should be called with method syntax (`:`) instead of regular function syntax (`.`). That being said, if a function should not be called as a method, defining it using regular function syntax is encouraged.
+```lua
+function MyClass:CoolMethod()
+	print("Hello, world!")
+end
+
+function MyClass.SomeStruct.Operate(object)
+	print("Hello, world, given object:", object)
 end
 ```
