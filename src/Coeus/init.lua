@@ -53,12 +53,18 @@ local Coeus = {
 		CoeusDir = "./src/Coeus/", --Location of Coeus source files
 
 		Version = {0, 2, 0, "alpha"}, --The current version of the engine in the form MAJOR.MINOR.PATCH-STAGE
+	
+		LogLevel = 3,
+		LogFilepath = "Coeus.log",
+		LogBufferMaxSize = 512
 	},
 
 	--Private members
 	vfs = {}, --A virtual file system handler, used by the build system.
 	loaded = {}, --A dictionary of all loaded modules
-	meta = {}
+	meta = {},
+
+	log_buffer = ""
 }
 
 --[[
@@ -86,6 +92,7 @@ function Coeus:Initialize(config)
 end
 
 function Coeus:Terminate()
+	self:FlushLogBuffer()
 	for key, item in pairs(self.loaded) do
 		if (type(item) == "table") then
 			local term = rawget(item, "Terminate")
@@ -341,6 +348,63 @@ setmetatable(Coeus, {
 		self:Terminate()
 	end
 })
+
+--[[
+	Coeus's main logging system
+]]
+Coeus.LogLevel = {
+	None = 0,
+	Error = 1,
+	Warning = 2,
+	Info = 3
+}
+function Coeus:FlushLogBuffer()
+	if self.Config.LogFilepath == false then
+		return
+	end
+	local file, err = io.open(self.Config.LogFilepath, "a")
+	if file == nil then
+		print("ERROR! Could not open log file (" .. self.Config.LogFilepath .. ") for writing:", err)
+	end
+	file:write(self.log_buffer)
+	file:close()
+	self.log_buffer = ""
+end
+function Coeus:Log(level, message, location)
+	if level > self.Config.LogLevel then
+		return
+	end
+
+	local level_name = "Info"
+	for i, v in ipairs(self.LogLevel) do
+		if v == level then
+			level_name = i
+		end
+	end
+
+	local timestamp = os.date()
+	local output 
+	if location then
+		output = string.format("[%s] %s (%s): %s", timestamp, string.upper(level_name), location, message)
+	else
+		output = string.format("[%s] %s: %s", timestamp, string.upper(level_name), message)
+	end
+	print(output)
+
+	self.log_buffer = self.log_buffer .. output .. "\r\n"
+	if #self.log_buffer > self.Config.LogBufferMaxSize or level == self.LogLevel.Error then
+		self:FlushLogBuffer()
+	end
+end
+function Coeus:Error(message, location)
+	self:Log(self.LogLevel.Error, message, location)
+end
+function Coeus:Warning(message, location)
+	self:Log(self.LogLevel.Warning, message, location)
+end
+function Coeus:Info(message, location)
+	self:Log(self.LogLevel.Info, message, location)
+end
 
 --Load built-in modules
 --@builtins
