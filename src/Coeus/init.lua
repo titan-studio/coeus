@@ -1,5 +1,14 @@
+--[[
+	Coeus Core
+
+	Provides the basis of Coeus, including module loading, error handling, and
+	logging. Only extensions to core Coeus functionality should be placed in
+	this file.
+
+	See the included documentation for more information on how to use Coeus.
+]]
+
 local PATH = (...)
-local ffi = require("ffi")
 local lfs = require("lfs")
 local Coeus
 
@@ -26,6 +35,8 @@ local function fix_directory(dir)
 		return dir
 	end
 end
+
+local EOL = (jit.os == "Windows") and "\r\n" or "\n"
 
 local platform_short = {
 	Windows = "win",
@@ -54,23 +65,45 @@ local Coeus = {
 
 		Version = {0, 2, 0, "alpha"}, --The current version of the engine in the form MAJOR.MINOR.PATCH-STAGE
 	
-		LogLevel = 3,
-		LogFilepath = "Coeus.log",
-		LogBufferMaxSize = 512
+		LogLevel = 3, --Log entries greater than this level will be ignored
+		LogFile = "Coeus-log.txt",
+		LogBufferMaxSize = 5,
+		FatalErrors = true,
+		FatalWarnings = false
 	},
 
-	--Private members
-	vfs = {}, --A virtual file system handler, used by the build system.
-	loaded = {}, --A dictionary of all loaded modules
-	meta = {},
+	LogLevel = {
+		None = 0,
+		Fatal = 1,
+		Error = 2,
+		Warning = 3,
+		Info = 4
+	},
 
-	log_buffer = ""
+	LogHandlers = {}, --A hashmap of handlers for different log levels
+
+	Initialized = false, --Used to keep track of the initialization state of Coeus.
+
+	--Private members
+	vfs = {}, --A virtual file system handler, used by the build system
+	loaded = {}, --A dictionary of all loaded modules
+	meta = {}, --Contains metadata about modules; may be deprecated soon
+
+	logs_since_flush = 0,
+	log_buffer = {}, --Contains the logging information yet to be written to disk
+	log_level_longest = 0,
+	i_log_level = {} --
 }
 
 --[[
 	Initialize Coeus with an optional configuration structure.
 ]]
 function Coeus:Initialize(config)
+	if (self.Initialized) then
+		self:Info("Already initialized, ignoring call.", "Coeus")
+		return
+	end
+
 	--Load in an optional config option and patch Coeus with it.
 	if (config) then
 		for key, value in pairs(config) do
@@ -85,22 +118,213 @@ function Coeus:Initialize(config)
 	--Build CoeusDir
 	self.Config.CoeusDir = self.Config.SourceDir .. "Coeus/"
 
+	--Build i_log_level for fast log level lookups
+	--Also define log_level_longest for nice formatting
+	for key, value in pairs(self.LogLevel) do
+		self.i_log_level[value] = key
+
+		if (#key > self.log_level_longest) then
+			self.log_level_longest = #key
+		end
+	end
+
 	--Force Windows to load binaries from here
-	if (ffi.os == "Windows") then
+	if (jit.os == "Windows") then
 		Coeus.Bindings.Win32_.SetDllDirectoryA(Coeus.Config.BinDir)
 	end
+
+	self.Initialized = true
 end
 
+--[[
+	Terminate Coeus and call all finalizers on modules.
+]]
 function Coeus:Terminate()
-	self:FlushLogBuffer()
+	if (not self.Initialized) then
+		return
+	end
+
+	self:Info("Terminating...", "Coeus")
+
 	for key, item in pairs(self.loaded) do
 		if (type(item) == "table") then
 			local term = rawget(item, "Terminate")
+
 			if (term) then
-				term(item)
+				local success, err = pcall(term, item)
+				
+				if (not success) then
+					self:Warn("Termination failed: " .. err, key)
+				end
 			end
 		end
 	end
+
+	self.loaded = {}
+
+	self:Info("Terminated.", "Coeus")
+	self:FlushLogBuffer()
+
+	self.Initialized = false
+end
+
+--[[
+	Writes the existing log buffer to disk and clears the buffer.
+]]
+function Coeus:FlushLogBuffer()
+	local path = self.Config.LogFile
+
+	self.logs_since_flush = 0
+
+	if (not path) then
+		return
+	end
+
+	local handle, err = io.open(path, "ab")
+	if (not handle) then
+		io.write(("Could not open log file \"%s\" for writing: %s"):format(path, err))
+		return
+	end
+
+	handle:write(table.concat(self.log_buffer, EOL))
+	handle:write(EOL)
+	handle:close()
+
+	self.log_buffer = {}
+end
+
+--[[
+	Generic log function given a message level, a message, and an optional
+	location. The location will be automatically defined if not specified, and
+	differs based on the Debug setting.
+]]
+function Coeus:Log(level, message, location)
+	level = tonumber(level) or self.LogLevel.Info
+
+	if (level > self.Config.LogLevel) then
+		return
+	end
+
+	--Determine a location if one wasn't specified
+	if (not location) then
+		if (self.Config.Debug) then
+			local info = debug.getinfo(3, "Sln")
+
+			if (n == "Lua") then
+				location = ("[%s]:%d"):format(
+					info.short_src,
+					info.currentline
+				)
+			else
+				location = ("[%s]:%d"):format(
+					info.short_src:match("[^\\/]+$"),
+					info.currentline
+				)
+			end
+		else
+			location = "unknown"
+		end
+	end
+
+	local level_name = self.i_log_level[level] or "Info"
+	local padding = math.max(0, self.log_level_longest - #level_name)
+	local output = ("[%s] %s%s (%s): %s"):format(
+		os.date(),
+		level_name:upper(),
+		(" "):rep(padding),
+		location,
+		message
+	)
+
+	table.insert(self.log_buffer, output)
+	if (self.logs_since_flush > self.Config.LogBufferMaxSize) then
+		self:FlushLogBuffer()
+	end
+
+	self.logs_since_flush = self.logs_since_flush + 1
+
+	self.LogHandlers[level_name](self, output)
+end
+
+--[[
+	Shorthand method to raise a fatal error.
+	Will always terminate the program.
+	Should be used when, no matter what, the program cannot continue.
+]]
+function Coeus:Fatal(message, location)
+	self:Log(self.LogLevel.Fatal, message, location)
+end
+
+--[[
+	Shorthand method to raise an error.
+	Will terminate the program if LogLevel is greater than LogLevel.Error and
+	FatalErrors are enabled.
+	Should be used when the program can not continue under normal circumstances.
+]]
+function Coeus:Error(message, location)
+	self:Log(self.LogLevel.Error, message, location)
+end
+
+--[[
+	Shorthand method to raise a warning.
+	Will terminate the program if LogLevel is greater than LogLevel.Warning and
+	FatalWarnings are enabled.
+	Should be used when 
+]]
+function Coeus:Warn(message, location)
+	self:Log(self.LogLevel.Warning, message, location)
+end
+
+--[[
+	Shorthand method to report non-critical information.
+]]
+function Coeus:Info(message, location)
+	self:Log(self.LogLevel.Info, message, location)
+end
+
+--[[
+	Called when a fatal error or fatal warning occurs.
+	Should not be called directly.
+]]
+function Coeus.LogHandlers.Fatal(coeus, message)
+	print(message)
+	coeus:Terminate()
+	--os.exit(-1)
+end
+
+--[[
+	Called when application code signals an error.
+	Terminates the program if FatalErrors are enabled.
+	Should not be called directly.
+]]
+function Coeus.LogHandlers.Error(coeus, message)
+	if (coeus.Config.FatalErrors) then
+		coeus.LogHandlers.Fatal(coeus, message)
+	else
+		print(message)
+	end
+end
+
+--[[
+	Called when application code signals a warning.
+	Terminates the program is FatalWarnings are enabled.
+	Should not be called directly.
+]]
+function Coeus.LogHandlers.Warning(coeus, message)
+	if (coeus.Config.FatalWarnings) then
+		coeus.LogHandlers.Fatal(coeus, message)
+	else
+		print(message)
+	end
+end
+
+--[[
+	Called when application code reports information.
+	Will never terminate the program.
+	Should not be called directly.
+]]
+function Coeus.LogHandlers.Info(coeus, message)
+	print(message)
 end
 
 --[[
@@ -240,6 +464,7 @@ function Coeus:LoadDirectory(name, path)
 	local patch = self:Load(name .. "._", {safe = true})
 
 	if (patch) then
+		self.loaded[name_to_id(name) .. "._"] = nil
 		for key, value in pairs(container) do
 			if (not patch[key]) then
 				patch[key] = value
@@ -275,7 +500,8 @@ end
 
 --[[
 	Loads a file from the virtual file system tables.
-	Called automatically if the file we're looking for is determined to be on the VFS.
+	Called automatically if the file we're looking for is determined to be on
+	the VFS.
 ]]
 function Coeus:LoadVFSEntry(name, flags)
 	flags = flags or {}
@@ -335,6 +561,10 @@ function Coeus:AddVFSFile(name, body)
 	self.vfs[name_to_id(name)] = {file = true, body = body}
 end
 
+----------------------------------------------------------
+--Don't put any new core additions to this past this line!
+----------------------------------------------------------
+
 --Automagically load directories if a key doesn't exist
 setmetatable(Coeus, {
 	__index = function(self, key)
@@ -348,63 +578,6 @@ setmetatable(Coeus, {
 		self:Terminate()
 	end
 })
-
---[[
-	Coeus's main logging system
-]]
-Coeus.LogLevel = {
-	None = 0,
-	Error = 1,
-	Warning = 2,
-	Info = 3
-}
-function Coeus:FlushLogBuffer()
-	if self.Config.LogFilepath == false then
-		return
-	end
-	local file, err = io.open(self.Config.LogFilepath, "a")
-	if file == nil then
-		print("ERROR! Could not open log file (" .. self.Config.LogFilepath .. ") for writing:", err)
-	end
-	file:write(self.log_buffer)
-	file:close()
-	self.log_buffer = ""
-end
-function Coeus:Log(level, message, location)
-	if level > self.Config.LogLevel then
-		return
-	end
-
-	local level_name = "Info"
-	for i, v in ipairs(self.LogLevel) do
-		if v == level then
-			level_name = i
-		end
-	end
-
-	local timestamp = os.date()
-	local output 
-	if location then
-		output = string.format("[%s] %s (%s): %s", timestamp, string.upper(level_name), location, message)
-	else
-		output = string.format("[%s] %s: %s", timestamp, string.upper(level_name), message)
-	end
-	print(output)
-
-	self.log_buffer = self.log_buffer .. output .. "\r\n"
-	if #self.log_buffer > self.Config.LogBufferMaxSize or level == self.LogLevel.Error then
-		self:FlushLogBuffer()
-	end
-end
-function Coeus:Error(message, location)
-	self:Log(self.LogLevel.Error, message, location)
-end
-function Coeus:Warning(message, location)
-	self:Log(self.LogLevel.Warning, message, location)
-end
-function Coeus:Info(message, location)
-	self:Log(self.LogLevel.Info, message, location)
-end
 
 --Load built-in modules
 --@builtins
