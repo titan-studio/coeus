@@ -1,7 +1,10 @@
 --[[
-Contains just the Win32 bindings Coeus needs
+	Win32 Bindings (Partial)
+
+	Contains just the Win32 bindings Coeus needs.
 ]]
 
+local Coeus = (...)
 local ffi = require("ffi")
 if (ffi.os ~= "Windows") then
 	return

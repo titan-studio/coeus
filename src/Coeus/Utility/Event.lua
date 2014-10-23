@@ -1,5 +1,5 @@
-local Coeus 	= (...)
-local oop		= Coeus.Utility.OOP 
+local Coeus = (...)
+local OOP = Coeus.Utility.OOP 
 
 --[[
 Simple use case:
@@ -7,10 +7,10 @@ Simple use case:
 Code:
 	local ev = Event:New(true)
 
-	local listener1 = ev:Listen(function(x, consume, disconnect)
+	local listener1 = ev:Listen(function(x, e)
 		print("listener 1 checking in!",x)
 		if x == "round 2" then
-			disconnect()
+			e:Disconnect()
 		end
 	end, false, 2)
 	local listener2 = ev:Listen(function(x)
@@ -24,16 +24,23 @@ Code:
 Output:
 >	listener 2 checking in!	round 1
 	(listener 2 comes first because it had the lower priority number
-	 if you call consume() in listener 2, it won't reach listener 1)
+	 if you call e:Consume() in listener 2, it won't reach listener 1)
 > 	listener 1 checking in!	round 1
 	(listener 2 is disposable so it drops out after round 1)
 >	listener 1 checking in! round 2
- 	(round 3 reaches nothing because listener 1 called disconnect() in round 2)
+ 	(round 3 reaches nothing because listener 1 called e:Disconnect() in round 2)
 
 Any questions? Ask Kyle
 ]]
 
-local Event = oop:Class() {
+local function consume(self)
+	self.consumed = true
+end
+local function disconnect(self)
+	self.disconnected = true
+end
+
+local Event = OOP:Class() {
 	listeners = {},
 	use_priority = false
 }
@@ -44,26 +51,32 @@ end
 
 function Event:Fire(...)
 	local args = {...}
-	local consumed = false
-	local disconnected = false
-	args[#args+1] = function() consumed = true end
-	args[#args+1] = function() disconnected = true end
+	local ev = {}
+	ev.Event = self
+	ev.consumed = false
+	ev.disconnected = false
+	ev.Consume = consume
+	ev.Disconnect = disconnect
+	
 
-	for i=1,#self.listeners do 
+	for i = 1, #self.listeners do 
 		local v = self.listeners[i]
-		if v == nil then break end --the disconnections might cause nil values at the end
-
-		local callback = v.callback
-		callback(unpack(args))
-		if consume then
+		if (not v) then
 			break
 		end
-		if disconnected or v.disposable then
+
+		v.callback(unpack(args))
+		if (ev.consumed) then
+			break
+		end
+
+		if (ev.disconnected or v.disposable) then
 			table.remove(self.listeners, i)
 		end
-		disconnected = false
+		ev.disconnected = false
 	end
-	return consumed
+
+	return ev.consumed
 end
 
 function Event:Listen(func, disposable, priority)
@@ -71,19 +84,23 @@ function Event:Listen(func, disposable, priority)
 	listener.callback = func
 	listener.disposable = disposable or false
 	listener.priority = priority or 0
+
 	listener.Disconnect = function()
 		self:Disconnect(listener)
 	end
-	self.listeners[#self.listeners+1] = listener
-	if self.use_priority then
+
+	self.listeners[#self.listeners + 1] = listener
+
+	if (self.use_priority) then
 		self:Sort()
 	end
+
 	return listener
 end
 
 function Event:Disconnect(listener)
-	for i,v in pairs(self.listeners) do
-		if v == listener then
+	for i, v in pairs(self.listeners) do
+		if (v == listener) then
 			table.remove(self.listeners, i)
 			return
 		end
@@ -97,7 +114,6 @@ function Event:Sort()
 end
 
 function Event:Destroy()
-	--free the listeners
 	self.listeners = {}
 end
 

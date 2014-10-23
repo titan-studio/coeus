@@ -1,3 +1,9 @@
+--[[
+	IQE Loader
+
+	Loads IQE models (.iqe)
+]]
+
 local Coeus = (...)
 local ffi = require("ffi")
 

@@ -1,4 +1,10 @@
-local Coeus = ...
+--[[
+	GLFW 3 Binding
+
+	A binding targeted at GLFW 3.0.4.
+]]
+
+local Coeus = (...)
 
 local ffi = require("ffi")
 local glfw

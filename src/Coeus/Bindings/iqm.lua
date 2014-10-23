@@ -1,3 +1,5 @@
+local Coeus = (...)
+local ffi = require("ffi")
 
 ffi.cdef([[
 // IQM: Inter-Quake Model format

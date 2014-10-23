@@ -1,4 +1,10 @@
-local Coeus = ...
+--[[
+	libvorbis Binding
+
+	A binding to libvorbis.
+]]
+
+local Coeus = (...)
 local ffi = require("ffi")
 local libvorbis = ffi.load("libvorbis")
 

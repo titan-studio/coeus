@@ -1,3 +1,10 @@
+--[[
+	Standard C Bindings
+
+	Contains bindings for standard C operations, like allocating memory or
+	opening file handles.
+]]
+
 local Coeus = (...)
 local ffi = require("ffi")
 local C = ffi.C
@@ -31,7 +38,6 @@ int fclose(FILE* stream);
 size_t fread(void* ptr, size_t size, size_t count, FILE* stream);
 int fseek(FILE* stream, long int offset, int origin);
 long int ftell(FILE* stream);
-
 ]])
 
 return C

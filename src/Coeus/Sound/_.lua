@@ -1,4 +1,6 @@
 --[[
+	Sound Core
+
 	Initialization and termination logic for the audio system.
 	Creates an OpenAL context and device.
 ]]

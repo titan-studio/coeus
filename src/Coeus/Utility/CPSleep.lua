@@ -1,3 +1,9 @@
+--[[
+	Cross-Platform Sleep Implementation
+
+	Provides CPSleep(S) that will sleep S number of seconds.
+]]
+
 local Coeus = ...
 local ffi = require("ffi")
 local CPSleep
@@ -13,7 +19,6 @@ if (ffi.os == "Windows") then
 		Win32.Sleep(s * 1000)
 	end
 else
-	--untested
 	ffi.cdef([[
 		typedef unsigned int useconds_t;
 

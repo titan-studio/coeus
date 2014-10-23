@@ -1,4 +1,10 @@
-local Coeus = ...
+--[[
+	stb_truetype Binding
+
+	A binding to stb_truetype, included in coeus_aux.
+]]
+
+local Coeus = (...)
 local ffi = require("ffi")
 local stb_truetype = Coeus.Bindings.coeus_aux
 

@@ -1,4 +1,10 @@
-local Coeus = ...
+--[[
+	zlib Binding (Partial)
+
+	A partial binding to zlib.
+]]
+
+local Coeus = (...)
 
 local ffi = require("ffi")
 local z_lib

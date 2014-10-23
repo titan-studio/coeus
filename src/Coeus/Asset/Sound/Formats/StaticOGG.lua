@@ -1,4 +1,10 @@
-local Coeus = ...
+--[[
+	Static Ogg Vorbis Decoder
+
+	Loads static Ogg Vorbis audio (.ogg)
+]]
+
+local Coeus = (...)
 local ffi = require("ffi")
 
 local OOP = Coeus.Utility.OOP
@@ -13,6 +19,9 @@ local OGGFormat = OOP:Static(Coeus.Asset.Format)()
 
 local CHUNK_SIZE = 524288
 
+--[[
+	Loads the ogg file located at filename.
+]]
 function OGGFormat:Load(filename)
 	local buffer_size = CHUNK_SIZE
 	local data = ffi.cast("uint8_t*", C.malloc(buffer_size))
@@ -72,6 +81,9 @@ function OGGFormat:Load(filename)
 	return out
 end
 
+--[[
+	Returns whether the specified filename is ogg vorbis audio.
+]]
 function OGGFormat:Match(filename, static)
 	return static and (not not filename:match("%.ogg$"))
 end

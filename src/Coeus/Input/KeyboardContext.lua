@@ -1,5 +1,10 @@
+--[[
+	Keyboard Input Context
+
+	Allows managing of keyboard input in a given window.
+]]
+
 local Coeus = (...)
-local bit = require("bit")
 
 local OOP = Coeus.Utility.OOP
 local Event = Coeus.Utility.Event
@@ -17,12 +22,15 @@ local KeyboardContext = OOP:Class() {
 	TextInput = Event:New()
 }
 
+--[[
+	Builds a new KeyboardContext for a given window.
+]]
 function KeyboardContext:_new(window)
 	glfw.SetKeyCallback(window.handle, function(handle, key, scancode, action, mod)
-		if action == GLFW.PRESS then
+		if (action == GLFW.PRESS) then
 			self.keys[key] = true
 			self.KeyDown:Fire(key)
-		elseif action == GLFW.RELEASE then
+		elseif (action == GLFW.RELEASE) then
 			self.keys[key] = false
 			self.KeyUp:Fire(key)
 		end
@@ -33,12 +41,16 @@ function KeyboardContext:_new(window)
 	end)
 end
 
+--[[
+	Returns whether the requested key is currently pressed.
+]]
 function KeyboardContext:IsKeyDown(key)
-	if type(key) == "string" then
+	if (type(key) == "string") then
 		key = key:upper()
 		key = string.byte(key)
 	end
-	return self.keys[key] or false
+
+	return not not self.keys[key]
 end
 
 return KeyboardContext

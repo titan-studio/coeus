@@ -1,10 +1,16 @@
-local Coeus = ...
+--[[
+	TinyCThread Binding
+
+	A binding to TinyCthread, included in coeus_aux.
+]]
+
+local Coeus = (...)
 local ffi = require("ffi")
 local tct = Coeus.Bindings.coeus_aux
 
 --Platform-specific typedefs
 if (ffi.os == "Windows") then
-	Coeus:Load("Bindings.Win32_")
+	Coeus:Get("Bindings.Win32_")
 	ffi.cdef([[
 		typedef int time_t;
 		typedef int clock_t;

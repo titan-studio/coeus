@@ -1,3 +1,14 @@
+--[[
+	4x4 Matrix
+
+	Defines transforms using a 4x4 matrix.
+
+	TODO:
+	- Rewrite constructor to use varargs
+	- Remove Matrix4.Manual
+	- Refactor to use cdata
+]]
+
 local Coeus = (...)
 local OOP = Coeus.Utility.OOP
 local Vector3 = Coeus.Math.Vector3
@@ -6,13 +17,16 @@ local Matrix4 = OOP:Class() {
 	m = {}
 }
 
+--[[
+	Creates a new matrix given a sequence of values.
+]]
 function Matrix4:_new(values)
-	if values then
-		for i=1, 16 do
+	if (values) then
+		for i = 1, 16 do
 			self.m[i] = values[i]
 		end
 	else
-		for i=1, 16 do
+		for i = 1, 16 do
 			self.m[i] = 0
 		end
 		self.m[1] = 1
@@ -23,14 +37,16 @@ function Matrix4:_new(values)
 end
 
 function Matrix4.Manual(...)
-	local vals = {...}
 	local m = {}
-	for i=1, 16 do
-		m[i] = vals[i]
+	for i = 1, 16 do
+		self.m[i] = select(i, ...)
 	end
 	return Matrix4:New(m)
 end
 
+--[[
+	Returns the inverse of the matrix.
+]]
 function Matrix4:GetInverse()
 	local r = {}
 	local m = self.m
@@ -63,41 +79,51 @@ function Matrix4:GetInverse()
 	return Matrix4:New(r)
 end
 
-function Matrix4.Multiply(b, a)
-	local a = a.m
-	local b = b.m
+--[[
+	Multiplies two Matrix4 objects together
+]]
+function Matrix4.Multiply(a, b)
 	local r = {}
-	r[1] = a[1] * b[1] + a[2] * b[5] + a[3] * b[9] + a[4] * b[13]
-	r[2] = a[1] * b[2] + a[2] * b[6] + a[3] * b[10] + a[4] * b[14]
-	r[3] = a[1] * b[3] + a[2] * b[7] + a[3] * b[11] + a[4] * b[15]
-	r[4] = a[1] * b[4] + a[2] * b[8] + a[3] * b[12] + a[4] * b[16]
+	r[1] = b[1]*a[1] + b[2]*a[5] + b[3]*a[9] + b[4]*a[13]
+	r[2] = b[1]*a[2] + b[2]*a[6] + b[3]*a[10] + b[4]*a[14]
+	r[3] = b[1]*a[3] + b[2]*a[7] + b[3]*a[11] + b[4]*a[15]
+	r[4] = b[1]*a[4] + b[2]*a[8] + b[3]*a[12] + b[4]*a[16]
 
-	r[5] = a[5] * b[1] + a[6] * b[5] + a[7] * b[9] + a[8] * b[13]
-	r[6] = a[5] * b[2] + a[6] * b[6] + a[7] * b[10] + a[8] * b[14]
-	r[7] = a[5] * b[3] + a[6] * b[7] + a[7] * b[11] + a[8] * b[15]
-	r[8] = a[5] * b[4] + a[6] * b[8] + a[7] * b[12] + a[8] * b[16]
+	r[5] = b[5]*a[1] + b[6]*a[5] + b[7]*a[9] + b[8]*a[13]
+	r[6] = b[5]*a[2] + b[6]*a[6] + b[7]*a[10] + b[8]*a[14]
+	r[7] = b[5]*a[3] + b[6]*a[7] + b[7]*a[11] + b[8]*a[15]
+	r[8] = b[5]*a[4] + b[6]*a[8] + b[7]*a[12] + b[8]*a[16]
 
-	r[9] = a[9] * b[1] + a[10] * b[5] + a[11] * b[9] + a[12] * b[13]
-	r[10] = a[9] * b[2] + a[10] * b[6] + a[11] * b[10] + a[12] * b[14]
-	r[11] = a[9] * b[3] + a[10] * b[7] + a[11] * b[11] + a[12] * b[15]
-	r[12] = a[9] * b[4] + a[10] * b[8] + a[11] * b[12] + a[12] * b[16]
+	r[9] = b[9]*a[1] + b[10]*a[5] + b[11]*a[9] + b[12]*a[13]
+	r[10] = b[9]*a[2] + b[10]*a[6] + b[11]*a[10] + b[12]*a[14]
+	r[11] = b[9]*a[3] + b[10]*a[7] + b[11]*a[11] + b[12]*a[15]
+	r[12] = b[9]*a[4] + b[10]*a[8] + b[11]*a[12] + b[12]*a[16]
 
-	r[13] = a[13] * b[1] + a[14] * b[5] + a[15] * b[9] + a[16] * b[13]
-	r[14] = a[13] * b[2] + a[14] * b[6] + a[15] * b[10] + a[16] * b[14]
-	r[15] = a[13] * b[3] + a[14] * b[7] + a[15] * b[11] + a[16] * b[15]
-	r[16] = a[13] * b[4] + a[14] * b[8] + a[15] * b[12] + a[16] * b[16]
+	r[13] = b[13]*a[1] + b[14]*a[5] + b[15]*a[9] + b[16]*a[13]
+	r[14] = b[13]*a[2] + b[14]*a[6] + b[15]*a[10] + b[16]*a[14]
+	r[15] = b[13]*a[3] + b[14]*a[7] + b[15]*a[11] + b[16]*a[15]
+	r[16] = b[13]*a[4] + b[14]*a[8] + b[15]*a[12] + b[16]*a[16]
 
 	return Matrix4:New(r)
 end
 
+--[[
+	Returns a Vector3 corresponding to up
+]]
 function Matrix4:GetUpVector()
 	return Vector3:New(self.m[5], self.m[6], self.m[7])
 end
 
+--[[
+	Returns a Vector3 corresponding to right
+]]
 function Matrix4:GetRightVector()
 	return Vector3:New(self.m[1], self.m[2], self.m[3])
 end
 
+--[[
+	Returns a Vector3 corresponding to forward
+]]
 function Matrix4:GetForwardVector()
 	return Vector3:New(self.m[9], self.m[10], self.m[11])
 end
@@ -106,19 +132,19 @@ function Matrix4:TransformPoint(vec)
 	--This function may not be correct (or at least what is expected.)
 	--Further investigation may be necessary
 	local m = self.m
-	local inv_w = 1 / (m[13] * vec.x + m[14] * vec.y + m[15] * vec.z + m[16])
+	local inv_w = 1 / (m[13]*vec.x + m[14]*vec.y + m[15]*vec.z + m[16])
 	return Vector3:New(
-		(m[1] * vec.x + m[2] * vec.y + m[3] * vec.z + m[4]) * inv_w,
-		(m[5] * vec.x + m[6] * vec.y + m[7] * vec.z + m[8]) * inv_w,
-		(m[9] * vec.x + m[10] * vec.y + m[11] * vec.z + m[12]) * inv_w
+		(m[1]*vec.x + m[2]*vec.y + m[3]*vec.z + m[4])*inv_w,
+		(m[5]*vec.x + m[6]*vec.y + m[7]*vec.z + m[8])*inv_w,
+		(m[9]*vec.x + m[10]*vec.y + m[11]*vec.z + m[12])*inv_w
 	)
 end
 
 function Matrix4:TransformVector3(vec)
 	return Vector3:New(
-		m[1] * vec.x + m[2] * vec.y + m[3] * vec.z,
-		m[5] * vec.x + m[6] * vec.y + m[7] * vec.z,
-		m[9] * vec.x + m[10] * vec.y + m[11] * vec.z
+		m[1]*vec.x + m[2]*vec.y + m[3]*vec.z,
+		m[5]*vec.x + m[6]*vec.y + m[7]*vec.z,
+		m[9]*vec.x + m[10]*vec.y + m[11]*vec.z
 	)
 end
 
@@ -204,7 +230,7 @@ end
 
 Matrix4:AddMetamethods({
 	__mul = function(a, b)
-		if b:GetClass() == Vector3 then
+		if (b.Is[Vector3]) then
 			return Matrix4.TransformPoint(a, b)
 		else
 			return Matrix4.Multiply(a, b)

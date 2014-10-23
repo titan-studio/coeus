@@ -1,4 +1,10 @@
-local Coeus = ...
+--[[
+	LuaJIT Thread Auxiliary Binding
+
+	A binding to some auxiliary C threading code in coeus_aux.
+]]
+
+local Coeus = (...)
 local ffi = require("ffi")
 local lib = Coeus.Bindings.coeus_aux
 

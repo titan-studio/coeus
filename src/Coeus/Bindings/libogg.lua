@@ -1,4 +1,10 @@
-local Coeus = ...
+--[[
+	libogg Binding
+
+	A binding to core libogg functionality.
+]]
+
+local Coeus = (...)
 local ffi = require("ffi")
 local libogg = ffi.load("libogg")
 

@@ -1,9 +1,15 @@
+--[[
+	PNG Loader
+
+	Loads PNG images (.png)
+]]
+
 local Coeus = (...)
 local ffi = require("ffi")
 
 local OOP = Coeus.Utility.OOP
 local ImageData = Coeus.Asset.Image.ImageData
-local lodepng = Coeus.Bindings.lodepng
+local LodePNG = Coeus.Bindings.LodePNG
 
 local PNGFormat = OOP:Static(Coeus.Asset.Format)()
 
@@ -15,13 +21,13 @@ function PNGFormat:Load(filename)
 	local file_data = ffi.new("unsigned char*[1]")
 	local img_size = ffi.new("size_t[1]")
 
-	lodepng.lodepng_load_file(file_data, img_size, filename)
-	err_code = lodepng.lodepng_decode32(image_data, width, height, file_data[0], img_size[0])
+	LodePNG.lodepng_load_file(file_data, img_size, filename)
+	err_code = LodePNG.lodepng_decode32(image_data, width, height, file_data[0], img_size[0])
 
 	if (err_code ~= 0) then
 		return nil, {
 			code = err_code,
-			message = lodepng.lodepng_error_text(err_code)
+			message = LodePNG.lodepng_error_text(err_code)
 		}
 	end
 

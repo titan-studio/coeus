@@ -1,10 +1,19 @@
-local Coeus = ...
+--[[
+	Base Loader
+
+	A parent class for all asset loaders.
+]]
+
+local Coeus = (...)
 local OOP = Coeus.Utility.OOP
 
 local Loader = OOP:Static() {
 	Formats = {}
 }
 
+--[[
+	Loads the asset located at path.
+]]
 function Loader:Load(path, ...)
 	local loader
 

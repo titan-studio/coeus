@@ -12,53 +12,56 @@ function Vector2:_new(x, y)
 end
 
 function Vector2.Add(a, b)
-	if type(a) == 'number' then
+	if (type(a) == "number") then
 		return Vector2.Add(b, a)
 	end
-	if type(b) == 'number' then
+	if (type(b) == "number") then
 		return Vector2:New(a.x + b, a.y + b)
 	end
 	return Vector2:New(a.x + b.x, a.y + b.y)
 end
 
 function Vector2.Subtract(a, b)
-	if type(b) == 'number' then
+	if (type(b) == "number") then
 		return Vector2:New(a.x - b, a.y - b)
 	end
 	return Vector2:New(a.x - b.x, a.y - b.y)
 end
 
 function Vector2.Multiply(a, b)
-	if type(a) == 'number' then
+	if (type(a) == "number") then
 		return Vector2.Multiply(b, a)
 	end
-	if type(b) == 'number' then
+	if (type(b) == "number") then
 		return Vector2:New(a.x * b, a.y * b)
 	end
 	return Vector2:New(a.x * b.x, a.y * b.y)
 end
 
 function Vector2.Divide(a, b)
-	if type(b) == 'number' then
+	if (type(b) == "number") then
 		return Vector2:New(a.x / b, a.y / b)
 	end
 	return Vector2:New(a.x / b.x, a.y / b.y)
 end
 
 function Vector2:LengthSquared()
-	return (self.x^2) + (self.y^2)
-end
-function Vector2:Length()
-	return math.sqrt(self:LengthSquared())
+	return self.x^2 + self.y^2
 end
 
-function Vector2.Unit(a)
-	return a / a:Length()
+function Vector2:Length()
+	return math.sqrt(self.x^2 + self.y^2)
 end
+
 function Vector2:Normalize()
 	local len = self:Length()
 	self.x = self.x / len
 	self.y = self.y / len
+end
+
+function Vector2:GetNormalized()
+	local len = self:Length()
+	return Vector2:New(self.x / len, self.y / len)
 end
 
 function Vector2.GetMidpoint(a, b)
@@ -87,16 +90,16 @@ function Vector2:GetRotated(angle)
 	)
 end
 
-function Vector2:Perpendicular()
+function Vector2:GetPerpendicular()
 	return Vector2:New(-self.y, self.x)
 end
 
-function Vector2:MirrorOver(other)
+function Vector2:GetMirroredOver(other)
 	local s = 2 * (self.x * other.x + self.y + other.y) / (other.x^2 + other.y^2)
 	return Vector2:New(s * other.x, s * other.y)
 end
 
-function Vector2:Project(other)
+function Vector2:GetProjected(other)
 	local s = (self.x * other.x + self.y * other.y) / (other.x * other.x + other.y * other.y)
 	return Vector2:New(s * other.x, s * other.y)
 end

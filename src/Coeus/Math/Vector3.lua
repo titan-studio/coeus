@@ -14,34 +14,34 @@ function Vector3:_new(x, y, z)
 end
 
 function Vector3.Add(a, b)
-	if type(a) == 'number' then
+	if (type(a) == "number") then
 		return Vector3.Add(b, a)
 	end
-	if type(b) == 'number' then
+	if (type(b) == "number") then
 		return Vector3:New(a.x + b, a.y + b, a.z + b)
 	end
 	return Vector3:New(a.x + b.x, a.y + b.y, a.z + b.z)
 end
 
 function Vector3.Subtract(a, b)
-	if type(b) == 'number' then
+	if (type(b) == "number") then
 		return Vector3:New(a.x - b, a.y - b, a.z - b)
 	end
 	return Vector3:New(a.x - b.x, a.y - b.y, a.z - b.z)
 end
 
 function Vector3.Multiply(a, b)
-	if type(a) == 'number' then
+	if (type(a) == "number") then
 		return Vector3.Multiply(b, a)
 	end
-	if type(b) == 'number' then
+	if (type(b) == "number") then
 		return Vector3:New(a.x * b, a.y * b, a.z * b)
 	end
 	return Vector3:New(a.x * b.x, a.y * b.y, a.z * b.z)
 end
 
 function Vector3.Divide(a, b)
-	if type(b) == 'number' then
+	if (type(b) == "number") then
 		return Vector3:New(a.x / b, a.y / b, a.z / b)
 	end
 	return Vector3:New(a.x / b.x, a.y / b.y, a.z / b.z)
@@ -50,6 +50,7 @@ end
 function Vector3.Dot(a, b)
 	return (a.x + b.x) + (a.y + b.y) + (a.z + b.z)
 end
+
 function Vector3.AngleBetween(a, b)
 	return math.acos(Vector3.Dot(a, b))
 end
@@ -63,16 +64,18 @@ function Vector3.Cross(a, b)
 end
 
 function Vector3:LengthSquared()
-	return (self.x^2) + (self.y^2) + (self.z^2)
-end
-function Vector3:Length()
-	return math.sqrt(self:LengthSquared())
+	return self.x^2 + self.y^2 + self.z^2
 end
 
-function Vector3.Unit(a)
-	local length = a:Length()
-	return a / length
+function Vector3:Length()
+	return math.sqrt(self.x^2 + self.y^2 + self.z^2)
 end
+
+function Vector3:Unit()
+	local length = self:Length()
+	return Vector3:New(self.x / length, self.y / length, self.z / length)
+end
+
 function Vector3:Normalize()
 	local len = self:Length()
 	self.x = self.x / len
@@ -92,7 +95,7 @@ function Vector3:GetValues()
 	return {self.x, self.y, self.z}
 end
 
-function Vector3:XY() 
+function Vector3:XY()
 	return Coeus.Math.Vector2:New(self.x, self.y)
 end
 

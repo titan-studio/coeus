@@ -1,4 +1,10 @@
-local Coeus = ...
+--[[
+	Sound Data
+
+	Defines a chunk of static audio data.
+]]
+
+local Coeus = (...)
 local ffi = require("ffi")
 local OpenAL = Coeus.Bindings.OpenAL
 local SoundCommon = Coeus.Asset.Sound.Common
@@ -14,7 +20,9 @@ local SoundData = OOP:Class(Coeus.Asset.Format) {
 	al_buffer = nil
 }
 
---OpenAL auxiliary stuff, this might cause unnecessary duplicate data
+--[[
+	Loads this SoundData into OpenAL and returns an OpenAL identifier.
+]]
 function SoundData:GetALBuffer()
 	if (self.al_buffer) then
 		return self.al_buffer

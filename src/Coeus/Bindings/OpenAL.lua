@@ -1,4 +1,10 @@
-local Coeus = ...
+--[[
+	OpenAL-soft Binding
+
+	A binding intended for OpenAL-soft
+]]
+
+local Coeus = (...)
 local ffi = require("ffi")
 local openal = ffi.load("openal")
 

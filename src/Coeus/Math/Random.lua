@@ -22,7 +22,7 @@ end
 function Random:SetSeed(seed)
 	self.state[0] = seed or normalize(os.time())
 	for i = 1, 623 do
-		self.state[i] = normalize( 0x6c078965 * xor(self.state[i - 1], floor(self.state[i - 1] / 0x40000000)) + i)
+		self.state[i] = normalize(0x6c078965 * xor(self.state[i - 1], floor(self.state[i - 1] / 0x40000000)) + i)
 	end
 end
 

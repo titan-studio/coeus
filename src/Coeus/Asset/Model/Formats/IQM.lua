@@ -1,3 +1,9 @@
+--[[
+	IQM Loader (stub)
+
+	Loads IQM models (.iqm)
+]]
+
 local Coeus = (...)
 local ffi = require("ffi")
 

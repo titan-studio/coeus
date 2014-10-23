@@ -1,4 +1,10 @@
-local Coeus = ...
+--[[
+	OpenGL Binding
+
+	A binding to OpenGL using OpenGL 4.4 headers.
+]]
+
+local Coeus = (...)
 local ffi = require("ffi")
 
 -- glcorearb.h

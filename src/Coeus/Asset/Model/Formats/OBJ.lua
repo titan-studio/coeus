@@ -1,3 +1,9 @@
+--[[
+	OBJ Loader
+
+	Loads OBJ models (.obj)
+]]
+
 local Coeus = (...)
 local ffi = require("ffi")
 

@@ -1,4 +1,10 @@
-local Coeus = ...
+--[[
+	Sound Asset Common
+
+	Defines common data for sound loading.
+]]
+
+local Coeus = (...)
 local OOP = Coeus.Utility.OOP
 local OpenAL = Coeus.Bindings.OpenAL
 

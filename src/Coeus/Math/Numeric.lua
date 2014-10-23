@@ -1,32 +1,45 @@
+--[[
+	Numeric Utilities
+
+	Provides utilities for common numeric operations
+]]
+
 local Coeus = (...)
 local Numeric = {}
 
+local max = math.max
+local min = math.min
+local abs = math.abs
+
+--[[
+	Checks to see if the difference between x and y is small, or at least within
+	the relative and absolute errors defined by epsilon_rel and epsilon_abs.
+]]
 function Numeric.CompareReal(x, y, epsilon_rel, epsilon_abs)
 	epsilon_rel = epsilon_rel or 1e-5
 	epsilon_abs = epsilon_abs or 1e-6
-	if math.abs(x - y) < epsilon_abs then
+	if (abs(x - y) < epsilon_abs) then
 		return true
 	end
 
 	local relative
-	if math.abs(x) > math.abs(y) then
-		relative = math.abs((x - y) / y)
+	if (abs(x) > abs(y)) then
+		relative = abs((x - y) / y)
 	else
-		relative = math.abs((x - y) / y)
+		relative = abs((x - y) / y)
 	end
 
-	if relative <= epsilon_rel then
+	if (relative <= epsilon_rel) then
 		return true
 	end
 	return false
 end
 
-function Numeric.Clamp(a, min, max)
-	return math.max(math.min(max, a), min)
-end
-
-function Numeric.AngleDifference(t1, t2)
-	return (t1 - t2 + math.pi) % (math.pi * 2) - math.pi
+--[[
+	Clamps a value between the numbers low and high
+]]
+function Numeric.Clamp(a, low, high)
+	return max(min(high, a), low)
 end
 
 return Numeric
