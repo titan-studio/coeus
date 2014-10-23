@@ -40,6 +40,8 @@ local Window = OOP:Class() {
 
 	IsClosed = false,
 
+	ClearColor = Coeus.Graphics.Color:New(),
+
 	Resized 	= Event:New(),
 	Moved 		= Event:New(),
 	Closed 		= Event:New(),
@@ -233,7 +235,7 @@ end
 function Window:PreRender()
 	self:Use()
 	gl.ClearDepth(1.0)
-	gl.ClearColor(0, 0, 0, 0)
+	gl.ClearColor(self.ClearColor.Red, self.ClearColor.Green, self.ClearColor.Blue, self.ClearColor.Alpha)
 	gl.Clear(bit.bor(tonumber(GL.COLOR_BUFFER_BIT), tonumber(GL.DEPTH_BUFFER_BIT)))
 end
 
