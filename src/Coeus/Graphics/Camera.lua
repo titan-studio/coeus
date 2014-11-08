@@ -1,10 +1,10 @@
 local Coeus 	= (...)
 local OOP 		= Coeus.Utility.OOP 
 
-local Actor			= Coeus.Actor
+local BaseComponent	= Coeus.World.BaseComponent
 local Matrix4		= Coeus.Math.Matrix4
 
-local Camera = OOP:Class(Actor) {
+local Camera = OOP:Class(BaseComponent) {
 	fov = 60,
 	near = 0.5,
 	far = 1000,
@@ -15,19 +15,21 @@ local Camera = OOP:Class(Actor) {
 
 	window = false
 }
-Camera.ProjectionType = {
-	Orthographic 	= 1,
-	Perspective 	= 2
-}
 
-function Camera:_new(window)
-	self.window = window
-	self.window.Resized:Listen(function()
-		self.projection_dirty = true
-	end)	
+function Camera:_new()
+	local resized = nil
+	self.AddedToActor:Listen(function(actor)
+		self.window = actor.Scene.context.window
 
-	self.projection_type = Camera.ProjectionType.Perspective
-	self:BuildProjectionTransform()
+		if resized then
+			resized:Disconnect()
+		end
+		resized = self.window.Resized:Listen(function()
+			self.projection_dirty = true
+		end)	
+
+		self:BuildProjectionTransform()
+	end)
 end
 
 function Camera:SetFieldOfView(degrees)
@@ -49,9 +51,12 @@ end
 
 
 function Camera:GetViewTransform()
-	local entity = self.entity
-	if entity then
-		return entity:GetRenderTransform():GetInverse()
+	local actor = self.Actor
+	if actor then
+		local transform = actor:GetComponent(Coeus.World.Component.Transform)
+		if transform then
+			return transform:GetRenderTransform():GetInverse()
+		end
 	end
 	return Matrix4:New()
 end
@@ -60,13 +65,11 @@ function Camera:BuildProjectionTransform()
 	if not self.projection_dirty then return end
 	self.projection_dirty = false
 
-	if self.projection_type == Camera.ProjectionType.Perspective then
-		local fov = self.fov
-		local width, height = self.window:GetSize()
-		local near, far = self.near, self.far
-		local aspect = width / height
-		self.projection = Matrix4.GetPerspective(fov, near, far, aspect)
-	end
+	local fov = self.fov
+	local width, height = self.window:GetSize()
+	local near, far = self.near, self.far
+	local aspect = width / height
+	self.projection = Matrix4.GetPerspective(fov, near, far, aspect)
 end
 
 function Camera:GetProjectionTransform()
