@@ -84,6 +84,8 @@ end
 ]]
 function Matrix4.Multiply(a, b)
 	local r = {}
+	a = a.m
+	b = b.m
 	r[1] = b[1]*a[1] + b[2]*a[5] + b[3]*a[9] + b[4]*a[13]
 	r[2] = b[1]*a[2] + b[2]*a[6] + b[3]*a[10] + b[4]*a[14]
 	r[3] = b[1]*a[3] + b[2]*a[7] + b[3]*a[11] + b[4]*a[15]
@@ -190,7 +192,7 @@ function Matrix4:GetValues()
 end
 
 function Matrix4.GetTranslation(vector)
-	if vector:GetClass() == Vector3 then
+	if vector.Is[Vector3] then
 		local out = Matrix4:New()
 		out.m[13] = vector.x
 		out.m[14] = vector.y
@@ -203,37 +205,37 @@ function Matrix4.GetTranslation(vector)
 end
 
 function Matrix4.GetRotationX(angle)
-	return Matrix4.Manual(
+	return Matrix4:New({
 		1, 0, 0, 0,
 		0, math.cos(angle), math.sin(angle), 0,
 		0, -math.sin(angle), math.cos(angle), 0,
 		0, 0, 0, 1
-	)
+	})
 end
 function Matrix4.GetRotationY(angle)
-	return Matrix4.Manual(
+	return Matrix4:New({
 		math.cos(angle), 0, -math.sin(angle), 0,
 		0, 1, 0, 0,
 		math.sin(angle), 0, math.cos(angle), 0,
 		0, 0, 0, 1
-	)
+	})
 end
 function Matrix4.GetRotationZ(angle)
-	return Matrix4.Manual(
+	return Matrix4:New({
 		math.cos(angle), math.sin(angle), 0, 0,
 		-math.sin(angle), math.cos(angle), 0, 0,
 		0, 0, 1, 0,
 		0, 0, 0, 1
-	)
+	})
 end
 
 function Matrix4.GetScale(vector)
-	return Matrix4.Manual(
+	return Matrix4:New({
 		vector.x, 0, 0, 0,
 		0, vector.y, 0, 0,
 		0, 0, vector.z, 0,
 		0, 0, 0, 1
-	)
+	})
 end
 
 function Matrix4.GetPerspective(fov, near, far, aspect)
@@ -289,6 +291,10 @@ function Matrix4.GetOrthographic(left, right, top, bottom, near, far)
 	m[16] = 1
 
 	return Matrix4:New(m)
+end
+
+function Matrix4:ToString()
+	return ("|%s %s %s %s|\n"):rep(4):format(unpack(self.m))
 end
 
 Matrix4:AddMetamethods({

@@ -90,7 +90,7 @@ function Transform2D:BuildTransform()
 						   Matrix4.GetRotationZ(self.rotation) *
 						   Matrix4.GetTranslation((-self.offset):XYZ()) *
 						   Matrix4.GetScale(self.scale:XYZ(1))
-						   Matrix4:New()
+						   
 	self.render_transform = self.local_transform
 
 	if self.Actor.Parent then
