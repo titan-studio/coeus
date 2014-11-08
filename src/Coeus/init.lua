@@ -194,6 +194,29 @@ function Coeus:FlushLogBuffer()
 end
 
 --[[
+	Creates an error object to be returned to denote that something went wrong.
+	Produced by Coeus:Error automatically.
+]]
+function Coeus:CreateError(message)
+	local internal = {
+		Message = message,
+		__error = true
+	}
+
+	local proxy = newproxy(true)
+	getmetatable(proxy).__index = internal
+
+	return proxy
+end
+
+--[[
+	Checks that the given value is a Coeus Error.
+]]
+function Coeus:IsError(value)
+	return (type(value) == "userdata" and value.__error)
+end
+
+--[[
 	Generic log function given a message level, a message, and an optional
 	location. The location will be automatically defined if not specified, and
 	differs based on the Debug setting.
@@ -263,6 +286,8 @@ end
 ]]
 function Coeus:Error(message, location)
 	self:Log(self.LogLevel.Error, message, location)
+
+	return Coeus:CreateError(message)
 end
 
 --[[
