@@ -3,24 +3,23 @@ local OOP			= Coeus.Utility.OOP
 
 local next_priority = 1
 local Layer = OOP:Class() {
-	context = false,
-	name = "Unnamed Layer",
+	Name = "Unnamed Layer",
 	flag = false,
-	actors = {},
+	scene = false,
 
 	Sorted = false
 }
 Layer.Flag = {
 	None = 0,
-	UnlitBackground,
-	Geometry,
-	TransparentGeometry,
-	Unlit2D,
-	Lights
+	UnlitBackground = 1,
+	Geometry = 2,
+	TransparentGeometry = 3,
+	Unlit2D = 4,
+	Lights = 5
 }
 
-function Layer:_new(context, flag, name)
-	self.context = context
+function Layer:_new(scene, flag, name)
+	self.scene = scene
 	self.flag = flag or Layer.Flag.Geometry
 
 	self.name = name
@@ -34,40 +33,9 @@ function Layer:_new(context, flag, name)
 	end
 end
 
-function Layer:Resort()
-	table.sort(self.actors, function(a, b)
-		return a.DrawOrder < b.DrawOrder
-	end)
-end
-
-function Layer:RegisterActor(actor)
-	for i, v in ipairs(self.actors) do
-		if v == actor then
-			return
-		end
-	end
-	table.insert(self.actors, actor)
-	if self.Sorted then
-		self:Resort()
-	end
-end
-
-function Layer:DeregisterActor(actor)
-	for i, v in ipairs(self.actors) do
-		if v == actor then
-			table.remove(self.actors, i)
-			if self.Sorted then
-				self:Resort()
-			end
-			return true
-		end
-	end
-	return false
-end
-
 function Layer:Render()
-	for i, v in ipairs(self.actors) do
-		v:Render()
+	for i, v in ipairs(self.scene.Actors) do
+		v:Render(self.flag)
 	end
 end
 
