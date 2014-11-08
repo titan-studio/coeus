@@ -116,6 +116,10 @@ function Vector2:XYZ(z)
 	return Coeus.Math.Vector3:New(self.x, self.y, z or 0)
 end
 
+function Vector2:ToString()
+	return ("(%s, %s)"):format(self.x, self.y)
+end
+
 Vector2:AddMetamethods({
 	__add = function(a, b)
 		return Vector2.Add(a, b)

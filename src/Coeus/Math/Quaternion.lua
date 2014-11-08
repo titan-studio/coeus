@@ -245,7 +245,9 @@ function Quaternion.Multiply(a, b)
 	)
 end
 
-
+function Quaternion:ToString()
+	return ("(%s, %s, %s, %s)"):format(self.x, self.y, self.z, self.w)
+end
 
 Quaternion:AddMetamethods({
 	__add = function(a, b)
