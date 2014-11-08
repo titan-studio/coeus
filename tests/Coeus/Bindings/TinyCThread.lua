@@ -1,11 +1,14 @@
-local Coeus = ...
+local Coeus = (...)
 
 return {
 	Name = "Bindings.TinyCThread",
 
 	Tests = {
-		Load = function(self, result)
-			Coeus:Load("Bindings.TinyCThread")
-		end
+		{
+			"Load", 
+			function(self, result)
+				Coeus:Load(self.Name)
+			end
+		}
 	}
 }

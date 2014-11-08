@@ -1,11 +1,14 @@
-local Coeus = ...
+local Coeus = (...)
 
 return {
 	Name = "Bindings.GLFW",
 
 	Tests = {
-		Load = function(self, result)
-			Coeus:Load("Bindings.GLFW")
-		end
+		{
+			"Load", 
+			function(self, result)
+				Coeus:Load(self.Name)
+			end
+		}
 	}
 }

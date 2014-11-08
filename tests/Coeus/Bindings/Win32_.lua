@@ -1,11 +1,14 @@
-local Coeus = ...
+local Coeus = (...)
 
 return {
 	Name = "Bindings.Win32_",
 
 	Tests = {
-		Load = function(self, result)
-			Coeus:Load("Bindings.Win32_")
-		end
+		{
+			"Load", 
+			function(self, result)
+				Coeus:Load(self.Name)
+			end
+		}
 	}
 }
