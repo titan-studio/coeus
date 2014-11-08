@@ -30,6 +30,7 @@ function ImageData:Map(func)
 		return
 	end
 
+
 	local bpp = 4
 	if (not self.image) then
 		self.image = ffi.new("unsigned char[?]", self.Width * self.Height * bpp)

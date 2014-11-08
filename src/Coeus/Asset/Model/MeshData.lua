@@ -14,7 +14,9 @@ local MeshData = OOP:Class() {
 
 	SmoothingGroup = -1,
 	SmoothingAngle = math.rad(180),
-	SmoothByUv = false,
+	SmoothByUV = false,
+
+	Material = false,
 
 	Format = {
 		Positions = true,

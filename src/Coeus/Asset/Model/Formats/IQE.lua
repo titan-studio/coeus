@@ -88,6 +88,7 @@ function Commands:material(args)
 	self.data.material[args[1]] = self.data.material[args[1]] or {}
 	table.insert(self.data.material[args[1]], self.current_mesh)
 	self.current_material = self.data.material[args[1]]
+	self.current_mesh.Material = self.current_material
 end
 
 --The following four commands build the vertex buffer for the active mesh
@@ -281,7 +282,6 @@ function Commands:joint(args)
 	joint.Parent = self.model.Joints[tonumber(args[2]) + 1] or false
 	joint.Model = self.model
 	table.insert(self.model.Joints, joint)
-	self.model.Type = ModelData.Type.Skeletal
 
 	self.current_joint = joint
 end

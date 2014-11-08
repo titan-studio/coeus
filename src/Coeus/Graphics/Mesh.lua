@@ -1,5 +1,5 @@
 local Coeus = (...)
-local oop = Coeus.Utility.OOP
+local OOP = Coeus.Utility.OOP
 local GLFW = Coeus.Bindings.GLFW
 local OpenGL = Coeus.Bindings.OpenGL
 local ffi = require("ffi")
@@ -12,7 +12,7 @@ local GL = OpenGL.GL
 
 local MeshData = Coeus.Asset.Model.MeshData
 
-local Mesh = oop:Class() {
+local Mesh = OOP:Class() {
 	vbo = -1,
 	ibo = -1,
 	vao = -1,
@@ -20,7 +20,12 @@ local Mesh = oop:Class() {
 	num_vertices = 0,
 	num_indices = 0,
 
-	render_groups = {}
+	SmoothingGroup = -1,
+	SmoothingAngle = math.rad(180),
+	SmoothByUV = false,
+
+	Model = false,
+	Material = false,
 }
 
 function Mesh:_new()
