@@ -12,6 +12,8 @@ local Framebuffer = Coeus.Graphics.Framebuffer
 local Mesh = Coeus.Graphics.Mesh
 local Shader = Coeus.Graphics.Shader
 
+local Matrix4 = Coeus.Math.Matrix4
+
 local GraphicsContext = OOP:Class() {
 	window = false,
 
@@ -21,14 +23,20 @@ local GraphicsContext = OOP:Class() {
 	render_passes = {},
 
 	ActiveCamera = false,
+	ActiveCamera2D = false,
 	ActiveScene = false,
 
 	Shaders = {},
 
 	FullscreenQuad = false,
+	IdentityQuad = false,
+	IdentityTexture = false,
+	ScreenObjects = {},
 
 	GeometryFramebuffer = false,
 	LightFramebuffer = false,
+
+	ScreenProjection = false
 }
 
 function GraphicsContext:_new(window)
@@ -53,6 +61,31 @@ function GraphicsContext:_new(window)
 	mesh_data.Format.TexCoords = true
 	self.FullscreenQuad:SetData(mesh_data)
 
+	local ident_data = Coeus.Asset.Model.MeshData:New()
+	ident_data.Vertices = {
+		0.0, 0.0, 0.0, 		0.0, 0.0,
+		1.0, 0.0, 0.0, 		1.0, 0.0,
+		0.0, 1.0, 0.0, 		0.0, 1.0,
+		1.0, 1.0, 0.0,		1.0, 1.0
+	}
+	ident_data.Indices = {
+		3, 1, 2,
+		2, 1, 0
+	}
+	ident_data.Format.TexCoords = true
+	self.IdentityQuad = Coeus.Graphics.Mesh:New()
+	self.IdentityQuad:SetData(ident_data)
+	ident_data = nil
+
+	local img_data = Coeus.Asset.Image.ImageData:New()
+	img_data.Width = 1
+	img_data.Height = 1
+	img_data:Map(function(data, x, y, data, idx)
+		return 255, 255, 255, 255
+	end)
+	self.IdentityTexture = Coeus.Graphics.Texture:New(img_data)
+	img_data = nil
+
 	local initialize_fbos = function(w, h)
 		self.GeometryFramebuffer = Framebuffer:New(self, w, h, {
 			Coeus.Asset.Image.ImageData.Format.RGBA,
@@ -62,10 +95,41 @@ function GraphicsContext:_new(window)
 		self.LightFramebuffer = Framebuffer:New(self, w, h, {
  			Coeus.Asset.Image.ImageData.Format.RGBA
 		}, false, false)
+
+		self.ScreenProjection = Matrix4.GetOrthographic(0, w, 0, h, -1.0, 1.0)
 	end
+
 	self.Window.Resized:Listen(initialize_fbos)
 	initialize_fbos(self.Window:GetSize())
 
+	self.Shaders.Render2D = Shader:New(self, [[
+#version 330
+layout(location=0) in vec3 position;
+layout(location=1) in vec2 texcoord_;
+
+out vec2 texcoord;
+
+uniform mat4 ModelProjection;
+
+void main() {
+	gl_Position = ModelProjection * vec4(position, 1.0);
+	texcoord = texcoord_;
+}
+
+	]], [[
+#version 330
+
+uniform sampler2D Texture;
+uniform vec4 DiffuseColor;
+
+in vec2 texcoord;
+
+layout(location=0) out vec4 FinalColor;
+
+void main() {
+	FinalColor = texture(Texture, texcoord) * DiffuseColor;
+}
+	]])
 	self.Shaders.RenderGeometry = Shader:New(self, [[
 #version 330
 layout(location=0) in vec3 position;
@@ -202,9 +266,12 @@ function GraphicsContext:Render()
 	self.Shaders.CompositeFBOs:Use()
 	self.Shaders.CompositeFBOs:Send("DiffuseBuffer", self.GeometryFramebuffer.textures[1])
 	self.Shaders.CompositeFBOs:Send("LightBuffer", self.LightFramebuffer.textures[1])
-	self.FullscreenQuad:Render()
+	--self.FullscreenQuad:Render()
 
+	gl.BlendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
+	--print("woo")
 	self.ActiveScene:RenderLayers(Coeus.Graphics.Layer.Flag.Unlit2D)
+	gl.BlendFunc(GL.ONE, GL.ZERO)
 
 	self:UnbindTextures()
 end
