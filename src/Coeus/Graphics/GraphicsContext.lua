@@ -15,7 +15,7 @@ local Shader = Coeus.Graphics.Shader
 local Matrix4 = Coeus.Math.Matrix4
 
 local GraphicsContext = OOP:Class() {
-	window = false,
+	Window = false,
 
 	texture_units = {},
 	MaxTextureUnits = 32,
@@ -31,12 +31,9 @@ local GraphicsContext = OOP:Class() {
 	FullscreenQuad = false,
 	IdentityQuad = false,
 	IdentityTexture = false,
-	ScreenObjects = {},
 
 	GeometryFramebuffer = false,
 	LightFramebuffer = false,
-
-	ScreenProjection = false
 }
 
 function GraphicsContext:_new(window)
@@ -95,8 +92,6 @@ function GraphicsContext:_new(window)
 		self.LightFramebuffer = Framebuffer:New(self, w, h, {
  			Coeus.Asset.Image.ImageData.Format.RGBA
 		}, false, false)
-
-		self.ScreenProjection = Matrix4.GetOrthographic(0, w, 0, h, -1.0, 1.0)
 	end
 
 	self.Window.Resized:Listen(initialize_fbos)
@@ -233,6 +228,7 @@ function GraphicsContext:UnbindTextures()
 end
 
 function GraphicsContext:Render()
+	self.Window.MainViewport:Use()
 	if not self.ActiveScene then
 		return
 	end

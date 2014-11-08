@@ -8,6 +8,7 @@ local OpenGL = Coeus.Bindings.OpenGL
 local KeyboardContext = Coeus.Input.KeyboardContext
 local MouseContext = Coeus.Input.MouseContext
 local GraphicsContext = Coeus.Graphics.GraphicsContext
+local Viewport = Coeus.Graphics.Viewport
 
 local glfw = GLFW.glfw
 local GLFW = GLFW.GLFW
@@ -32,6 +33,8 @@ local Window = OOP:Class() {
 	vsync_enabled = false,
 
 	handle = false,
+
+	MainViewport = false,
 
 	Keyboard = false,
 	Mouse = false,
@@ -117,6 +120,10 @@ function Window:_new(title, width, height, mode)
 		self.Resized:Fire(width, height)
 		self.width = width
 		self.height = height
+
+		if self.MainViewport then
+			self.MainViewport:Resize(self.width, self.height)
+		end
 	end)
 	glfw.SetWindowCloseCallback(self.handle, function(handle)
 		self.Closed:Fire()
@@ -167,6 +174,9 @@ function Window:_new(title, width, height, mode)
 	self.Keyboard = KeyboardContext:New(self)
 	self.Mouse = MouseContext:New(self)
 	self.Graphics = GraphicsContext:New(self)
+	
+	self.MainViewport = Viewport:New(0, 0, self.width, self.height)
+	self.MainViewport.Window = self
 end
 
 function Window:Use()

@@ -25,7 +25,7 @@ function QuadRenderer:Render()
 		return
 	end
 	local render_trans = transform:GetRenderTransform()
-	local model_projection = graphics.ScreenProjection * render_trans
+	local model_projection = self.Actor.Scene.Viewport.Projection * render_trans
 
 	local tex = self.Image
 	if not self.Image then

@@ -8,7 +8,9 @@ local Scene = OOP:Class() {
 	active = false,
 
 	layers = {},
-	Actors = {}
+	Actors = {},
+
+	Viewport = false
 }
 Scene.DefaultLayers = {
 	Layer.Flag.Geometry,
@@ -19,6 +21,7 @@ Scene.DefaultLayers = {
 
 function Scene:_new(context, layer_types)
 	self.context = context
+	self.Viewport = self.context.Window.MainViewport
 
 	layer_types = layer_types or Scene.DefaultLayers
 	for i, v in ipairs(layer_types) do
@@ -33,6 +36,9 @@ function Scene:Update(dt)
 end
 
 function Scene:RenderLayers(flag)
+	if self.Viewport then
+		self.Viewport:Use()
+	end
 	for i, v in ipairs(self.layers) do
 		if v.flag == flag then
 			v:Render()
