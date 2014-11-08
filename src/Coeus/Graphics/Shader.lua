@@ -128,6 +128,20 @@ function Shader:Send(name, ...)
 			gl.Uniform1iv(uniform, #values, data)
 			return
 		end
+		if #first == 4 then
+			--convert the data now...
+			local data = ffi.new('float[' .. (4 * #values) .. ']')
+			local idx = 0
+			for i=1,#values do
+				data[idx+0] = values[i][idx + 1]
+				data[idx+1] = values[i][idx + 2]
+				data[idx+2] = values[i][idx + 3]
+				data[idx+3] = values[i][idx + 4]
+				idx = idx + 4
+			end
+			gl.Uniform4fv(uniform, #values, data)
+			return
+		end
 		print("Unhandled type of uniform")
 		return
 	end
