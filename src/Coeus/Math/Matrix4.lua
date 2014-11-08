@@ -108,6 +108,43 @@ function Matrix4.Multiply(a, b)
 end
 
 --[[
+	Returns a Matrix4 that is the transpose of the one given.
+]]
+function Matrix4.GetTranspose(a)
+	local m = {}
+
+	--[[
+	1 	2 	3 	4
+	5	6	7	8
+	9	10	11	12
+	13	14	15	16
+
+	]]
+
+	m[1] = a.m[1]
+	m[2] = a.m[5] 
+	m[3] = a.m[9] 
+	m[4] = a.m[13]
+
+	m[5] = a.m[2]
+	m[6] = a.m[6]
+	m[7] = a.m[10]
+	m[8] = a.m[14]
+
+	m[9]  = a.m[8]
+	m[10] = a.m[7]
+	m[11] = a.m[11]
+	m[12] = a.m[15]
+
+	m[13] = a.m[4]
+	m[14] = a.m[8]
+	m[15] = a.m[12]
+	m[16] = a.m[16]
+
+	return Matrix4:New(m)
+end
+
+--[[
 	Returns a Vector3 corresponding to up
 ]]
 function Matrix4:GetUpVector()
@@ -224,6 +261,32 @@ function Matrix4.GetPerspective(fov, near, far, aspect)
 	m[14] = 0
 	m[15] = 2*far*near / range
 	m[16] = 0
+
+	return Matrix4:New(m)
+end
+
+function Matrix4.GetOrthographic(left, right, top, bottom, near, far)
+	local m = {}
+
+	m[1] = 2 / (right - left)
+	m[2] = 0 
+	m[3] = 0 
+	m[4] = 0
+
+	m[5] = 0
+	m[6] = 2 / (top - bottom)
+	m[7] = 0 
+	m[8] = 0
+
+	m[9]  = 0 
+	m[10] = 0
+	m[11] = -2 / (far - near)
+	m[12] = 0
+
+	m[13] = -((right + left) / (right - left))
+	m[14] = -((top + bottom) / (top - bottom))
+	m[15] = -((far + near) / (far - near))
+	m[16] = 1
 
 	return Matrix4:New(m)
 end
