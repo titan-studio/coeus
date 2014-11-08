@@ -130,7 +130,57 @@ function OOP.Object:New(...)
 	end
 
 	if (instance._new) then
-		instance:_new(...)
+		local result = instance:_new(...)
+
+		if (result) then
+			return result
+		end
+	end
+
+	return instance
+end
+
+--[[
+	Creates a new instance of a class, calling the class's release constructor
+	(RELEASE__new) if it is defined.
+]]
+function OOP.Object:RELEASE_New(...)
+	local internal = Table.DeepCopy(self)
+	local instance = OOP:Wrap(internal)
+
+	internal.GetClass = function()
+		return self
+	end
+
+	if (instance.RELEASE__new) then
+		local result = instance:RELEASE__new(...)
+
+		if (result) then
+			return result
+		end
+	end
+
+	return instance
+end
+
+--[[
+	Creates a new instance of a class, calling the class's debug constructor
+	(DEBUG__new) if it is defined.
+]]
+function OOP.Object:DEBUG_New(...)
+	local internal = Table.DeepCopy(self)
+	local instance = OOP:Wrap(internal)
+
+	internal.GetClass = function()
+		return self
+	end
+
+	if (instance.DEBUG__new) then
+		local result = instance:DEBUG__new(...)
+
+		if (result) then
+			return result
+		end
 	end
 
 	return instance

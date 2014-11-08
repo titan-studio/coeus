@@ -20,28 +20,56 @@ local Matrix4 = OOP:Class() {
 --[[
 	Creates a new matrix given a sequence of values.
 ]]
-function Matrix4:_new(values)
-	if (values) then
-		for i = 1, 16 do
-			self.m[i] = values[i]
-		end
-	else
-		for i = 1, 16 do
-			self.m[i] = 0
-		end
-		self.m[1] = 1
-		self.m[6] = 1
-		self.m[11] = 1
-		self.m[16] = 1
+--Debug initializer
+function Matrix4:DEBUG__new(...)
+	local err = "Matrix4:New accepts 16 Lua number parameters."
+	local count = select("#", ...)
+
+	if (count == 0) then
+		self.m = {}
+		return
 	end
+
+	if (count ~= 16) then
+		return Coeus:Error(err, "Coeus.Math.Matrix4:DEBUG__new")
+	end
+
+	for i = 1, count do
+		if (type(select(i, ...)) ~= "number") then
+			return Coeus:Error((err .. " Argument #%d is of type '%s'"):format(i, type(select(i, ...))))
+		end
+	end
+
+	self.m = {...}
 end
 
-function Matrix4.Manual(...)
-	local m = {}
-	for i = 1, 16 do
-		m[i] = select(i, ...)
-	end
-	return Matrix4:New(m)
+--Release initializer
+function Matrix4:RELEASE__new(...)
+	self.m = {...}
+end
+
+if (Coeus.Config.Debug) then
+	Matrix4._new = Matrix4.DEBUG__new
+else
+	Matrix4._new = Matrix4.RELEASE__new
+end
+
+function Matrix4:Identity()
+	return self:New(
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1
+	)
+end
+
+function Matrix4:Filled(v)
+	return self:New(
+		v, v, v, v,
+		v, v, v, v,
+		v, v, v, v,
+		v, v, v, v
+	)
 end
 
 --[[
@@ -77,6 +105,20 @@ function Matrix4:GetInverse()
 	end
 
 	return Matrix4:New(r)
+end
+
+--[[
+	Adds two Matrix4 objects together
+]]
+function Matrix4.Add(a, b, out)
+	local out = out or Matrix4:New()
+	local outm, am, bm = out.m, a.m, b.m
+
+	for i = 1, 16 do
+		outm[i] = am[i] + bm[i]
+	end
+
+	return out
 end
 
 --[[
@@ -293,8 +335,37 @@ function Matrix4.GetOrthographic(left, right, top, bottom, near, far)
 	return Matrix4:New(m)
 end
 
+function Matrix4.Compare(a, b)
+	local ma, mb = a.m, b.m
+	for i = 1, 16 do
+		if (ma[i] ~= mb[i]) then
+			return false
+		end
+	end
+
+	return true
+end
+
 function Matrix4:ToString()
-	return ("|%s %s %s %s|\n"):rep(4):format(unpack(self.m))
+	local longest = 0
+	local m = self.m
+
+	for i = 1, 16 do
+		local len = #tostring(m[i])
+		if (len > longest) then
+			longest = len
+		end
+	end
+
+	local buffer = {}
+	for i = 1, 16 do
+		local mi = tostring(m[i])
+		local len = #tostring(mi)
+		table.insert(buffer, mi .. (" "):rep(longest - len))
+	end
+
+	local matrix = ("|%s %s %s %s|\n"):rep(4):format(unpack(buffer))
+	return matrix:sub(1, #matrix - 1)
 end
 
 Matrix4:AddMetamethods({
