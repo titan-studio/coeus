@@ -1,11 +1,14 @@
-local Coeus = ...
+local Coeus = (...)
 
 return {
 	Name = "Bindings.stb_truetype",
 
 	Tests = {
-		Load = function(self, result)
-			Coeus:Load("Bindings.stb_truetype")
-		end
+		{
+			"Load", 
+			function(self, result)
+				Coeus:Load(self.Name)
+			end
+		}
 	}
 }

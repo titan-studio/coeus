@@ -37,6 +37,7 @@ local results_metatable = {
 %s
 	%s
 	Tests Run: %d
+	Tests Not Run: %d
 	Tests Passed: %d
 	Tests Failed: %d
 	Test Breakdown:
@@ -45,6 +46,7 @@ local results_metatable = {
 			self.Name,
 			(self.TestsFailed == 0) and "PASSED" or "FAILED",
 			self.TestsRun,
+			self.TestsNotRun,
 			self.TestsPassed,
 			self.TestsFailed,
 			table.concat(breakdown_buffer, "\n\n\t\t")
@@ -57,7 +59,12 @@ local Tests = {
 	Coeus = nil
 }
 
-function Tests:Init(coeus)
+local function fail_test(self, message)
+	self.Passed = false
+	self.Message = message
+end
+
+function Tests:Initialize(coeus)
 	self.Coeus = coeus
 end
 
@@ -65,6 +72,7 @@ function Tests:RunTestModule(object)
 	local results = {
 		Name = object.Name or "[unknown]",
 		TestsRun = 0,
+		TestsNotRun = 0,
 		TestsPassed = 0,
 		TestsFailed = 0,
 		TestResults = {}
@@ -74,34 +82,51 @@ function Tests:RunTestModule(object)
 
 	if (object.Tests) then
 		if (object.TestStart) then
-			object:TestStart()
+			local success, err = pcall(object.TestStart, object)
+
+			if (not success) then
+				return "Could not initialize test module: " .. err
+			end
 		end
 
-		for name, value in pairs(object.Tests) do
+		for key, test in ipairs(object.Tests) do
+			local name = test[1]
+			local method = test[2]
+
 			local result = {
 				Name = name,
 				Passed = true,
 				Message = nil,
+				Fail = fail_test
 			}
 
-			if (type(value) == "function") then
-				local success, err = pcall(value, object, result)
+			if (type(method) == "function") then
+				local success, err = pcall(method, object, result)
 
 				if (not success) then
 					result.Passed = false
 					result.Message = err
 				end
+			else
+				result.Passed = true
+				result.Message = "Skipped; not a function"
 			end
+
+			table.insert(results.TestResults, result)
 
 			results.TestsRun = results.TestsRun + 1
 			if (result.Passed) then
 				results.TestsPassed = results.TestsPassed + 1
 			else
 				results.TestsFailed = results.TestsFailed + 1
-			end
 
-			table.insert(results.TestResults, result)
+				if (test.Critical) then
+					break
+				end
+			end
 		end
+
+		results.TestsNotRun = #object.Tests - results.TestsRun
 
 		if (object.TestEnd) then
 			object:TestEnd()
