@@ -404,6 +404,7 @@ end
 function Coeus:LoadFile(name, path, flags)
 	flags = flags or {}
 	local id = name_to_id(name)
+	local leaf = (name:match("%.?([^%.]+)$"))
 
 	if (self.loaded[id]) then
 		return self.loaded[id]
@@ -424,7 +425,8 @@ function Coeus:LoadFile(name, path, flags)
 	return self:LoadChunk(chunk, {
 		id = id,
 		name = name,
-		path = path
+		path = path,
+		leaf = leaf
 	})
 end
 
@@ -507,6 +509,7 @@ function Coeus:LoadVFSEntry(name, flags)
 	flags = flags or {}
 	local id = name_to_id(name)
 	local entry = self.vfs[id]
+	local leaf = (name:match("%.?([^%.]+)$"))
 
 	if (entry.file) then
 		local chunk, err = loadstring(entry.body)
@@ -520,6 +523,7 @@ function Coeus:LoadVFSEntry(name, flags)
 		end
 
 		return self:LoadChunk(chunk, {
+			leaf = leaf,
 			name = name,
 			id = id
 		})
