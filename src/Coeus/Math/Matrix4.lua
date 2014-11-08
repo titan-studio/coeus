@@ -39,7 +39,7 @@ end
 function Matrix4.Manual(...)
 	local m = {}
 	for i = 1, 16 do
-		self.m[i] = select(i, ...)
+		m[i] = select(i, ...)
 	end
 	return Matrix4:New(m)
 end
