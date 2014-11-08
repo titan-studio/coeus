@@ -10,7 +10,7 @@ local tct = Coeus.Bindings.coeus_aux
 
 --Platform-specific typedefs
 if (ffi.os == "Windows") then
-	Coeus:Get("Bindings.Win32_")
+	Coeus:Load("Bindings.Win32_")
 	ffi.cdef([[
 		typedef int time_t;
 		typedef int clock_t;

@@ -10,7 +10,7 @@ local ffi = require("ffi")
 local z_lib
 
 if (ffi.os == "Windows") then
-	z_lib = ffi.load(Coeus.BinDir .. "zlib1.dll")
+	z_lib = ffi.load("zlib1.dll")
 else
 	z_lib = ffi.load("z")
 end
