@@ -1,12 +1,16 @@
 local PATH = (...)
 local lfs = require("lfs")
 
+local function fix_path(name)
+	return name:gsub("/+$", ""):gsub("//+", "/")
+end
+
 local function name_to_file(name)
-	return name:gsub("%.", "/") .. ".lua"
+	return fix_path(name:gsub("%.", "/") .. ".lua")
 end
 
 local function name_to_directory(name)
-	return name:gsub("%.", "/")
+	return fix_path(name:gsub("%.", "/"))
 end
 
 local result_set_metatable = {
@@ -66,6 +70,10 @@ end
 
 function Tests:Initialize(coeus)
 	self.Coeus = coeus
+end
+
+function Tests:Run()
+	return self:RunTestFolder("")
 end
 
 function Tests:RunTestModule(object)
