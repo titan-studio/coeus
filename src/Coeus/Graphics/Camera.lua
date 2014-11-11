@@ -1,15 +1,16 @@
 local Coeus 	= (...)
 local OOP 		= Coeus.Utility.OOP 
 
-local BaseComponent	= Coeus.World.BaseComponent
+local BaseComponent	= Coeus.World.Component.BaseComponent
 local Matrix4		= Coeus.Math.Matrix4
 
 local Camera = OOP:Class(BaseComponent) {
+	ClassName = "Camera",
+
 	fov = 60,
 	near = 0.5,
 	far = 1000,
 
-	projection_type = 0,
 	projection = false,
 	projection_dirty = true,
 
@@ -19,7 +20,7 @@ local Camera = OOP:Class(BaseComponent) {
 function Camera:_new()
 	local resized = nil
 	self.AddedToActor:Listen(function(actor)
-		self.window = actor.Scene.context.window
+		self.window = actor.Scene.context.Window
 
 		if resized then
 			resized:Disconnect()
@@ -53,7 +54,7 @@ end
 function Camera:GetViewTransform()
 	local actor = self.Actor
 	if actor then
-		local transform = actor:GetComponent(Coeus.World.Component.Transform)
+		local transform = actor.Components.Transform
 		if transform then
 			return transform:GetRenderTransform():GetInverse()
 		end
