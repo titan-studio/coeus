@@ -1,3 +1,20 @@
+--[[
+	Vector2
+
+	Provides methods for operating on 2D vectors
+
+	TODO:
+	- Provide operators for non-vector number pairs like
+		Vector2 AddXY(vector, x, y, out)
+			Add a tuple to a vector
+		x, y XYAddXY(vector, x, y)
+			Add a vector to a tuple and return a tuple
+		x, y XYNormalizeXY(x, y)
+			Normalize a pair without making a vector
+	- Update operators to use (..., out) semantics
+		This means current operators will be deprecated and begin to only accept vectors
+]]
+
 local Coeus = (...)
 local OOP = Coeus.Utility.OOP
 
@@ -6,18 +23,40 @@ local Vector2 = OOP:Class() {
 	y = 0
 }
 
-function Vector2:_new(x, y)
-	self.x = x or self.x
-	self.y = y or self.y
+function Vector2:RELEASE__new(x, y)
+	self.x = x or 0
+	self.y = y or 0
+end
+
+function Vector2:DEBUG__new(x, y)
+	local err = "Vector2 accepts 2 Lua number or nil parameters."
+
+	if (x ~= nil and type(x) ~= "number") then
+		return Coeus:Error(err .. " Argument 1 is of type '" .. type(x) .. "'")
+	end
+
+	if (y ~= nil and type(y) ~= "number") then
+		return Coeus:Error(err .. " Argument 2 is of type '" .. type(y) .. "'")
+	end
+
+	self.x = x or 0
+	self.y = y or 0
+end
+
+if (Coeus.Config.Debug) then
+	Vector2._new = Vector2.DEBUG__new
+else
+	Vector2._new = Vector2.RELEASE__new
 end
 
 function Vector2.Add(a, b)
 	if (type(a) == "number") then
-		return Vector2.Add(b, a)
+		return Vector2.Add(b, a, out)
 	end
 	if (type(b) == "number") then
 		return Vector2:New(a.x + b, a.y + b)
 	end
+
 	return Vector2:New(a.x + b.x, a.y + b.y)
 end
 
@@ -112,10 +151,29 @@ function Vector2:GetValues()
 	return {self.x, self.y}
 end
 
+--deprecated; use Vector2:ToVector3 instead
 function Vector2:XYZ(z)
 	return Coeus.Math.Vector3:New(self.x, self.y, z or 0)
 end
 
+--[[
+	Creates a Vector3 with the X and Y components of this Vector2 with a specified Z component
+]]
+function Vector2:ToVector3(z)
+	return Coeus.Math.Vector3:New(self.x, self.y, z)
+end
+
+--[[
+	Returns whether the two Vector2 objects are equal
+]]
+function Vector2.Compare(a, b)
+	--todo: debug variant
+	return (a.x == b.x and a.y == b.y)
+end
+
+--[[
+	Returns a string representation of the Vector2
+]]
 function Vector2:ToString()
 	return ("(%s, %s)"):format(self.x, self.y)
 end
@@ -137,6 +195,7 @@ Vector2:AddMetamethods({
 		return Vector2:New(-a.x, -a.y)
 	end,
 	__eq = function(a, b)
+		--todo: deprecate
 		return Coeus.Math.Numeric.CompareReal(a.x, b.x) and
 			   Coeus.Math.Numeric.CompareReal(a.y, b.y)
 	end

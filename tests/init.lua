@@ -58,15 +58,15 @@ local results_metatable = {
 	end
 }
 
-local Tests = {
-	Root = PATH .. ".",
-	Coeus = nil
-}
-
 local function fail_test(self, message)
 	self.Passed = false
 	self.Message = message
 end
+
+local Tests = {
+	Root = PATH .. ".",
+	Coeus = nil
+}
 
 function Tests:Initialize(coeus)
 	self.Coeus = coeus
@@ -77,6 +77,10 @@ function Tests:Run()
 end
 
 function Tests:RunTestModule(object)
+	--Suppress errors and warnings; tests handle them
+	local log_level = self.Coeus.Config.LogLevel
+	self.Coeus.Config.LogLevel = self.Coeus.LogLevel.Fatal
+
 	local results = {
 		Name = object.Name or "[unknown]",
 		TestsRun = 0,
@@ -140,6 +144,8 @@ function Tests:RunTestModule(object)
 			object:TestEnd()
 		end
 	end
+
+	self.Coeus.Config.LogLevel = log_level
 
 	return results
 end

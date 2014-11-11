@@ -66,10 +66,10 @@ local Coeus = {
 		Version = {0, 2, 0, "alpha"}, --The current version of the engine in the form MAJOR.MINOR.PATCH-STAGE
 	
 		LogLevel = 3, --Log entries greater than this level will be ignored
-		LogFile = "Coeus-log.txt",
-		LogBufferMaxSize = 5,
-		FatalErrors = true,
-		FatalWarnings = false
+		LogFile = "Coeus-log.txt", --The file to output logging information to
+		LogBufferMaxSize = 5, --The number of logs before the buffer will flush to disk
+		FatalErrors = true, --Whether errors will stop execution or not
+		FatalWarnings = false --Whether warnings will stop execution or not
 	},
 
 	LogLevel = {
@@ -89,10 +89,10 @@ local Coeus = {
 	loaded = {}, --A dictionary of all loaded modules
 	meta = {}, --Contains metadata about modules; may be deprecated soon
 
-	logs_since_flush = 0,
+	logs_since_flush = 0, --The number of logs since the last flush to disk
 	log_buffer = {}, --Contains the logging information yet to be written to disk
-	log_level_longest = 0,
-	i_log_level = {} --
+	log_level_longest = 0, --The longest log level name; used for pretty output
+	i_log_level = {} --The inverse of LogLevel for reverse lookups
 }
 
 --[[
@@ -154,7 +154,7 @@ function Coeus:Terminate()
 				local success, err = pcall(term, item)
 				
 				if (not success) then
-					self:Warn("Termination failed: " .. err, key)
+					self:Warning("Termination failed: " .. err, key)
 				end
 			end
 		end
@@ -195,7 +195,7 @@ end
 
 --[[
 	Creates an error object to be returned to denote that something went wrong.
-	Produced by Coeus:Error automatically.
+	Produced by Coeus:Error and Coeus:Warning automatically.
 ]]
 function Coeus:CreateError(message)
 	local internal = {
@@ -203,17 +203,14 @@ function Coeus:CreateError(message)
 		__error = true
 	}
 
-	local proxy = newproxy(true)
-	getmetatable(proxy).__index = internal
-
-	return proxy
+	return internal
 end
 
 --[[
 	Checks that the given value is a Coeus Error.
 ]]
 function Coeus:IsError(value)
-	return (type(value) == "userdata" and value.__error)
+	return (type(value) == "table" and value.__error)
 end
 
 --[[
@@ -270,7 +267,7 @@ function Coeus:Log(level, message, location)
 end
 
 --[[
-	Shorthand method to raise a fatal error.
+	Method to raise a fatal error.
 	Will always terminate the program.
 	Should be used when, no matter what, the program cannot continue.
 ]]
@@ -279,7 +276,7 @@ function Coeus:Fatal(message, location)
 end
 
 --[[
-	Shorthand method to raise an error.
+	Method to raise an error.
 	Will terminate the program if LogLevel is greater than LogLevel.Error and
 	FatalErrors are enabled.
 	Should be used when the program can not continue under normal circumstances.
@@ -291,20 +288,24 @@ function Coeus:Error(message, location)
 end
 
 --[[
-	Shorthand method to raise a warning.
+	Method to raise a warning.
 	Will terminate the program if LogLevel is greater than LogLevel.Warning and
 	FatalWarnings are enabled.
 	Should be used when 
 ]]
-function Coeus:Warn(message, location)
+function Coeus:Warning(message, location)
 	self:Log(self.LogLevel.Warning, message, location)
+
+	return Coeus:CreateError(message)
 end
 
 --[[
-	Shorthand method to report non-critical information.
+	Method to report non-critical information.
 ]]
 function Coeus:Info(message, location)
 	self:Log(self.LogLevel.Info, message, location)
+
+	return Coeus:CreateError(message)
 end
 
 --[[
@@ -360,6 +361,7 @@ function Coeus:Load(name, flags)
 	flags = flags or {}
 	local id = name_to_id(name)
 
+	--Is the module already in memory (already loaded or in the VFS?)
 	if (self.loaded[id]) then
 		return self.loaded[id]
 	elseif (self.vfs[id]) then
@@ -377,20 +379,20 @@ function Coeus:Load(name, flags)
 	elseif (dir_mode == "directory") then
 		return self:LoadDirectory(name, dir, flags)
 	elseif (not file_mode and not dir_mode) then
-		local err = "Unable to load module '" .. (name or "nil") .. "': file does not exist."
+		local err = "Unable to load module '" .. (name or "nil") .. "': module does not exist."
 
 		if (flags.safe) then
-			return false, err
+			return self:CreateError(err)
 		else
-			error(err)
+			return self:Error(err)
 		end
 	else
 		local err = "Unknown error in loading module '" .. (name or "nil") .. "'"
 
 		if (flags.safe) then
-			return false, err
+			return self:CreateError(err)
 		else
-			error(err)
+			return self:Error(err)
 		end
 	end
 end
@@ -404,12 +406,18 @@ function Coeus:LoadChunk(chunk, meta, flags)
 	meta = meta or {}
 	local success, object = pcall(chunk, self, meta)
 
+	--Check for Lua error condition
 	if (not success) then
 		if (flags.safe) then
-			return nil, object
+			return self:Warning(err)
 		else
-			error(object)
+			return self:Error(err)
 		end
+	end
+
+	--Check for Coeus error condition
+	if (self:IsError(object)) then
+		return object
 	end
 
 	if (meta.id) then
@@ -441,9 +449,9 @@ function Coeus:LoadFile(name, path, flags)
 
 	if (not chunk) then
 		if (flags.safe) then
-			return nil, err
+			return self:Warning(err)
 		else
-			error(err)
+			return self:Error(err)
 		end
 	end
 
@@ -488,9 +496,10 @@ function Coeus:LoadDirectory(name, path)
 		end
 	}
 
+	--Does the directory have a patch file?
 	local patch = self:Load(name .. "._", {safe = true})
 
-	if (patch) then
+	if (patch and not self:IsError(patch)) then
 		self.loaded[name_to_id(name) .. "._"] = nil
 		for key, value in pairs(container) do
 			if (not patch[key]) then
@@ -541,9 +550,9 @@ function Coeus:LoadVFSEntry(name, flags)
 
 		if (not chunk) then
 			if (flags.safe) then
-				return nil, err
+				return self:Warning(err)
 			else
-				error(err)
+				return self:Error(err)
 			end
 		end
 
@@ -567,9 +576,9 @@ function Coeus:LoadVFSEntry(name, flags)
 		return container
 	else
 		if (flags.safe) then
-			return nil, "Could not load VFS entry"
+			return self:Warning("Could not load VFS entry")
 		else
-			error("Could not load VFS entry")
+			return self:Error("Could not load VFS entry")
 		end
 	end
 end

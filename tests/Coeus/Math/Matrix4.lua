@@ -1,6 +1,12 @@
+--[[
+	Matrix4 Tests
+
+	TODO:
+	- Write tests for basic operators
+]]
+
 local Coeus = (...)
 local Matrix4 = Coeus.Math.Matrix4
-local Utility = Coeus.Utility.Table
 
 local ran16 = {
 	115, 512, 657, 132,
@@ -30,16 +36,38 @@ local dord16 = {
 	26, 28, 30, 32
 }
 
+local garbage = 1337
+local garbage2 = "Hello, world!"
+
 return {
 	Name = "Math.Matrix4",
 
 	Tests = {
+		{
+			"Compare",
+			Critical = true,
+			function(self, test)
+				local m_ran16 = Matrix4:New(unpack(ran16))
+				local m_ran16_2 = Matrix4:New(unpack(ran16_2))
+
+				if (not Matrix4.Compare(m_ran16, m_ran16)) then
+					return test:Fail("Comparison failed for true case!")
+				end
+
+				if (Matrix4.Compare(m_ran16, m_ran16_2)) then
+					return test:Fail("Comparison failed for false case!")
+				end
+			end
+		},
+
 		{
 			"Constructors",
 			Critical = true,
 			function(self, test)
 				local release_ran16 = Matrix4:RELEASE_New(unpack(ran16))
 				local debug_ran16 = Matrix4:DEBUG_New(unpack(ran16))
+				local m_garbage = Matrix4:DEBUG_New(garbage)
+				local m_garbage2 = Matrix4:DEBUG_New(garbage2)
 				local uninitialized = Matrix4:New()
 				local zero = Matrix4:Filled(0)
 				local identity = Matrix4:Identity()
@@ -56,6 +84,10 @@ return {
 					return test:Fail("Debug and release constructors gave different results!")
 				end
 
+				if (not Coeus:IsError(m_garbage) or not Coeus:IsError(m_garbage2)) then
+					return test:Fail("Debug constructor succeeded when passed garbage!")
+				end
+
 				if (Coeus:IsError(uninitialized)) then
 					return test:Fail("Uninitialized constructor failed: " .. uninitialized.Message)
 				end
@@ -66,23 +98,6 @@ return {
 
 				if (Coeus:IsError(identity)) then
 					return test:Fail("Identity constructor failed: " .. identity.Message)
-				end
-			end
-		},
-
-		{
-			"Compare",
-			Critical = true,
-			function(self, test)
-				local m_ran16 = Matrix4:New(unpack(ran16))
-				local m_ran16_2 = Matrix4:New(unpack(ran16_2))
-
-				if (not Matrix4.Compare(m_ran16, m_ran16)) then
-					return test:Fail("Comparison failed for true case!")
-				end
-
-				if (Matrix4.Compare(m_ran16, m_ran16_2)) then
-					return test:Fail("Comparison failed for false case!")
 				end
 			end
 		},

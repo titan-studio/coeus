@@ -4,9 +4,7 @@
 	Defines transforms using a 4x4 matrix.
 
 	TODO:
-	- Rewrite constructor to use varargs
-	- Remove Matrix4.Manual
-	- Refactor to use cdata
+	- Change GetRotation*, GetScale, GetPerspective, and GetOrthographic to use (..., out) semantics or make them constructors
 ]]
 
 local Coeus = (...)
@@ -20,6 +18,11 @@ local Matrix4 = OOP:Class() {
 --[[
 	Creates a new matrix given a sequence of values.
 ]]
+--Release initializer
+function Matrix4:RELEASE__new(...)
+	self.m = {...}
+end
+
 --Debug initializer
 function Matrix4:DEBUG__new(...)
 	local err = "Matrix4:New accepts 16 Lua number parameters."
@@ -43,17 +46,15 @@ function Matrix4:DEBUG__new(...)
 	self.m = {...}
 end
 
---Release initializer
-function Matrix4:RELEASE__new(...)
-	self.m = {...}
-end
-
 if (Coeus.Config.Debug) then
 	Matrix4._new = Matrix4.DEBUG__new
 else
 	Matrix4._new = Matrix4.RELEASE__new
 end
 
+--[[
+	Returns a new 4x4 identity matrix
+]]
 function Matrix4:Identity()
 	return self:New(
 		1, 0, 0, 0,
@@ -63,6 +64,9 @@ function Matrix4:Identity()
 	)
 end
 
+--[[
+	Returns a new 4x4 matrix filled with the value v
+]]
 function Matrix4:Filled(v)
 	return self:New(
 		v, v, v, v,
@@ -73,7 +77,45 @@ function Matrix4:Filled(v)
 end
 
 --[[
+	Finds the inverse of the matrix and writes it to out, or a new matrix.
+]]
+function Matrix4:Inverse(out)
+	out = out or Matrix4:New()
+	local r = out.m
+	local m = self.m
+	r[1 ] =  m[6]*m[11]*m[16] - m[6]*m[15]*m[12] - m[7]*m[10]*m[16] + m[7]*m[14]*m[12] + m[8]*m[10]*m[15] - m[8]*m[14]*m[11]
+	r[2 ] = -m[2]*m[11]*m[16] + m[2]*m[15]*m[12] + m[3]*m[10]*m[16] - m[3]*m[14]*m[12] - m[4]*m[10]*m[15] + m[4]*m[14]*m[11]
+	r[3 ] =  m[2]*m[7 ]*m[16] - m[2]*m[15]*m[8 ] - m[3]*m[6 ]*m[16] + m[3]*m[14]*m[8 ] + m[4]*m[6 ]*m[15] - m[4]*m[14]*m[7 ]
+	r[4 ] = -m[2]*m[7 ]*m[12] + m[2]*m[11]*m[8 ] + m[3]*m[6 ]*m[12] - m[3]*m[10]*m[8 ] - m[4]*m[6 ]*m[11] + m[4]*m[10]*m[7 ]
+
+	r[5 ] = -m[5]*m[11]*m[16] + m[5]*m[15]*m[12] + m[7]*m[9 ]*m[16] - m[7]*m[13]*m[12] - m[8]*m[9 ]*m[15] + m[8]*m[13]*m[11]
+	r[6 ] =  m[1]*m[11]*m[16] - m[1]*m[15]*m[12] - m[3]*m[9 ]*m[16] + m[3]*m[13]*m[12] + m[4]*m[9 ]*m[15] - m[4]*m[13]*m[11]
+	r[7 ] = -m[1]*m[7 ]*m[16] + m[1]*m[15]*m[8 ] + m[3]*m[5 ]*m[16] - m[3]*m[13]*m[8 ] - m[4]*m[5 ]*m[15] + m[4]*m[13]*m[7 ]
+	r[8 ] =  m[1]*m[7 ]*m[12] - m[1]*m[11]*m[8 ] - m[3]*m[5 ]*m[12] + m[3]*m[9 ]*m[8 ] + m[4]*m[5 ]*m[11] - m[4]*m[9 ]*m[7 ]
+
+	r[9 ] =  m[5]*m[10]*m[16] - m[5]*m[14]*m[12] - m[6]*m[9 ]*m[16] + m[6]*m[13]*m[12] + m[8]*m[9 ]*m[14] - m[8]*m[13]*m[10]
+	r[10] = -m[1]*m[10]*m[16] + m[1]*m[14]*m[12] + m[2]*m[9 ]*m[16] - m[2]*m[13]*m[12] - m[4]*m[9 ]*m[14] + m[4]*m[13]*m[10]
+	r[11] =  m[1]*m[6 ]*m[16] - m[1]*m[14]*m[8 ] - m[2]*m[5 ]*m[16] + m[2]*m[13]*m[8 ] + m[4]*m[5 ]*m[14] - m[4]*m[13]*m[6 ]
+	r[12] = -m[1]*m[6 ]*m[12] + m[1]*m[10]*m[8 ] + m[2]*m[5 ]*m[12] - m[2]*m[9 ]*m[8 ] - m[4]*m[5 ]*m[10] + m[4]*m[9 ]*m[6 ]
+
+	r[13] = -m[5]*m[10]*m[15] + m[5]*m[14]*m[11] + m[6]*m[9 ]*m[15] - m[6]*m[13]*m[11] - m[7]*m[9 ]*m[14] + m[7]*m[13]*m[10]
+	r[14] =  m[1]*m[10]*m[15] - m[1]*m[14]*m[11] - m[2]*m[9 ]*m[15] + m[2]*m[13]*m[11] + m[3]*m[9 ]*m[14] - m[3]*m[13]*m[10]
+	r[15] = -m[1]*m[6 ]*m[15] + m[1]*m[14]*m[7 ] + m[2]*m[5 ]*m[15] - m[2]*m[13]*m[7 ] - m[3]*m[5 ]*m[14] + m[3]*m[13]*m[6 ]
+	r[16] =  m[1]*m[6 ]*m[11] - m[1]*m[10]*m[7 ] - m[2]*m[5 ]*m[11] + m[2]*m[9 ]*m[7 ] + m[3]*m[5 ]*m[10] - m[3]*m[9 ]*m[6 ]
+
+	local det = m[1]*r[1] + m[2]*r[5] + m[3]*r[9] + m[4]*r[13]
+
+	for i = 1, 16 do
+		r[i] = r[i] / det
+	end
+
+	return out
+end
+
+--[[
 	Returns the inverse of the matrix.
+
+	Deprecated; use Matrix4:Inverse instead
 ]]
 function Matrix4:GetInverse()
 	local r = {}
@@ -108,10 +150,10 @@ function Matrix4:GetInverse()
 end
 
 --[[
-	Adds two Matrix4 objects together
+	Adds two Matrix4 objects together, putting the result in out, or a new matrix if out is not specified
 ]]
 function Matrix4.Add(a, b, out)
-	local out = out or Matrix4:New()
+	out = out or Matrix4:New()
 	local outm, am, bm = out.m, a.m, b.m
 
 	for i = 1, 16 do
@@ -122,10 +164,11 @@ function Matrix4.Add(a, b, out)
 end
 
 --[[
-	Multiplies two Matrix4 objects together
+	Multiplies two Matrix4 objects together, putting the result in out, or a new matrix if out is not specified.
 ]]
-function Matrix4.Multiply(a, b)
-	local r = {}
+function Matrix4.Multiply(a, b, out)
+	out = out or Matrix4:New()
+	local r = out.m
 	a = a.m
 	b = b.m
 	r[1] = b[1]*a[1] + b[2]*a[5] + b[3]*a[9] + b[4]*a[13]
@@ -148,11 +191,44 @@ function Matrix4.Multiply(a, b)
 	r[15] = b[13]*a[3] + b[14]*a[7] + b[15]*a[11] + b[16]*a[15]
 	r[16] = b[13]*a[4] + b[14]*a[8] + b[15]*a[12] + b[16]*a[16]
 
-	return Matrix4:New(r)
+	return out
+end
+
+--[[
+	Calculates the transpose of the Matrix4 and outputs the result into out, or a new matrix if out is not specified.
+]]
+function Matrix4:Transpose(out)
+	out = out or Matrix4:New()
+	local r = out.m
+	local m = self.m
+
+	r[1] = m[1]
+	r[2] = m[5] 
+	r[3] = m[9] 
+	r[4] = m[13]
+
+	r[5] = m[2]
+	r[6] = m[6]
+	r[7] = m[10]
+	r[8] = m[14]
+
+	r[9]  = m[8]
+	r[10] = m[7]
+	r[11] = m[11]
+	r[12] = m[15]
+
+	r[13] = m[4]
+	r[14] = m[8]
+	r[15] = m[12]
+	r[16] = m[16]
+
+	return out
 end
 
 --[[
 	Returns a Matrix4 that is the transpose of the one given.
+
+	Deprecated; use Matrix4:Transpose instead
 ]]
 function Matrix4.GetTranspose(a)
 	local m = {}
@@ -189,7 +265,54 @@ function Matrix4.GetTranspose(a)
 end
 
 --[[
+	Calculates the up vector of the matrix
+]]
+function Matrix4:Up(out)
+	local m = self.m
+	if (out) then
+		out.x = m[5]
+		out.y = m[6]
+		out.z = m[7]
+		return out
+	else
+		return Vector3:New(m[5], m[6], m[7])
+	end
+end
+
+--[[
+	Calculates the right vector of the matrix
+]]
+function Matrix4:Right(out)
+	local m = self.m
+	if (out) then
+		out.x = m[1]
+		out.y = m[2]
+		out.z = m[3]
+		return out
+	else
+		return Vector3:New(m[1], m[2], m[3])
+	end
+end
+
+--[[
+	Calculates the forward vector of the matrix
+]]
+function Matrix4:Forward(out)
+	local m = self.m
+	if (out) then
+		out.x = m[9]
+		out.y = m[10]
+		out.z = m[11]
+		return out
+	else
+		return Vector3:New(m[9], m[10], m[11])
+	end
+end
+
+--[[
 	Returns a Vector3 corresponding to up
+
+	Deprecated; use Matrix4:Up instead
 ]]
 function Matrix4:GetUpVector()
 	return Vector3:New(self.m[5], self.m[6], self.m[7])
@@ -197,6 +320,8 @@ end
 
 --[[
 	Returns a Vector3 corresponding to right
+
+	Deprecated; use Matrix4:Right instead
 ]]
 function Matrix4:GetRightVector()
 	return Vector3:New(self.m[1], self.m[2], self.m[3])
@@ -204,6 +329,8 @@ end
 
 --[[
 	Returns a Vector3 corresponding to forward
+
+	Deprecated; use Matrix4:Forward instead
 ]]
 function Matrix4:GetForwardVector()
 	return Vector3:New(self.m[9], self.m[10], self.m[11])
@@ -254,6 +381,7 @@ function Matrix4.GetRotationX(angle)
 		0, 0, 0, 1
 	})
 end
+
 function Matrix4.GetRotationY(angle)
 	return Matrix4:New({
 		math.cos(angle), 0, -math.sin(angle), 0,
@@ -262,6 +390,7 @@ function Matrix4.GetRotationY(angle)
 		0, 0, 0, 1
 	})
 end
+
 function Matrix4.GetRotationZ(angle)
 	return Matrix4:New({
 		math.cos(angle), math.sin(angle), 0, 0,
@@ -336,6 +465,7 @@ function Matrix4.GetOrthographic(left, right, top, bottom, near, far)
 end
 
 function Matrix4.Compare(a, b)
+	--todo: debug variant
 	local ma, mb = a.m, b.m
 	for i = 1, 16 do
 		if (ma[i] ~= mb[i]) then
@@ -346,6 +476,9 @@ function Matrix4.Compare(a, b)
 	return true
 end
 
+--[[
+	Returns a string representation of the matrix.
+]]
 function Matrix4:ToString()
 	local longest = 0
 	local m = self.m
