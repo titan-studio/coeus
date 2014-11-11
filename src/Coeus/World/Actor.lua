@@ -11,6 +11,7 @@ local Vector3 		= Coeus.Math.Vector3
 local Quaternion 	= Coeus.Math.Quaternion
 
 local Actor = OOP:Class() {
+	ClassName = "Actor",
 	Scene = false,
 	Parent = false,
 	children = {},
@@ -35,13 +36,13 @@ function Actor:_new(scene)
 end
 
 function Actor:AddComponent(component)
-	self.Components[component.Name] = component
+	self.Components[component.ClassName] = component
 	component.Actor = self
 	component.AddedToActor:Fire(self)
 end
 
 function Actor:GetComponent(classname)
-	return self.components[classname]
+	return self.Components[classname]
 end
 
 function Actor:AddChild(child)

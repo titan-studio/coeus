@@ -1,9 +1,14 @@
 local Coeus = (...)
 local OOP = Coeus.Utility.OOP
 
-local BaseComponent = Coeus.Actor.Component.BaseComponent
+local Vector3 = Coeus.Math.Vector3
+local Quaternion = Coeus.Math.Quaternion
+local Matrix4 = Coeus.Math.Matrix4
+
+local BaseComponent = Coeus.World.Component.BaseComponent
 
 local Transform = OOP:Class(BaseComponent) {
+	ClassName = "Transform",
 	local_transform 	= Matrix4:New(),
 	render_transform 	= Matrix4:New(),
 	dirty_transform 	= false,
@@ -12,7 +17,6 @@ local Transform = OOP:Class(BaseComponent) {
 	position = Vector3:New(),
 	rotation = Quaternion:New(),
 
-	Scene = false
 }
 
 function Transform:SetLocalTransform(matrix)
@@ -82,6 +86,10 @@ end
 
 function Transform:DirtyTransform()
 	self.dirty_transform = true
+
+	if not self.Actor then
+		return
+	end
 
 	for i, v in pairs(self.Actor.children) do
 		local comp = v:GetComponent(Transform)

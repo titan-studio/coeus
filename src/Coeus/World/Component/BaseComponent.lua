@@ -2,7 +2,7 @@ local Coeus = (...)
 local OOP = Coeus.Utility.OOP
 
 local BaseComponent = OOP:Class() {
-	Name = "BaseComponent",
+	ClassName = "BaseComponent",
 	RenderLayerFlag = Coeus.Graphics.Layer.Flag.None,
 	Actor = false,
 

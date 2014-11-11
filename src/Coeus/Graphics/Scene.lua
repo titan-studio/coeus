@@ -10,7 +10,8 @@ local Scene = OOP:Class() {
 	layers = {},
 	Actors = {},
 
-	Viewport = false
+	Viewport = false,
+	ActiveCamera = false,
 }
 Scene.DefaultLayers = {
 	Layer.Flag.Geometry,
