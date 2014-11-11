@@ -130,10 +130,12 @@ function Quaternion.FromEulerAngles(x, y, z)
 	local s2 = math.sin(y / 2)
 	local s3 = math.sin(z / 2)
 
-	self.x = s1 * c2 * c3 + c1 * s2 * s3
-	self.y = c1 * s2 * c3 - s1 * c2 * s3
-	self.z = c1 * c2 * s3 + s1 * s2 * c3
-	self.w = c1 * c2 * c3 - s1 * s2 * s3
+	return Quaternion:New(
+		s1 * c2 * c3 + c1 * s2 * s3,
+		c1 * s2 * c3 - s1 * c2 * s3,
+		c1 * c2 * s3 + s1 * s2 * c3,
+		c1 * c2 * c3 - s1 * s2 * s3
+	)
 end
 
 function Quaternion.FromAngleAxis(angle, axis)

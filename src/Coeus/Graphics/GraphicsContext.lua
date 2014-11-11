@@ -22,8 +22,6 @@ local GraphicsContext = OOP:Class() {
 
 	render_passes = {},
 
-	ActiveCamera = false,
-	ActiveCamera2D = false,
 	ActiveScene = false,
 
 	Shaders = {},
@@ -156,6 +154,7 @@ layout(location=1) out vec4 NormalColor;
 layout(location=2) out float LinearDepth;
 
 uniform sampler2D ModelTexture;
+uniform vec4 ModelColor;
 uniform float ZNear;
 uniform float ZFar;
 
@@ -168,7 +167,7 @@ void main() {
 	vec3 norm = normalize(normal);
 	norm = norm * 0.5 + 0.5;
 
-	DiffuseColor = texture(ModelTexture, texcoord);
+	DiffuseColor = ModelColor * texture(ModelTexture, texcoord);
 	NormalColor = vec4(norm, 1.0);
 
 	LinearDepth = gl_FragCoord.z;
@@ -202,7 +201,7 @@ void main() {
 	vec4 diffuse = texture(DiffuseBuffer, texcoord);
 	vec4 light = texture(LightBuffer, texcoord);
 
-	FinalColor = vec4((diffuse.xyz * light.xyz + light.w), 1.0);
+	FinalColor = vec4(diffuse.xyz, 1.0);//vec4((diffuse.xyz * light.xyz + light.w), 1.0);
 }
 	]])
 end
@@ -261,11 +260,10 @@ function GraphicsContext:Render()
 
 	self.Shaders.CompositeFBOs:Use()
 	self.Shaders.CompositeFBOs:Send("DiffuseBuffer", self.GeometryFramebuffer.textures[1])
-	self.Shaders.CompositeFBOs:Send("LightBuffer", self.LightFramebuffer.textures[1])
-	--self.FullscreenQuad:Render()
+--	self.Shaders.CompositeFBOs:Send("LightBuffer", self.LightFramebuffer.textures[1])
+	self.FullscreenQuad:Render()
 
 	gl.BlendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA)
-	--print("woo")
 	self.ActiveScene:RenderLayers(Coeus.Graphics.Layer.Flag.Unlit2D)
 	gl.BlendFunc(GL.ONE, GL.ZERO)
 

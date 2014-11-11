@@ -1,10 +1,11 @@
 local Coeus = (...)
 local OOP = Coeus.Utility.OOP
 
-local BaseComponent = Coeus.Entity.BaseComponent
+local BaseComponent = Coeus.World.Component.BaseComponent
 local Shader = Coeus.Graphics.Shader
 
 local DirectionalLight = OOP:Class(BaseComponent) {
+	ClassName = "DirectionalLight",
 	GraphicsContext = false,
 
 	shader = false
@@ -70,31 +71,32 @@ void main() {
 }
 ]]
 
-function DirectionalLight:_new(context)
+function DirectionalLight:_new()
 	self.layer_flag = Coeus.Graphics.Layer.Flag.Lights
-	self.GraphicsContext = context
-	table.insert(self.GraphicsContext.DirectionalLights, self)
-	self.shader = self.GraphicsContext.Shaders.DirectionalLight
-	if not self.shader then
-		self.shader = Shader:New(self.GraphicsContext, VertexShaderSource, FragmentShaderSource)
-		self.GraphicsContext.Shaders.DirectionalLight = self.shader
-	end
+
+	self.AddedToActor:Listen(function()
+		self.shader = self.Actor.Scene.context.Shaders.DirectionalLight
+		if not self.shader then
+			self.shader = Shader:New(self.Actor.Scene.context, VertexShaderSource, FragmentShaderSource)
+			self.Actor.Scene.context.Shaders.DirectionalLight = self.shader
+		end
+	end)
 end
 
 function DirectionalLight:Render(light)
 	if not light then return end
-
-	local camera = self.GraphicsContext.ActiveCamera
+	local graphics = self.Actor.Scene.context
+	local camera = self.Actor.Scene.ActiveCamera
 	if not camera then 
 		return 
 	end
-	local cam_entity = camera:GetEntity()
-	if not cam_entity then 
+	local cam_actor = camera.Actor
+	if not cam_actor then 
 		return 
 	end
-	local eye_pos = cam_entity:GetRenderTransform():GetTranslation()
+	local eye_pos = cam_actor.Components.Transform:GetRenderTransform():GetTranslation()
 	local inv_view_proj = (camera:GetViewTransform() * camera:GetProjectionTransform()):GetInverse()
-	local geom_fbo = self.GraphicsContext.GeometryFramebuffer
+	local geom_fbo = graphics.GeometryFramebuffer
 
 	self.shader:Use()
 
@@ -107,7 +109,7 @@ function DirectionalLight:Render(light)
 	self.shader:Send("LightDirection", self.LightDirection)
 	self.shader:Send("LightColor", self.LightColor)
 
-	self.GraphicsContext.FullscreenQuad:Render()
+	graphics.FullscreenQuad:Render()
 end
 
 return DirectionalLight

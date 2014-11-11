@@ -24,7 +24,9 @@ function OBJ:Load(filename)
 	local line_str = ""
 	local more
 	local line = file:read("*l")
-	local state = {}
+	local state = {
+		meshes = {}
+	}
 	while line do
 		line_num = line_num + 1
 		if more then
@@ -56,9 +58,9 @@ function OBJ:Load(filename)
 		local vertex_index = 0
 		for j, face in ipairs(mesh.faces) do
 			for k, point in ipairs(face) do
-				local position = mesh.vertices[point.p] or {x=0,y=0,z=0}
-				local texcoord = mesh.vertices[point.t] or {x=0,y=0,z=0}
-				local normal   = mesh.vertices[point.n] or {x=0,y=0,z=0}
+				local position = mesh.positions[point.p] or {x=0,y=0,z=0}
+				local texcoord = mesh.texcoords[point.t] or {x=0,y=0,z=0}
+				local normal   = mesh.normals[point.n] or {x=0,y=0,z=0}
 
 				table.insert(vertex_data, position.x)
 				table.insert(vertex_data, position.y)
