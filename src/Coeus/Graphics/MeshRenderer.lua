@@ -1,20 +1,21 @@
 local Coeus			= (...)
 local OOP			= Coeus.Utility.OOP
 
-local BaseComponent	= Coeus.Entity.BaseComponent
+local BaseComponent	= Coeus.World.Component.BaseComponent
 local Material 		= Coeus.Graphics.Material
 
 local MeshRenderer = OOP:Class(BaseComponent) {
-	GraphicsContext = false,
+	ClassName = "MeshRenderer",
+	RenderLayerFlag = Coeus.Graphics.Layer.Flag.Geometry,
 	Mesh = false,
 }
 
-function MeshRenderer:_new(ctx)
-	self.GraphicsContext = ctx
+function MeshRenderer:_new()
+
 end
 
 function MeshRenderer:Render()
-	local material = self.entity:GetComponent(Material)
+	local material = self.Actor.Components.Material
 	if material and self.Mesh then
 		material:Use()
 		
