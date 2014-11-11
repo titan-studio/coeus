@@ -10,20 +10,19 @@ Binaries for Windows (32-bit) are published in the GitHub releases section. They
 Coeus aims to be a full featured suite for developing games and virtual reality simulations. As such, there will soon be many layers of tools for every step of the process of creating a game catering to every position in a typical game studio.
 
 The following is a high level list of Coeus's features so far:
-- Most engine code written in Lua(JIT)
-- High performance low-level graphics code based on OpenGL
-- Windows and Linux support (and the beginnings of write-once-run-anywhere)
-- Bindings for a lot of well-known C libraries for extreme performance
-- Sound engine
+- Engine code written entirely in LuaJIT
+- High performance graphics core based on OpenGL 3.2
+- Windows and Linux support
+- OpenAL-based sound engine
 - Support for PNG image files
 - Support for IQE and OBJ 3D model files
 - Support for Ogg Vorbis sound files
-- Streamlined asset loading system that infers model format and abstracts its use
-- Threading
-- Customized inline dependency resolution system
+- Streamlined asset loading system
+- Threading through TinyCThread
 - Deferred shading with point and directional lights
 - Mersenne Twister pseudorandom number generator
-- Solid 2D/3D math library (Vector3, Quaternion, Matrix4, and Vector2)
+- Powerful OOP semantics with multiple inheritance and mixins
+- Solid, unit-tested math library (Vector2, Vector3, Quaternion, and Matrix4)
 
 # Main Setup
 
