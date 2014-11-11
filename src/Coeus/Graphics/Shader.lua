@@ -10,6 +10,7 @@ local GLFW = GLFW.GLFW
 local gl = OpenGL.gl
 local GL = OpenGL.GL
 
+local Color = Coeus.Graphics.Color
 local Vector3 = Coeus.Math.Vector3
 local Matrix4 = Coeus.Math.Matrix4
 local Table = Coeus.Utility.Table
@@ -94,8 +95,21 @@ function Shader:Send(name, ...)
 	local first = values[1]
 	if not first then return end
 	local size = 1
-	if type(first) ~= 'number' then
-		if first.GetClass and first:GetClass() == Vector3 then
+	if type(first) == 'userdata' and first.Is then
+		if first.Is[Color] then
+			local data = ffi.new('float[' .. (4 * #values) .. ']')
+			local idx = 0
+			for i = 1, #values do
+				data[idx + 0] = values[i].Red
+				data[idx + 1] = values[i].Green
+				data[idx + 2] = values[i].Blue
+				data[idx + 3] = values[i].Alpha
+				idx = idx + 4
+			end
+			gl.Uniform4fv(uniform, #values, data)
+			return
+		end
+		if first.Is[Vector3] then
 			--convert the data now...
 			local data = ffi.new('float[' .. (3 * #values) .. ']')
 			local idx = 0
@@ -108,7 +122,7 @@ function Shader:Send(name, ...)
 			gl.Uniform3fv(uniform, #values, data)
 			return
 		end
-		if first.GetClass and first:GetClass() == Matrix4 then
+		if first.Is[Matrix4] then
 			local data = ffi.new('float[' .. (16 * #values) .. ']')
 			local idx = 0
 			for i=1,#values do
@@ -120,7 +134,7 @@ function Shader:Send(name, ...)
 			gl.UniformMatrix4fv(uniform, #values, GL.FALSE, data)
 			return
 		end
-		if first.GetClass and first:GetClass() == Texture then
+		if first.Is[Texture] then
 			local data = ffi.new('int[' .. #values .. ']')
 			for i = 1, #values do
 				data[i - 1] = self.context:BindTexture(values[i])
@@ -128,6 +142,10 @@ function Shader:Send(name, ...)
 			gl.Uniform1iv(uniform, #values, data)
 			return
 		end
+		print("Unhandled type of uniform")
+		return
+	end
+	if type(first) == 'table' and not first.Is then
 		if #first == 4 then
 			--convert the data now...
 			local data = ffi.new('float[' .. (4 * #values) .. ']')
