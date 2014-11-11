@@ -4,10 +4,10 @@ local OOP = Coeus.Utility.OOP
 local BaseComponent = Coeus.World.Component.BaseComponent
 
 local QuadRenderer = OOP:Class(BaseComponent) {
-	Name = "QuadRenderer",
+	ClassName = "QuadRenderer",
 	RenderLayerFlag = Coeus.Graphics.Layer.Flag.Unlit2D,
 
-	Image = false,
+	Texture = false,
 	Color = {1, 1, 1, 1}
 }
 
@@ -27,8 +27,8 @@ function QuadRenderer:Render()
 	local render_trans = transform:GetRenderTransform()
 	local model_projection = self.Actor.Scene.Viewport.Projection * render_trans
 
-	local tex = self.Image
-	if not self.Image then
+	local tex = self.Texture
+	if not tex then
 		tex = graphics.IdentityTexture
 	end
 

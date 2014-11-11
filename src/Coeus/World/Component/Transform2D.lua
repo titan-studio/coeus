@@ -6,7 +6,7 @@ local Matrix4 = Coeus.Math.Matrix4
 local Vector2 = Coeus.Math.Vector2
 
 local Transform2D = OOP:Class(BaseComponent) {
-	Name = "Transform2D",
+	ClassName = "Transform2D",
 	local_transform = Matrix4:New(),
 	render_transform = Matrix4:New(),
 	dirty_transform = false,
@@ -22,6 +22,8 @@ function Transform2D:_new(position, rotation, scale, offset)
 	self.rotation = rotation or self.rotation
 	self.scale = scale or self.scale
 	self.offset = offset or self.offset
+
+	self.dirty_transform = true
 end
 
 function Transform2D:SetLocalTransform(matrix)
