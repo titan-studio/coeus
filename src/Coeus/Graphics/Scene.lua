@@ -1,5 +1,6 @@
-local Coeus 		= (...)
-local OOP			= Coeus.Utility.OOP
+local C = (...)
+local Coeus = C:Get("Coeus")
+local OOP = Coeus.Utility.OOP
 
 local Layer = Coeus.Graphics.Layer
 

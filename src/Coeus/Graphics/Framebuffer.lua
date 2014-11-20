@@ -1,15 +1,18 @@
+local C = (...)
+
 local ffi = require("ffi")
-local Coeus 		= (...)
-local OOP			= Coeus.Utility.OOP
 
-local Texture 		= Coeus.Graphics.Texture
-local ImageData 	= Coeus.Asset.Image.ImageData
-local Mesh			= Coeus.Graphics.Mesh
-local Shader		= Coeus.Graphics.Shader
+local Coeus = C:Get("Coeus")
+local OOP = Coeus.Utility.OOP
 
-local OpenGL 	= Coeus.Bindings.OpenGL
-local gl 	 	= OpenGL.gl
-local GL 		= OpenGL.GL
+local Texture = Coeus.Graphics.Texture
+local ImageData = Coeus.Asset.Image.ImageData
+local Mesh = Coeus.Graphics.Mesh
+local Shader = Coeus.Graphics.Shader
+
+local OpenGL = Coeus.Bindings.OpenGL
+local gl = OpenGL.gl
+local GL = OpenGL.GL
 
 local Framebuffer = OOP:Class() {
 	fbo = -1,

@@ -1,8 +1,9 @@
-local Coeus 	= (...)
-local OOP 		= Coeus.Utility.OOP 
+local C = (...)
+local Coeus = C:Get("Coeus")
+local OOP = Coeus.Utility.OOP 
 
 local BaseComponent	= Coeus.World.Component.BaseComponent
-local Matrix4		= Coeus.Math.Matrix4
+local Matrix4 = Coeus.Math.Matrix4
 
 local Camera = OOP:Class(BaseComponent) {
 	ClassName = "Camera",

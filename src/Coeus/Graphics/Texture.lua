@@ -1,14 +1,17 @@
+local C = (...)
+
 local ffi = require("ffi")
-local Coeus			= (...)
-local oop			= Coeus.Utility.OOP 
 
-local ImageData 	= Coeus.Asset.Image.ImageData
+local Coeus = C:Get("Coeus")
+local OOP = Coeus.Utility.OOP 
 
-local OpenGL		= Coeus.Bindings.OpenGL
+local ImageData = Coeus.Asset.Image.ImageData
+
+local OpenGL = Coeus.Bindings.OpenGL
 local gl = OpenGL.gl
 local GL = OpenGL.GL
 
-local Texture = oop:Class() {
+local Texture = OOP:Class() {
 	context = false,
 	unit = -1,
 	handle = -1,

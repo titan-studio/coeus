@@ -1,8 +1,9 @@
-local Coeus			= (...)
-local OOP			= Coeus.Utility.OOP
+local C = (...)
+local Coeus = C:Get("Coeus")
+local OOP = Coeus.Utility.OOP
 
-local BaseComponent	= Coeus.World.Component.BaseComponent
-local Material 		= Coeus.Graphics.Material
+local BaseComponent = Coeus.World.Component.BaseComponent
+local Material = Coeus.Graphics.Material
 
 local MeshRenderer = OOP:Class(BaseComponent) {
 	ClassName = "MeshRenderer",

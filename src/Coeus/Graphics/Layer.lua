@@ -1,5 +1,6 @@
-local Coeus			= (...)
-local OOP			= Coeus.Utility.OOP
+local C = (...)
+local Coeus = C:Get("Coeus")
+local OOP = Coeus.Utility.OOP
 
 local next_priority = 1
 local Layer = OOP:Class() {

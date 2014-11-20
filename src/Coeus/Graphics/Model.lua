@@ -1,6 +1,7 @@
-local Coeus 	= (...)
-local OOP		= Coeus.Utility.OOP
-local Table		= Coeus.Utility.Table
+local C = (...)
+local Coeus = C:Get("Coeus")
+local OOP = Coeus.Utility.OOP
+local Table = Coeus.Utility.Table
 
 local Actor = Coeus.World.Actor
 

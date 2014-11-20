@@ -1,5 +1,8 @@
+local C = (...)
+
 local ffi = require("ffi")
-local Coeus = ...
+
+local Coeus = C:Get("Coeus")
 local OOP = Coeus.Utility.OOP
 
 local OpenGL = Coeus.Bindings.OpenGL
