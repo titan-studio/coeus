@@ -4,7 +4,8 @@
 	Defines a chunk of static audio data.
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local ffi = require("ffi")
 local OpenAL = Coeus.Bindings.OpenAL
 local SoundCommon = Coeus.Asset.Sound.Common

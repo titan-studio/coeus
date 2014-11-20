@@ -4,7 +4,8 @@
 	Defines a base class for defining asset formats.
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local OOP = Coeus.Utility.OOP
 
 local Format = OOP:Static()()

@@ -4,7 +4,8 @@
 	A binding intended for OpenAL-soft
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local ffi = require("ffi")
 local openal = ffi.load("openal")
 

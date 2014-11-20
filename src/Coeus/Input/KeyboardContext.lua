@@ -4,7 +4,8 @@
 	Allows managing of keyboard input in a given window.
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 
 local OOP = Coeus.Utility.OOP
 local Event = Coeus.Utility.Event

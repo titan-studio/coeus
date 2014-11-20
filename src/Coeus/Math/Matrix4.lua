@@ -7,7 +7,8 @@
 	- Change GetRotation*, GetScale, GetPerspective, and GetOrthographic to use (..., out) semantics or make them constructors
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local OOP = Coeus.Utility.OOP
 local Vector3 = Coeus.Math.Vector3
 
@@ -34,19 +35,19 @@ function Matrix4:DEBUG__new(...)
 	end
 
 	if (count ~= 16) then
-		return Coeus:Error(err, "Coeus.Math.Matrix4:DEBUG__new")
+		return C:Error(err, "Coeus.Math.Matrix4:DEBUG__new")
 	end
 
 	for i = 1, count do
 		if (type(select(i, ...)) ~= "number") then
-			return Coeus:Error((err .. " Argument #%d is of type '%s'"):format(i, type(select(i, ...))))
+			return C:Error((err .. " Argument #%d is of type '%s'"):format(i, type(select(i, ...))))
 		end
 	end
 
 	self.m = {...}
 end
 
-if (Coeus.Config.Debug) then
+if (C.Config.Debug) then
 	Matrix4._new = Matrix4.DEBUG__new
 else
 	Matrix4._new = Matrix4.RELEASE__new

@@ -4,9 +4,10 @@
 	Provides helpful functions for handling unmanaged data from within LuaJIT.
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local ffi = require("ffi")
-local C = Coeus.Bindings.C
+local C = Coeus.Bindings.C_
 local Data = {}
 
 --[[

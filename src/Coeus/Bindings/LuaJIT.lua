@@ -4,7 +4,8 @@
 	A binding to LuaJIT, also probably compatible with Lua 5.1
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local ffi = require("ffi")
 local lib = ffi.C
 

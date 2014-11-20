@@ -4,7 +4,8 @@
 	Defines a generic stream of data.
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local OOP = Coeus.Utility.OOP
 
 local Stream = OOP:Class()()

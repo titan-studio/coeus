@@ -8,7 +8,7 @@ Modules should have the following elements in order:
 
 1. Comments describing the purpose of the module and where it's generally useful
 2. Preprocessor directives (Coeus 0.3.0-alpha and above)
-3. A reference to the Coeus core using `...`
+3. A reference to the Coeus core using `...` and the Coeus namespace if necessary
 4. The body of the code, loading any dependencies and defining module(s)
 5. A return statement exposing functionality of the module
 
@@ -22,7 +22,8 @@ This would look something like:
 ]]
 --#EnableExtension TypedLiterals
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local OOP = Coeus.Utility.OOP
 
 local DemoLibrary = OOP:Static() {
@@ -89,12 +90,11 @@ local data_index = {
 }
 ```
 
-In multiline comments, a line break should occur when a width of more than 80 characters would be reached by the next word, assuming tabs are four spaces wide. A line break should also occur after the opening of a multiline comment. When writing comments, it is recommended that a ruler is enabled in your text editor.
+In multiline comments, a line break should occur when it would make sense to prevent too long of a line. A line break should also occur after the opening of a multiline comment. When writing comments, it is recommended that a ruler is enabled in your text editor.
 ```lua
 --[[
-	This is a multiline comment describing absolutely nothing, but still
-	important for making sure that all code conforms to the standards set forth
-	in this document.
+	This is a multiline comment describing absolutely nothing, but still important for making sure that all code conforms to the standards set forth in this document.
+	A line break occurs here because it looks nice, but is not strictly necessary.
 ]]
 ```
 

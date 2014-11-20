@@ -1,4 +1,5 @@
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local oop = Coeus.Utility.OOP
 
 local Matrix4 = Coeus.Math.Matrix4

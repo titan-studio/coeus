@@ -2,8 +2,7 @@
 	Coeus Core
 
 	Provides the basis of Coeus, including module loading, error handling, and
-	logging. Only extensions to core Coeus functionality should be placed in
-	this file.
+	logging. Only core Coeus functionality should be placed in this file.
 
 	See the included documentation for more information on how to use Coeus.
 ]]
@@ -12,31 +11,68 @@ local PATH = (...)
 local lfs = require("lfs")
 local Coeus
 
+--The Lua module-relative path to the folder containing Coeus's source
+local SRC_PATH = PATH:match("^(.-)%.[^%.]+$"):gsub("%.", "/")
+
+--This system's end-of-line character
+local EOL = (jit.os == "Windows") and "\r\n" or "\n"
+
+--Determine the default pathing based on how deep Coeus is in the filesystem
+local DEFAULT_PATH
+if (SRC_PATH) then
+	--Coeus is nested (ie src.Coeus), load top-level modules first
+	DEFAULT_PATH = {"./", SRC_PATH}
+else
+	--Coeus is in the same level as our current module
+	DEFAULT_PATH = {"./"}
+end
+
+--[[
+	Takes a module name and yields a possible file path
+]]
 local function name_to_file(name)
-	return name:gsub("%.", "/") .. ".lua"
+	local path = (name:gsub("%.", "/"):gsub("//+", "/")) .. ".lua"
+
+	if (path:sub(1, 1) == "/") then
+		return path:sub(2)
+	else
+		return path
+	end
 end
 
-local function file_to_name(name)
-	return name:gsub("%.[^%.]*$", ""):gsub("/", "%.")
-end
-
+--[[
+	Takes a module name and yields a possible directory path
+]]
 local function name_to_directory(name)
-	return name:gsub("%.", "/")
+	local path = (name:gsub("%.", "/"):gsub("//+", "/"))
+
+	if (path:sub(1, 1) == "/") then
+		return path:sub(2)
+	else
+		return path
+	end
 end
 
+--[[
+	Takes a file and yields a possible module name
+]]
+local function file_to_name(name)
+	return (name:gsub("%.[^%.]*$", ""):gsub("/+", "%."))
+end
+
+--[[
+	Normalizes a module name to be used for internal memoization
+]]
 local function name_to_id(name)
 	return name:lower()
 end
 
-local function fix_directory(dir)
-	if (not dir:match("[/\\]$")) then
-		return dir .. "/"
-	else
-		return dir
-	end
+--[[
+	Takes a list of paths and joins them together to make one path
+]]
+local function path_join(...)
+	return (table.concat({...}, "/"):gsub("//+", "/"))
 end
-
-local EOL = (jit.os == "Windows") and "\r\n" or "\n"
 
 local platform_short = {
 	Windows = "win",
@@ -53,7 +89,7 @@ local arch_short = {
 	ppcspe = "ppc"
 }
 
-local Coeus = {
+local C = {
 	--Public members
 	Config = {
 		Debug = true, --Is this build a developer build?
@@ -61,11 +97,14 @@ local Coeus = {
 		Architecture = arch_short[jit.arch], --How many bits do we have?
 		BinDir = "./bin/", --Location of binaries
 		SourceDir = "./src/", --Location of all source files
-		CoeusDir = "./src/Coeus/", --Location of Coeus source files
+		CoeusDir = "./src/Coeus/", --Location of Coeus source files,
+		Path = DEFAULT_PATH, --Where Coeus will search for modules to load
 
-		Version = {0, 2, 0, "alpha"}, --The current version of the engine in the form MAJOR.MINOR.PATCH-STAGE
+		Version = {0, 2, 0, "dev"}, --The current version of the engine in the form MAJOR.MINOR.PATCH-STAGE
+		VersionString = "0.2.0-dev", --A string version of the above version
 	
 		LogLevel = 3, --Log entries greater than this level will be ignored
+		LogFileEnabled = true, --Whether Coeus will log to disk
 		LogFile = "Coeus-log.txt", --The file to output logging information to
 		LogBufferMaxSize = 5, --The number of logs before the buffer will flush to disk
 		FatalErrors = true, --Whether errors will stop execution or not
@@ -98,7 +137,7 @@ local Coeus = {
 --[[
 	Initialize Coeus with an optional configuration structure.
 ]]
-function Coeus:Initialize(config)
+function C:Initialize(config)
 	if (self.Initialized) then
 		self:Info("Already initialized, ignoring call.", "Coeus")
 		return
@@ -111,12 +150,8 @@ function Coeus:Initialize(config)
 		end
 	end
 
-	--Make sure BinDir and SourceDir end with trailing slashes
-	self.Config.BinDir = fix_directory(self.Config.BinDir)
-	self.Config.SourceDir = fix_directory(self.Config.SourceDir)
-
 	--Build CoeusDir
-	self.Config.CoeusDir = self.Config.SourceDir .. "Coeus/"
+	self.Config.CoeusDir = path_join(self.Config.SourceDir, "Coeus")
 
 	--Build i_log_level for fast log level lookups
 	--Also define log_level_longest for nice formatting
@@ -130,7 +165,7 @@ function Coeus:Initialize(config)
 
 	--Force Windows to load binaries from here
 	if (jit.os == "Windows") then
-		Coeus.Bindings.Win32_.SetDllDirectoryA(Coeus.Config.BinDir)
+		self:Get("Coeus").Bindings.Win32_.SetDllDirectoryA(self.Config.BinDir)
 	end
 
 	self.Initialized = true
@@ -139,8 +174,9 @@ end
 --[[
 	Terminate Coeus and call all finalizers on modules.
 ]]
-function Coeus:Terminate()
+function C:Terminate()
 	if (not self.Initialized) then
+		print("Coeus already terminated; ignoring call.")
 		return
 	end
 
@@ -170,13 +206,15 @@ end
 
 --[[
 	Writes the existing log buffer to disk and clears the buffer.
+
+	Does nothing if LogFileEnabled is set to false.
 ]]
-function Coeus:FlushLogBuffer()
+function C:FlushLogBuffer()
 	local path = self.Config.LogFile
 
 	self.logs_since_flush = 0
 
-	if (not path) then
+	if (not path or not self.Config.LogFileEnabled) then
 		return
 	end
 
@@ -195,21 +233,19 @@ end
 
 --[[
 	Creates an error object to be returned to denote that something went wrong.
-	Produced by Coeus:Error and Coeus:Warning automatically.
+	Produced by C:Error and C:Warning automatically.
 ]]
-function Coeus:CreateError(message)
-	local internal = {
+function C:CreateError(message)
+	return {
 		Message = message,
 		__error = true
 	}
-
-	return internal
 end
 
 --[[
 	Checks that the given value is a Coeus Error.
 ]]
-function Coeus:IsError(value)
+function C:IsError(value)
 	return (type(value) == "table" and value.__error)
 end
 
@@ -218,7 +254,7 @@ end
 	location. The location will be automatically defined if not specified, and
 	differs based on the Debug setting.
 ]]
-function Coeus:Log(level, message, location)
+function C:Log(level, message, location)
 	level = tonumber(level) or self.LogLevel.Info
 
 	if (level > self.Config.LogLevel) then
@@ -271,7 +307,7 @@ end
 	Will always terminate the program.
 	Should be used when, no matter what, the program cannot continue.
 ]]
-function Coeus:Fatal(message, location)
+function C:Fatal(message, location)
 	self:Log(self.LogLevel.Fatal, message, location)
 end
 
@@ -281,10 +317,10 @@ end
 	FatalErrors are enabled.
 	Should be used when the program can not continue under normal circumstances.
 ]]
-function Coeus:Error(message, location)
+function C:Error(message, location)
 	self:Log(self.LogLevel.Error, message, location)
 
-	return Coeus:CreateError(message)
+	return self:CreateError(message)
 end
 
 --[[
@@ -293,27 +329,27 @@ end
 	FatalWarnings are enabled.
 	Should be used when 
 ]]
-function Coeus:Warning(message, location)
+function C:Warning(message, location)
 	self:Log(self.LogLevel.Warning, message, location)
 
-	return Coeus:CreateError(message)
+	return self:CreateError(message)
 end
 
 --[[
 	Method to report non-critical information.
 ]]
-function Coeus:Info(message, location)
+function C:Info(message, location)
 	self:Log(self.LogLevel.Info, message, location)
 
-	return Coeus:CreateError(message)
+	return self:CreateError(message)
 end
 
 --[[
 	Called when a fatal error or fatal warning occurs.
 	Should not be called directly.
 ]]
-function Coeus.LogHandlers.Fatal(coeus, message)
-	print(message)
+function C.LogHandlers.Fatal(coeus, message)
+	print(debug.traceback(message, 4))
 	coeus:Terminate()
 	--os.exit(-1)
 end
@@ -323,9 +359,10 @@ end
 	Terminates the program if FatalErrors are enabled.
 	Should not be called directly.
 ]]
-function Coeus.LogHandlers.Error(coeus, message)
+function C.LogHandlers.Error(coeus, message)
 	if (coeus.Config.FatalErrors) then
-		coeus.LogHandlers.Fatal(coeus, message)
+		print(debug.traceback(message, 4))
+		coeus:Terminate()
 	else
 		print(message)
 	end
@@ -336,7 +373,7 @@ end
 	Terminates the program is FatalWarnings are enabled.
 	Should not be called directly.
 ]]
-function Coeus.LogHandlers.Warning(coeus, message)
+function C.LogHandlers.Warning(coeus, message)
 	if (coeus.Config.FatalWarnings) then
 		coeus.LogHandlers.Fatal(coeus, message)
 	else
@@ -349,51 +386,80 @@ end
 	Will never terminate the program.
 	Should not be called directly.
 ]]
-function Coeus.LogHandlers.Info(coeus, message)
+function C.LogHandlers.Info(coeus, message)
 	print(message)
+end
+
+--[[
+	Returns the file path to the module in question, or nil if it doesn't exist.
+]]
+function C:ModulePath(name)
+	local tried = {}
+	local paths = self.Config.Path
+
+	for i = 1, #paths do
+		local joined = path_join(paths[i], name)
+		local file = name_to_file(joined)
+		local file_mode = lfs.attributes(file, "mode")
+
+		if (file_mode == "file") then
+			return file, "file"
+		end
+
+		local dir = name_to_directory(joined)
+		local dir_mode = lfs.attributes(dir, "mode")
+
+		if (dir_mode == "directory") then
+			return dir, "directory"
+		end
+
+		table.insert(tried, file)
+		table.insert(tried, dir)
+	end
+
+	return nil, tried
 end
 
 --[[
 	Loads a module given an identifying string.
 	The module can exist either on the real filesystem or in the VFS.
 ]]
-function Coeus:Load(name, flags)
+function C:Get(name, flags)
 	flags = flags or {}
 	local id = name_to_id(name)
 
-	--Is the module already in memory (already loaded or in the VFS?)
+	--Is the module already in memory?
 	if (self.loaded[id]) then
 		return self.loaded[id]
-	elseif (self.vfs[id]) then
+	end
+
+	--The module on the VFS?
+	if (self.vfs[id]) then
 		return self:LoadVFSEntry(name, flags)
 	end
 
-	local file = self.Config.CoeusDir .. name_to_file(name)
-	local dir = self.Config.CoeusDir .. name_to_directory(name)
-
-	local file_mode = lfs.attributes(file, "mode")
-	local dir_mode = lfs.attributes(dir, "mode")
-
-	if (file_mode == "file") then
-		return self:LoadFile(name, file, flags)
-	elseif (dir_mode == "directory") then
-		return self:LoadDirectory(name, dir, flags)
-	elseif (not file_mode and not dir_mode) then
-		local err = "Unable to load module '" .. (name or "nil") .. "': module does not exist."
+	--Load the module from where it should be loaded from
+	local path, mode = self:ModulePath(name)
+	
+	--The module wasn't found!
+	if (not path) then
+		local err = ("Unable to load module '%s' from %s: module does not exist. Tried paths:\n%s"):format(
+			name or "nil",
+			flags.LoadFrom or "Path",
+			table.concat(mode, "\n")
+		)
 
 		if (flags.safe) then
 			return self:CreateError(err)
 		else
 			return self:Error(err)
 		end
-	else
-		local err = "Unknown error in loading module '" .. (name or "nil") .. "'"
+	end
 
-		if (flags.safe) then
-			return self:CreateError(err)
-		else
-			return self:Error(err)
-		end
+	if (mode == "file") then
+		return self:LoadFile(name, path, flags)
+	elseif (mode == "directory") then
+		return self:LoadDirectory(name, path, flags)
 	end
 end
 
@@ -401,7 +467,7 @@ end
 	Loads a Lua chunk with the associated module metadata.
 	Used internally and called by all Load* methods.
 ]]
-function Coeus:LoadChunk(chunk, meta, flags)
+function C:LoadChunk(chunk, meta, flags)
 	flags = flags or {}
 	meta = meta or {}
 	local success, object = pcall(chunk, self, meta)
@@ -409,9 +475,9 @@ function Coeus:LoadChunk(chunk, meta, flags)
 	--Check for Lua error condition
 	if (not success) then
 		if (flags.safe) then
-			return self:Warning(err)
+			return self:Warning(object)
 		else
-			return self:Error(err)
+			return self:Error(object)
 		end
 	end
 
@@ -434,16 +500,10 @@ end
 --[[
 	Loads a file located on the real filesystem.
 ]]
-function Coeus:LoadFile(name, path, flags)
+function C:LoadFile(name, path, flags)
 	flags = flags or {}
 	local id = name_to_id(name)
 	local leaf = (name:match("%.?([^%.]+)$"))
-
-	if (self.loaded[id]) then
-		return self.loaded[id]
-	end
-
-	path = path or (self.Config.CoeusDir .. name_to_file(name))
 
 	local chunk, err = loadfile(path)
 
@@ -467,21 +527,15 @@ end
 	Loads a directory and returns a virtual directory object.
 	All members are lazy loaded.
 ]]
-function Coeus:LoadDirectory(name, path)
+function C:LoadDirectory(name, path)
 	local id = name_to_id(name)
-
-	if (self.loaded[id]) then
-		return self.loaded[id]
-	end
-
-	path = path or (self.Config.CoeusDir .. name_to_directory(name))
 
 	local container = {
 		FullyLoad = function(this)
 			for filepath in lfs.dir(path) do
 				if (filepath ~= "." and filepath ~= "..") then
 					local filename = file_to_name(filepath)
-					this[filename] = self:Load(name .. "." .. filename)
+					this[filename] = self:Get(name .. "." .. filename)
 				end
 			end
 
@@ -489,7 +543,7 @@ function Coeus:LoadDirectory(name, path)
 		end,
 
 		Get = function(this, key, flags)
-			local piece = self:Load(name .. "." .. key, flags)
+			local piece = self:Get(name .. "." .. key, flags)
 			this[key] = piece
 
 			return piece
@@ -497,7 +551,7 @@ function Coeus:LoadDirectory(name, path)
 	}
 
 	--Does the directory have a patch file?
-	local patch = self:Load(name .. "._", {safe = true})
+	local patch = self:Get(name .. "._", {safe = true})
 
 	if (patch and not self:IsError(patch)) then
 		self.loaded[name_to_id(name) .. "._"] = nil
@@ -523,7 +577,7 @@ end
 	Returns a shallow copy of the list of modules currently loaded.
 	Useful if the list needs to be mutated.
 ]]
-function Coeus:GetLoadedModules()
+function C:GetLoadedModules()
 	local buffer = {}
 	for key, value in pairs(self.loaded) do
 		table.insert(buffer, key)
@@ -539,7 +593,7 @@ end
 	Called automatically if the file we're looking for is determined to be on
 	the VFS.
 ]]
-function Coeus:LoadVFSEntry(name, flags)
+function C:LoadVFSEntry(name, flags)
 	flags = flags or {}
 	local id = name_to_id(name)
 	local entry = self.vfs[id]
@@ -587,7 +641,7 @@ end
 	Registers a new directory in the virtual file system table
 	Used by the automagic build system
 ]]
-function Coeus:AddVFSDirectory(name)
+function C:AddVFSDirectory(name)
 	self.vfs[name_to_id(name)] = {directory = true}
 end
 
@@ -595,7 +649,7 @@ end
 	Registers a new file in the virtual file system table
 	Used by the automagic build system
 ]]
-function Coeus:AddVFSFile(name, body)
+function C:AddVFSFile(name, body)
 	self.vfs[name_to_id(name)] = {file = true, body = body}
 end
 
@@ -603,21 +657,16 @@ end
 --Don't put any new core additions to this past this line!
 ----------------------------------------------------------
 
---Automagically load directories if a key doesn't exist
-setmetatable(Coeus, {
-	__index = function(self, key)
-		local entry = self:Load(key)
-		self[key] = entry
-
-		return entry
-	end,
-
+setmetatable(C, {
 	__gc = function(self)
 		self:Terminate()
 	end
 })
 
+--Register the Coeus namespace with the C core
+C.Coeus = C:Get("Coeus")
+
 --Load built-in modules
 --@builtins
 
-return Coeus
+return C

@@ -3,12 +3,13 @@
 
 	Loads DDS images (.dds)
 ]]
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local ffi = require("ffi")
 
 local OOP = Coeus.Utility.OOP
 local ImageData = Coeus.Asset.Image.ImageData
-local C = Coeus.Bindings.C
+local C = Coeus.Bindings.C_
 
 --[=[ffi.cdef([[
 struct DDS_PIXELFORMAT {

@@ -15,7 +15,8 @@
 		This means current operators will be deprecated and begin to only accept vectors
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local OOP = Coeus.Utility.OOP
 
 local Vector2 = OOP:Class() {
@@ -32,18 +33,18 @@ function Vector2:DEBUG__new(x, y)
 	local err = "Vector2 accepts 2 Lua number or nil parameters."
 
 	if (x ~= nil and type(x) ~= "number") then
-		return Coeus:Error(err .. " Argument 1 is of type '" .. type(x) .. "'")
+		return C:Error(err .. " Argument 1 is of type '" .. type(x) .. "'")
 	end
 
 	if (y ~= nil and type(y) ~= "number") then
-		return Coeus:Error(err .. " Argument 2 is of type '" .. type(y) .. "'")
+		return C:Error(err .. " Argument 2 is of type '" .. type(y) .. "'")
 	end
 
 	self.x = x or 0
 	self.y = y or 0
 end
 
-if (Coeus.Config.Debug) then
+if (C.Config.Debug) then
 	Vector2._new = Vector2.DEBUG__new
 else
 	Vector2._new = Vector2.RELEASE__new

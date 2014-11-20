@@ -5,9 +5,9 @@
 	opening file handles.
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local ffi = require("ffi")
-local C = ffi.C
 
 ffi.cdef([[
 struct _iobuf {
@@ -40,4 +40,4 @@ int fseek(FILE* stream, long int offset, int origin);
 long int ftell(FILE* stream);
 ]])
 
-return C
+return ffi.C

@@ -4,7 +4,8 @@
 	A binding to core libogg functionality.
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local ffi = require("ffi")
 local libogg = ffi.load("libogg")
 

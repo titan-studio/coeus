@@ -4,13 +4,14 @@
 	Loads static Ogg Vorbis audio (.ogg)
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local ffi = require("ffi")
 
 local OOP = Coeus.Utility.OOP
 local ogg = Coeus.Bindings.libogg
 local vorbisfile = Coeus.Bindings.libvorbisfile
-local C = Coeus.Bindings.C
+local C = Coeus.Bindings.C_
 
 local SoundCommon = Coeus.Asset.Sound.Common
 local SoundData = Coeus.Asset.Sound.SoundData

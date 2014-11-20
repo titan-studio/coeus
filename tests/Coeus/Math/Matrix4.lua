@@ -5,7 +5,8 @@
 	- Write tests for basic operators
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local Matrix4 = Coeus.Math.Matrix4
 
 local ran16 = {
@@ -72,11 +73,11 @@ return {
 				local zero = Matrix4:Filled(0)
 				local identity = Matrix4:Identity()
 
-				if (Coeus:IsError(release_ran16)) then
+				if (C:IsError(release_ran16)) then
 					return test:Fail("Release constructor failed: " .. release_ran16.Message)
 				end
 
-				if (Coeus:IsError(debug_ran16)) then
+				if (C:IsError(debug_ran16)) then
 					return test:Fail("Debug constructor failed: " .. debug_ran16.Message)
 				end
 
@@ -84,19 +85,19 @@ return {
 					return test:Fail("Debug and release constructors gave different results!")
 				end
 
-				if (not Coeus:IsError(m_garbage) or not Coeus:IsError(m_garbage2)) then
+				if (not C:IsError(m_garbage) or not C:IsError(m_garbage2)) then
 					return test:Fail("Debug constructor succeeded when passed garbage!")
 				end
 
-				if (Coeus:IsError(uninitialized)) then
+				if (C:IsError(uninitialized)) then
 					return test:Fail("Uninitialized constructor failed: " .. uninitialized.Message)
 				end
 
-				if (Coeus:IsError(zero)) then
+				if (C:IsError(zero)) then
 					return test:Fail("Zero constructor failed: " .. zero.Message)
 				end
 
-				if (Coeus:IsError(identity)) then
+				if (C:IsError(identity)) then
 					return test:Fail("Identity constructor failed: " .. identity.Message)
 				end
 			end

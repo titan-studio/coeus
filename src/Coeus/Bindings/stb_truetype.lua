@@ -4,7 +4,8 @@
 	A binding to stb_truetype, included in coeus_aux.
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local ffi = require("ffi")
 local stb_truetype = Coeus.Bindings.coeus_aux
 

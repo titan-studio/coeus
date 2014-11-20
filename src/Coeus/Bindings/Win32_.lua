@@ -4,7 +4,8 @@
 	Contains just the Win32 bindings Coeus needs.
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local ffi = require("ffi")
 if (ffi.os ~= "Windows") then
 	return

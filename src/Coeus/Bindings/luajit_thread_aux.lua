@@ -4,7 +4,8 @@
 	A binding to some auxiliary C threading code in coeus_aux.
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local ffi = require("ffi")
 local lib = Coeus.Bindings.coeus_aux
 

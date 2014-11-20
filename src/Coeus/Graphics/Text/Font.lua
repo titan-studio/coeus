@@ -1,15 +1,17 @@
-local ffi			= require("ffi")
-local Coeus 		= (...)
-local OOP			= Coeus.Utility.OOP
-local tt			= Coeus.Bindings.stb_truetype
-local C			= Coeus.Bindings.C
+local C = (...)
+local ffi = require("ffi")
 
-local OpenGL		= Coeus.Bindings.OpenGL
+local Coeus = C:Get("Coeus")
+local OOP = Coeus.Utility.OOP
+local tt = Coeus.Bindings.stb_truetype
+local C	= Coeus.Bindings.C
+
+local OpenGL = Coeus.Bindings.OpenGL
 local gl = OpenGL.gl
 local GL = OpenGL.GL
 
-local Texture 		= Coeus.Graphics.Texture
-local Glyph 		= Coeus.Graphics.Text.Glyph
+local Texture = Coeus.Graphics.Texture
+local Glyph = Coeus.Graphics.Text.Glyph
 
 --[[
 	Huge thanks to slime from #LOVE on irc.oftc.net

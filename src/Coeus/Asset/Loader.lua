@@ -4,7 +4,8 @@
 	A parent class for all asset loaders.
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local OOP = Coeus.Utility.OOP
 
 local Loader = OOP:Static() {

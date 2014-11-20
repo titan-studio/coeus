@@ -4,7 +4,8 @@
 	Provides utilities for common numeric operations
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local Numeric = {}
 
 local max = math.max

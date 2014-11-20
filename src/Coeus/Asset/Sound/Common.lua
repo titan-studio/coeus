@@ -4,7 +4,8 @@
 	Defines common data for sound loading.
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local OOP = Coeus.Utility.OOP
 local OpenAL = Coeus.Bindings.OpenAL
 

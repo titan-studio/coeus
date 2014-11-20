@@ -4,11 +4,12 @@
 	A binding to libvorbis.
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local ffi = require("ffi")
 local libvorbis = ffi.load("libvorbis")
 
-Coeus:Load("Bindings.libogg")
+C:Get("Bindings.libogg")
 
 --codec.h
 ffi.cdef([[

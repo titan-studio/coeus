@@ -3,8 +3,11 @@
 
 	Based on https://github.com/ColonelThirtyTwo/LuaJIT-Threads
 ]]
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
+
 local ffi = require("ffi")
+
 local OOP = Coeus.Utility.OOP
 local ljta = Coeus.Bindings.luajit_thread_aux
 local LuaJIT = Coeus.Bindings.LuaJIT
@@ -41,7 +44,7 @@ local function move_values(L, ...)
 	local n = select("#", ...)
 
 	if (LuaJIT.lua_checkstack(L, n) == 0) then
-		Coeus:Fatal("Out of memory to move Lua values across state", "Coeus.Threading.Thread:move_values")
+		C:Fatal("Out of memory to move Lua values across state", "Coeus.Threading.Thread:move_values")
 	end
 
 	for i = 1, n do
@@ -49,7 +52,7 @@ local function move_values(L, ...)
 		local converter = converters[type(v)]
 
 		if (not converter) then
-			Coeus:Error(("Cannot pass argument %s into thread: type not supported"):format(i), "Coeus.Threading.Thread:move_values")
+			C:Error(("Cannot pass argument %s into thread: type not supported"):format(i), "Coeus.Threading.Thread:move_values")
 		end
 
 		converter(L, v)

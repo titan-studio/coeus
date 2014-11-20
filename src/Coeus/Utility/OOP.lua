@@ -6,7 +6,8 @@
 	proper constructors and destructors.
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local Table = Coeus.Utility.Table
 local OOP = {}
 

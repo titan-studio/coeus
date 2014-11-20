@@ -2,7 +2,7 @@ local C = (...)
 local Coeus = C:Get("Coeus")
 
 return {
-	Name = "Bindings.zlib",
+	Name = "Bindings.C_",
 
 	Tests = {
 		{

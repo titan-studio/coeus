@@ -89,11 +89,11 @@ Coeus.Magikarp = {}
 ]])
 
 for key, value in ipairs(dirbuf) do
-	table.insert(vfs_buf, ("Coeus:AddVFSDirectory(%q)"):format(value[1]))
+	table.insert(vfs_buf, ("C:AddVFSDirectory(%q)"):format(value[1]))
 end
 
 for key, value in ipairs(filebuf) do
-	table.insert(vfs_buf, ("Coeus:AddVFSFile(%q, %q)"):format(value[1], value[2]))
+	table.insert(vfs_buf, ("C:AddVFSFile(%q, %q)"):format(value[1], value[2]))
 end
 
 print("Generating VFS-injected code...")

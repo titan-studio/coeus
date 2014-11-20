@@ -4,7 +4,8 @@
 	Defines a loader for loading model data.
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local OOP = Coeus.Utility.OOP
 
 local ModelLoader = OOP:Static(Coeus.Asset.Loader) {

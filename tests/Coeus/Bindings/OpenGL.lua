@@ -1,4 +1,5 @@
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 
 return {
 	Name = "Bindings.OpenGL",
@@ -7,7 +8,7 @@ return {
 		{
 			"Load", 
 			function(self, result)
-				Coeus:Load(self.Name)
+				C:Get(self.Name)
 			end
 		}
 	}

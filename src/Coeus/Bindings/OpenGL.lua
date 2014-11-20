@@ -4,7 +4,8 @@
 	A binding to OpenGL using OpenGL 4.4 headers.
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local ffi = require("ffi")
 
 -- glcorearb.h

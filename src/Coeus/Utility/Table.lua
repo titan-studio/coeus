@@ -5,7 +5,8 @@
 	array data.
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local Table = {}
 
 --[[

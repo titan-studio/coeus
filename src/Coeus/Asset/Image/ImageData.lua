@@ -4,7 +4,8 @@
 	Defines a chunk of image data loaded by Coeus.
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local OOP = Coeus.Utility.OOP
 
 local ffi = require("ffi")

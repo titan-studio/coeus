@@ -4,7 +4,8 @@
 	A binding targeted at GLFW 3.0.4.
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 
 local ffi = require("ffi")
 local glfw

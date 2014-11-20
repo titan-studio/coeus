@@ -5,7 +5,8 @@
 	- Add arithmetic tests when those operators are rewritten
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local Vector2 = Coeus.Math.Vector2
 
 local ran = {16, 48}
@@ -47,11 +48,11 @@ return {
 				local zero = Vector2:New()
 				local ezero = Vector2:New(0, 0)
 
-				if (Coeus:IsError(release_ran)) then
+				if (C:IsError(release_ran)) then
 					return test:Fail("Release constructor failed: " .. release_ran.Message)
 				end
 
-				if (Coeus:IsError(debug_ran)) then
+				if (C:IsError(debug_ran)) then
 					return test:fail("Debug constructor failed: " .. debug_ran.Message)
 				end
 
@@ -59,7 +60,7 @@ return {
 					return test:Fail("Release and debug constructors gave different results!")
 				end
 
-				if (not Coeus:IsError(v_garbage) or not Coeus:IsError(v_garbage2)) then
+				if (not C:IsError(v_garbage) or not C:IsError(v_garbage2)) then
 					return test:Fail("Debug constructor succeeded with garbage inputs!")
 				end
 

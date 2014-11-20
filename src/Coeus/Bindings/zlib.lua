@@ -4,7 +4,8 @@
 	A partial binding to zlib.
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 
 local ffi = require("ffi")
 local z_lib

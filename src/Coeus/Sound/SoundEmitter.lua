@@ -4,7 +4,8 @@
 	Defines a speaker in space that can emit sounds.
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local ffi = require("ffi")
 local OOP = Coeus.Utility.OOP
 local OpenAL = Coeus.Bindings.OpenAL

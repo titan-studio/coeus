@@ -4,7 +4,8 @@
 	Loads PNG images (.png)
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local ffi = require("ffi")
 
 local OOP = Coeus.Utility.OOP

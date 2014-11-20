@@ -4,7 +4,8 @@
 	Defines a generic container for data.
 ]]
 
-local Coeus = (...)
+local C = (...)
+local Coeus = C:Get("Coeus")
 local OOP = Coeus.Utility.OOP
 
 local Data = OOP:Class()()
