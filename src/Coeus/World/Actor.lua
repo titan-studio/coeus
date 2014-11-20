@@ -27,25 +27,45 @@ local Actor = OOP:Class() {
 
 	ChildAdded = Event:New(),
 	ChildRemoved = Event:New(),
+	AddedToScene = Event:New(),
+	RemovedFromScene = Event:New(),
 
 	OnUpdate = false
 }
 
+--[[
+	Creates a new Actor
+	scene is optional, but if supplied, the Actor will add itself to the top 
+	level of the scene.
+]]
 function Actor:_new(scene)
-	self.Scene = scene
-	table.insert(self.Scene.Actors, self)
+	if scene then
+		scene:AddActor(self)
+	end
 end
 
+--[[
+	Adds a component to the Actor and fires its AddedToActor event
+]]
 function Actor:AddComponent(component)
 	self.Components[component.ClassName] = component
 	component.Actor = self
 	component.AddedToActor:Fire(self)
 end
 
+--[[
+	Returns a component with the type matching the classname argument.
+
+	Deprecated; access Actor.Components directly.
+]]
 function Actor:GetComponent(classname)
 	return self.Components[classname]
 end
 
+--[[
+	Adds an actor to this actor's children list and handles its Parent reference.
+	Fires this actor's ChildAdded event.
+]]
 function Actor:AddChild(child)
 	for i,v in pairs(self.children) do
 		if v == child then return end
@@ -59,6 +79,10 @@ function Actor:AddChild(child)
 	self.ChildAdded:Fire(child)
 end
 
+--[[
+	Removes a child from this actor's hierarchy.
+	Fires this actor's ChildRemoved event.
+]]
 function Actor:RemoveChild(child)
 	for i,v in pairs(self.children) do
 		if v == child then
@@ -70,10 +94,20 @@ function Actor:RemoveChild(child)
 	end
 end
 
+--[[
+	Simply an alias of parent:AddChild(actor).
+
+	Deprecated; use parent:AddChild(actor) directly.
+]]
 function Actor:SetParent(parent)
 	parent:AddChild(self)
 end
 
+--[[
+	Searches this actor's children for a named actor. Can
+	also do a recursive search, which will find any named matching
+	actor in the entire tree. Use sparingly.
+]]
 function Actor:FindFirstChild(name, recursive)
 	for i,v in pairs(self.children) do
 		if v.name == name then
@@ -86,11 +120,22 @@ function Actor:FindFirstChild(name, recursive)
 	return nil
 end
 
+--[[
+	Returns a mutable copy of this actor's children table.
+]]
 function Actor:GetChildren()
 	return Table.Copy(self.children)
 end
 
+--[[
+	The core Update method of the Actor class. If overriden,
+	the overriding method should call Actor.Update(self, dt)
+	at some point.
 
+	Using the actor's empty OnUpdate method is for external
+	code that would like to attach logic to the specific actor.
+	Overriding should be used for class-level logic.
+]]
 function Actor:Update(dt)
 	if self.OnUpdate then
 		self:OnUpdate(dt)
@@ -107,6 +152,11 @@ function Actor:Update(dt)
 	end
 end
 
+--[[
+	Handles rendering components. Should not be overridden
+	or called directly - use components to render things because
+	they respect layer flags.
+]]
 function Actor:Render(layer_flag)
 	for i, v in pairs(self.Components) do
 		if v.RenderLayerFlag == layer_flag then
