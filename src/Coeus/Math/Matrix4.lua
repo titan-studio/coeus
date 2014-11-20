@@ -114,43 +114,6 @@ function Matrix4:Inverse(out)
 end
 
 --[[
-	Returns the inverse of the matrix.
-
-	Deprecated; use Matrix4:Inverse instead
-]]
-function Matrix4:GetInverse()
-	local r = {}
-	local m = self.m
-	r[1 ] =  m[6]*m[11]*m[16] - m[6]*m[15]*m[12] - m[7]*m[10]*m[16] + m[7]*m[14]*m[12] + m[8]*m[10]*m[15] - m[8]*m[14]*m[11]
-	r[2 ] = -m[2]*m[11]*m[16] + m[2]*m[15]*m[12] + m[3]*m[10]*m[16] - m[3]*m[14]*m[12] - m[4]*m[10]*m[15] + m[4]*m[14]*m[11]
-	r[3 ] =  m[2]*m[7 ]*m[16] - m[2]*m[15]*m[8 ] - m[3]*m[6 ]*m[16] + m[3]*m[14]*m[8 ] + m[4]*m[6 ]*m[15] - m[4]*m[14]*m[7 ]
-	r[4 ] = -m[2]*m[7 ]*m[12] + m[2]*m[11]*m[8 ] + m[3]*m[6 ]*m[12] - m[3]*m[10]*m[8 ] - m[4]*m[6 ]*m[11] + m[4]*m[10]*m[7 ]
-
-	r[5 ] = -m[5]*m[11]*m[16] + m[5]*m[15]*m[12] + m[7]*m[9 ]*m[16] - m[7]*m[13]*m[12] - m[8]*m[9 ]*m[15] + m[8]*m[13]*m[11]
-	r[6 ] =  m[1]*m[11]*m[16] - m[1]*m[15]*m[12] - m[3]*m[9 ]*m[16] + m[3]*m[13]*m[12] + m[4]*m[9 ]*m[15] - m[4]*m[13]*m[11]
-	r[7 ] = -m[1]*m[7 ]*m[16] + m[1]*m[15]*m[8 ] + m[3]*m[5 ]*m[16] - m[3]*m[13]*m[8 ] - m[4]*m[5 ]*m[15] + m[4]*m[13]*m[7 ]
-	r[8 ] =  m[1]*m[7 ]*m[12] - m[1]*m[11]*m[8 ] - m[3]*m[5 ]*m[12] + m[3]*m[9 ]*m[8 ] + m[4]*m[5 ]*m[11] - m[4]*m[9 ]*m[7 ]
-
-	r[9 ] =  m[5]*m[10]*m[16] - m[5]*m[14]*m[12] - m[6]*m[9 ]*m[16] + m[6]*m[13]*m[12] + m[8]*m[9 ]*m[14] - m[8]*m[13]*m[10]
-	r[10] = -m[1]*m[10]*m[16] + m[1]*m[14]*m[12] + m[2]*m[9 ]*m[16] - m[2]*m[13]*m[12] - m[4]*m[9 ]*m[14] + m[4]*m[13]*m[10]
-	r[11] =  m[1]*m[6 ]*m[16] - m[1]*m[14]*m[8 ] - m[2]*m[5 ]*m[16] + m[2]*m[13]*m[8 ] + m[4]*m[5 ]*m[14] - m[4]*m[13]*m[6 ]
-	r[12] = -m[1]*m[6 ]*m[12] + m[1]*m[10]*m[8 ] + m[2]*m[5 ]*m[12] - m[2]*m[9 ]*m[8 ] - m[4]*m[5 ]*m[10] + m[4]*m[9 ]*m[6 ]
-
-	r[13] = -m[5]*m[10]*m[15] + m[5]*m[14]*m[11] + m[6]*m[9 ]*m[15] - m[6]*m[13]*m[11] - m[7]*m[9 ]*m[14] + m[7]*m[13]*m[10]
-	r[14] =  m[1]*m[10]*m[15] - m[1]*m[14]*m[11] - m[2]*m[9 ]*m[15] + m[2]*m[13]*m[11] + m[3]*m[9 ]*m[14] - m[3]*m[13]*m[10]
-	r[15] = -m[1]*m[6 ]*m[15] + m[1]*m[14]*m[7 ] + m[2]*m[5 ]*m[15] - m[2]*m[13]*m[7 ] - m[3]*m[5 ]*m[14] + m[3]*m[13]*m[6 ]
-	r[16] =  m[1]*m[6 ]*m[11] - m[1]*m[10]*m[7 ] - m[2]*m[5 ]*m[11] + m[2]*m[9 ]*m[7 ] + m[3]*m[5 ]*m[10] - m[3]*m[9 ]*m[6 ]
-
-	local det = m[1]*r[1] + m[2]*r[5] + m[3]*r[9] + m[4]*r[13]
-
-	for i = 1, 16 do
-		r[i] = r[i] / det
-	end
-
-	return Matrix4:New(r)
-end
-
---[[
 	Adds two Matrix4 objects together, putting the result in out, or a new matrix if out is not specified
 ]]
 function Matrix4.Add(a, b, out)
@@ -227,45 +190,6 @@ function Matrix4:Transpose(out)
 end
 
 --[[
-	Returns a Matrix4 that is the transpose of the one given.
-
-	Deprecated; use Matrix4:Transpose instead
-]]
-function Matrix4.GetTranspose(a)
-	local m = {}
-
-	--[[
-	1 	2 	3 	4
-	5	6	7	8
-	9	10	11	12
-	13	14	15	16
-
-	]]
-
-	m[1] = a.m[1]
-	m[2] = a.m[5] 
-	m[3] = a.m[9] 
-	m[4] = a.m[13]
-
-	m[5] = a.m[2]
-	m[6] = a.m[6]
-	m[7] = a.m[10]
-	m[8] = a.m[14]
-
-	m[9]  = a.m[8]
-	m[10] = a.m[7]
-	m[11] = a.m[11]
-	m[12] = a.m[15]
-
-	m[13] = a.m[4]
-	m[14] = a.m[8]
-	m[15] = a.m[12]
-	m[16] = a.m[16]
-
-	return Matrix4:New(m)
-end
-
---[[
 	Calculates the up vector of the matrix
 ]]
 function Matrix4:Up(out)
@@ -308,33 +232,6 @@ function Matrix4:Forward(out)
 	else
 		return Vector3:New(m[9], m[10], m[11])
 	end
-end
-
---[[
-	Returns a Vector3 corresponding to up
-
-	Deprecated; use Matrix4:Up instead
-]]
-function Matrix4:GetUpVector()
-	return Vector3:New(self.m[5], self.m[6], self.m[7])
-end
-
---[[
-	Returns a Vector3 corresponding to right
-
-	Deprecated; use Matrix4:Right instead
-]]
-function Matrix4:GetRightVector()
-	return Vector3:New(self.m[1], self.m[2], self.m[3])
-end
-
---[[
-	Returns a Vector3 corresponding to forward
-
-	Deprecated; use Matrix4:Forward instead
-]]
-function Matrix4:GetForwardVector()
-	return Vector3:New(self.m[9], self.m[10], self.m[11])
 end
 
 function Matrix4:TransformPoint(vec)
