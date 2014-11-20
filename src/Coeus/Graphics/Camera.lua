@@ -56,10 +56,10 @@ function Camera:GetViewTransform()
 	if actor then
 		local transform = actor.Components.Transform
 		if transform then
-			return transform:GetRenderTransform():GetInverse()
+			return transform:GetRenderTransform():Inverse()
 		end
 	end
-	return Matrix4:New()
+	return Matrix4.Identity
 end
 
 function Camera:BuildProjectionTransform()

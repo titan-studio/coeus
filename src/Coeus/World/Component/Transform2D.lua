@@ -72,8 +72,18 @@ function Transform2D:SetRotation(theta)
 	self:DirtyTransform()
 end
 
+function Transform2D:SetOffset(x, y)
+	self.offset.x = x
+	self.offset.y = y
+	self:DirtyTransform()
+end
+
 function Transform2D:DirtyTransform()
 	self.dirty_transform = true
+
+	if not self.Actor then
+		return
+	end
 
 	for i, v in pairs(self.Actor.children) do
 		local comp = v.Components.Transform2D

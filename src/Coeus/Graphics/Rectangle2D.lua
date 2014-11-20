@@ -27,5 +27,4 @@ function Rectangle2D:GetColorRGBA()
 	return tab[1], tab[2], tab[3], tab[4]
 end
 
-
 return Rectangle2D

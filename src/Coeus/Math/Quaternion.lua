@@ -109,7 +109,7 @@ function Quaternion:ToRotationMatrix()
 	local tyz = tz * self.y
 	local tzz = tz * self.z
 
-	return Matrix4.Manual(
+	return Matrix4:New(
 		1 - (tyy + tzz), txy - twz, txz + twy, 0,
 		txy + twz, 1 - (txx + tzz), tyz - twx, 0,
 		txz - twy, tyz + twx, 1 - (txx + tyy), 0,

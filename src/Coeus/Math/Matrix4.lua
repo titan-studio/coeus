@@ -363,7 +363,7 @@ end
 
 function Matrix4.GetTranslation(vector)
 	if vector.Is[Vector3] then
-		local out = Matrix4:New()
+		local out = Matrix4:Identity()
 		out.m[13] = vector.x
 		out.m[14] = vector.y
 		out.m[15] = vector.z
@@ -375,39 +375,39 @@ function Matrix4.GetTranslation(vector)
 end
 
 function Matrix4.GetRotationX(angle)
-	return Matrix4:New({
+	return Matrix4:New(
 		1, 0, 0, 0,
 		0, math.cos(angle), math.sin(angle), 0,
 		0, -math.sin(angle), math.cos(angle), 0,
 		0, 0, 0, 1
-	})
+	)
 end
 
 function Matrix4.GetRotationY(angle)
-	return Matrix4:New({
+	return Matrix4:New(
 		math.cos(angle), 0, -math.sin(angle), 0,
 		0, 1, 0, 0,
 		math.sin(angle), 0, math.cos(angle), 0,
 		0, 0, 0, 1
-	})
+	)
 end
 
 function Matrix4.GetRotationZ(angle)
-	return Matrix4:New({
+	return Matrix4:New(
 		math.cos(angle), math.sin(angle), 0, 0,
 		-math.sin(angle), math.cos(angle), 0, 0,
 		0, 0, 1, 0,
 		0, 0, 0, 1
-	})
+	)
 end
 
 function Matrix4.GetScale(vector)
-	return Matrix4:New({
+	return Matrix4:New(
 		vector.x, 0, 0, 0,
 		0, vector.y, 0, 0,
 		0, 0, vector.z, 0,
 		0, 0, 0, 1
-	})
+	)
 end
 
 function Matrix4.GetPerspective(fov, near, far, aspect)
@@ -416,53 +416,24 @@ function Matrix4.GetPerspective(fov, near, far, aspect)
 	local x_scale = y_scale / aspect
 	local range =  near - far
 
-	m[1] = x_scale
-	m[2] = 0 
-	m[3] = 0 
-	m[4] = 0 
-
-	m[5] = 0
-	m[6] = y_scale
-	m[7] = 0 
-	m[8] = 0 
-
-	m[9] = 0 
-	m[10] = 0
-	m[11] = (far + near) / range
-	m[12] = -1 
-
-	m[13] = 0 
-	m[14] = 0
-	m[15] = 2*far*near / range
-	m[16] = 0
-
-	return Matrix4:New(m)
+	return Matrix4:New(
+		x_scale, 0, 0, 0,
+		0, y_scale, 0, 0,
+		0, 0, (far + near) / range, -1,
+		0, 0, 2 * far * near / range, 0
+	)
 end
 
 function Matrix4.GetOrthographic(left, right, top, bottom, near, far)
 	local m = {}
 
-	m[1] = 2 / (right - left)
-	m[2] = 0 
-	m[3] = 0 
-	m[4] = 0
-
-	m[5] = 0
-	m[6] = 2 / (top - bottom)
-	m[7] = 0 
-	m[8] = 0
-
-	m[9]  = 0 
-	m[10] = 0
-	m[11] = -2 / (far - near)
-	m[12] = 0
-
-	m[13] = -((right + left) / (right - left))
-	m[14] = -((top + bottom) / (top - bottom))
-	m[15] = -((far + near) / (far - near))
-	m[16] = 1
-
-	return Matrix4:New(m)
+	return Matrix4:New(
+		2 / (right - left), 0, 0, 0,
+		0, 2 / (top - bottom), 0, 0,
+		0, 0, -2 / (far - near), 0,
+		-((right + left) / (right - left)),
+		-((top + bottom) / (top - bottom)),
+		-((far + near) / (far - near)), 1)
 end
 
 function Matrix4.Compare(a, b)
@@ -504,7 +475,7 @@ end
 
 Matrix4:AddMetamethods({
 	__mul = function(a, b)
-		if (b.Is[Vector3]) then
+		if (tonumber(b) == "userdata" and b.Is[Vector3]) then
 			return Matrix4.TransformPoint(a, b)
 		else
 			return Matrix4.Multiply(a, b)
