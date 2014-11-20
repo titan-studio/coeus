@@ -49,4 +49,20 @@ function ImageData:Map(func)
 	end
 end
 
+function ImageData:SetPixel(x, y, r, g, b, a)
+	local pitch = self.Width * 4
+	local position = (y * pitch) + x
+
+	if (x < 0 or x >= self.Width or
+	    y < 0 or y >= self.Height) then
+		Coeus:Warning("Out of bounds SetPixel call")
+		return
+	end
+
+	self.image[position + 0] = r or 255
+	self.image[position + 1] = g or 255
+	self.image[position + 2] = b or 255
+	self.image[position + 3] = a or 255
+end
+
 return ImageData
