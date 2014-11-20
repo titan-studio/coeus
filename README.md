@@ -68,8 +68,8 @@ Coeus projects should contain a file called `main.lua` with your application's e
 ```lua
 --main.lua
 local config = require("config-debug")
-local Coeus = require("Coeus")
-Coeus:Initialize(config)
+local C = require("Coeus")
+C:Initialize(config)
 
 --Start our game
 ```
