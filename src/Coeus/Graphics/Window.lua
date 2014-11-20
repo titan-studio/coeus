@@ -46,15 +46,15 @@ local Window = OOP:Class() {
 
 	ClearColor = Coeus.Graphics.Color:New(),
 
-	Resized 	= Event:New(),
-	Moved 		= Event:New(),
-	Closed 		= Event:New(),
+	Resized = Event:New(),
+	Moved = Event:New(),
+	Closed = Event:New(),
 	
 	FocusGained = Event:New(),
-	FocusLost 	= Event:New(),
+	FocusLost = Event:New(),
 
-	Minimized 	= Event:New(),
-	Restored	= Event:New()
+	Minimized = Event:New(),
+	Restored = Event:New()
 }
 
 function Window:_new(title, width, height, mode)
