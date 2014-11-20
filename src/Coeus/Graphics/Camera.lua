@@ -59,7 +59,7 @@ function Camera:GetViewTransform()
 			return transform:GetRenderTransform():Inverse()
 		end
 	end
-	return Matrix4.Identity
+	return Matrix4:Identity()
 end
 
 function Camera:BuildProjectionTransform()
