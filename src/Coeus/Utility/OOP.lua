@@ -213,15 +213,6 @@ function OOP.Object:PointTo(object)
 	OOP:Wrap(object, self)
 end
 
---[[
-	A stub method.
-	Classes that require a destructor should override this method as it's
-	automatically called upon garbage collection and can also be called by other
-	code.
-]]
-function OOP.Object:Destroy()
-end
-
 --These definitions line out the StaticObject class.
 OOP.StaticObject = {}
 OOP.StaticObject.Is = OOP:Wrap({[OOP.StaticObject] = true})
