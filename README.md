@@ -6,6 +6,9 @@ Official IRC is at #titan-interactive on irc.freenode.net.
 
 Binaries for Windows (32-bit) are published in the GitHub releases section. They were built with Visual Studio 2013. You'll still need a LuaJIT install with LuaFileSystem, however, and it might need to be built with Visual Studio as well. This might change in the future.
 
+## Status
+Coeus is currently undergoing on-and-off development with two primary developers. The current master branch is the working copy of 0.2.0. The large reworking in progress is the graphics API. The team is also discussing other features offline like hybrid forward/deferred shading and Lua language extensions.
+
 ## Features
 Coeus aims to be a full featured suite for developing games and virtual reality simulations. As such, there will soon be many layers of tools for every step of the process of creating a game catering to every position in a typical game studio.
 
