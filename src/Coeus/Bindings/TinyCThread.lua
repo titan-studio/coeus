@@ -13,44 +13,44 @@ local tct = Coeus.Bindings.coeus_aux
 if (ffi.os == "Windows") then
 	C:Get("Coeus.Bindings.Win32_")
 	ffi.cdef([[
-		typedef int time_t;
-		typedef int clock_t;
-		typedef int clockid_t;
+	typedef int time_t;
+	typedef int clock_t;
+	typedef int clockid_t;
 
-		typedef struct _tthread_timespec {
-			time_t tv_sec;
-			long   tv_nsec;
-		};
+	typedef struct _tthread_timespec {
+		time_t tv_sec;
+		long   tv_nsec;
+	};
 
-		typedef struct timespec {
-			time_t tv_sec;
-			long tv_nsec;
-		};
+	typedef struct timespec {
+		time_t tv_sec;
+		long tv_nsec;
+	};
 
-		typedef int _tthread_clockid_t;
-		int _tthread_clock_gettime(clockid_t clk_id, struct timespec *ts);
+	typedef int _tthread_clockid_t;
+	int _tthread_clock_gettime(clockid_t clk_id, struct timespec *ts);
 
-		typedef struct {
-		  CRITICAL_SECTION mHandle;   /* Critical section handle */
-		  int mAlreadyLocked;         /* TRUE if the mutex is already locked */
-		  int mRecursive;             /* TRUE if the mutex is recursive */
-		} mtx_t;
+	typedef struct {
+		CRITICAL_SECTION mHandle;   /* Critical section handle */
+		int mAlreadyLocked;         /* TRUE if the mutex is already locked */
+		int mRecursive;             /* TRUE if the mutex is recursive */
+	} mtx_t;
 
-		typedef struct {
-		  HANDLE mEvents[2];                  /* Signal and broadcast event HANDLEs. */
-		  unsigned int mWaitersCount;         /* Count of the number of waiters. */
-		  CRITICAL_SECTION mWaitersCountLock; /* Serialize access to mWaitersCount. */
-		} cnd_t;
+	typedef struct {
+	  HANDLE mEvents[2];                  /* Signal and broadcast event HANDLEs. */
+	  unsigned int mWaitersCount;         /* Count of the number of waiters. */
+	  CRITICAL_SECTION mWaitersCountLock; /* Serialize access to mWaitersCount. */
+	} cnd_t;
 
-		typedef HANDLE thrd_t;
-		typedef DWORD tss_t;
+	typedef HANDLE thrd_t;
+	typedef DWORD tss_t;
 	]])
 else
 	ffi.cdef([[
-		typedef pthread_mutex_t mtx_t;
-		typedef pthread_cond_t cnd_t;
-		typedef pthread_t thrd_t;
-		typedef pthread_key_t tss_t;
+	typedef pthread_mutex_t mtx_t;
+	typedef pthread_cond_t cnd_t;
+	typedef pthread_t thrd_t;
+	typedef pthread_key_t tss_t;
 	]])
 end
 
@@ -113,9 +113,7 @@ int cnd_broadcast(cnd_t *cond);
 int cnd_wait(cnd_t *cond, mtx_t *mtx);
 int cnd_timedwait(cnd_t *cond, mtx_t *mtx, const struct timespec *ts);
 
-
 typedef int (*thrd_start_t)(void *arg);
-
 
 int thrd_create(thrd_t *thr, thrd_start_t func, void *arg);
 thrd_t thrd_current(void);
