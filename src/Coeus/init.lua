@@ -1,10 +1,10 @@
 --[[
 	Coeus Core 0.1.0.
-	Based on Lua Namespace 0.2.0
+	Based on Lua Namespace
 ]]
 
 --[[
-	Lua Namespace 0.2.0
+	Lua Namespace 0.2.1
 
 	Copyright (c) 2014 Lucien Greathouse (LPGhatguy)
 
@@ -27,8 +27,8 @@
 ]]
 
 -- Current namespace version
-local n_version = {0, 2, 0, "alpha"}
-local n_versionstring = ("%s.%s.%s-%s"):format(unpack(n_version))
+local n_version = {0, 2, 1, "alpha"}
+local n_versionstring = ("%s.%s.%s-%s"):format((unpack or table.unpack)(n_version))
 
 -- Hopeful dependencies
 local ok, lfs = pcall(require, "lfs")
@@ -178,7 +178,7 @@ local n_file = support.debug and debug.getinfo(1, "S").source:match("@(.+)$")
 
 if (n_file) then
 	-- Normalize slashes; this is okay for Windows
-	n_root = n_file:gsub("\\", "/"):match("^(.+)/.-$")
+	n_root = n_file:gsub("\\", "/"):match("^(.+)/.-$") or "./"
 else
 	print("Could not locate lua-namespace source file; is debug info stripped?")
 	print("This code path is untested.")
