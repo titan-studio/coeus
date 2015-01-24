@@ -1,4 +1,4 @@
-LodePNG version 20140624
+LodePNG version 20141130
 
 Copyright (c) 2005-2014 Lode Vandevenne
 
