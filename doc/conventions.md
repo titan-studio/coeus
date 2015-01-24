@@ -7,8 +7,7 @@ Globals should be avoided at all costs; modules should return an object instead 
 Modules should have the following elements in order:
 
 1. Comments describing the purpose of the module and where it's generally useful
-2. Preprocessor directives (Coeus 0.3.0-alpha and above)
-3. A reference to the Coeus core using `...` and the Coeus namespace if necessary
+3. A reference to the Coeus namespace using `...`
 4. The body of the code, loading any dependencies and defining module(s)
 5. A return statement exposing functionality of the module
 
@@ -20,10 +19,8 @@ This would look something like:
 	This library exists to show the recommending coding style for the Coeus core
 	codebase.
 ]]
---#EnableExtension TypedLiterals
 
-local C = (...)
-local Coeus = C:Get("Coeus")
+local Coeus = (...)
 local OOP = Coeus.Utility.OOP
 
 local DemoLibrary = OOP:Static() {
