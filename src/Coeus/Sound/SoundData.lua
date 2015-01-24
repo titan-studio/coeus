@@ -8,7 +8,7 @@ local C = (...)
 local Coeus = C:Get("Coeus")
 local ffi = require("ffi")
 local OpenAL = Coeus.Bindings.OpenAL
-local SoundCommon = Coeus.Asset.Sound.Common
+local SoundCommon = Coeus.Sound.Common
 local OOP = Coeus.Utility.OOP
 
 local SoundData = OOP:Class(Coeus.Asset.Format) {

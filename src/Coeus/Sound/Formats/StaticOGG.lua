@@ -13,8 +13,8 @@ local ogg = Coeus.Bindings.libogg
 local vorbisfile = Coeus.Bindings.libvorbisfile
 local C = Coeus.Bindings.C_
 
-local SoundCommon = Coeus.Asset.Sound.Common
-local SoundData = Coeus.Asset.Sound.SoundData
+local SoundCommon = Coeus.Sound.Common
+local SoundData = Coeus.Sound.SoundData
 
 local OGGFormat = OOP:Static(Coeus.Asset.Format)()
 

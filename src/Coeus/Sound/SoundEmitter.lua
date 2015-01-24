@@ -9,8 +9,8 @@ local Coeus = C:Get("Coeus")
 local ffi = require("ffi")
 local OOP = Coeus.Utility.OOP
 local OpenAL = Coeus.Bindings.OpenAL
-local SoundLoader = Coeus.Asset.Sound.SoundLoader
-local SoundData = Coeus.Asset.Sound.SoundData
+local SoundLoader = Coeus.Sound.SoundLoader
+local SoundData = Coeus.Sound.SoundData
 
 local SoundEmitter = OOP:Class() {
 	data_source = nil,
