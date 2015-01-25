@@ -2,15 +2,16 @@ local Coeus = (...)
 local OOP = Coeus.Utility.OOP
 local Timer = Coeus.Utility.Timer
 
-local BaseApplication = OOP:Class() {
-	CloseIfNoWindows = true,
-	TargetFPS = 60,
-	
-	Timer = false,
-	Windows = {},
+local BaseApplication = OOP:Class() 
+	:Members {
+		CloseIfNoWindows = true,
+		TargetFPS = 60,
+		
+		Timer = false,
+		Windows = {},
 
-	quit = false
-}
+		quit = false
+	}
 
 function BaseApplication:_new()
 	self.Timer = Timer:New()
@@ -38,7 +39,7 @@ function BaseApplication:RegisterWindow(window, quit_on_close)
 	table.insert(self.Windows, window)
 	window.Application = self
 
-	if quit_on_close then
+	if (quit_on_close) then
 		window.Closed:Listen(function()
 			self.quit = true
 		end)
@@ -55,7 +56,7 @@ function BaseApplication:MainLoop()
 		local open = 0
 
 		for i, v in ipairs(self.Windows) do
-			if not v.IsClosed then
+			if (not v.IsClosed) then
 				v:Update(delta_time)
 				open = open + 1
 			end
@@ -63,12 +64,12 @@ function BaseApplication:MainLoop()
 		self:Update(delta_time)
 
 		for i, v in ipairs(self.Windows) do
-			if not v.IsClosed then
+			if (not v.IsClosed) then
 				v:Draw()
 			end
 		end
 
-		if open == 0 and self.CloseIfNoWindows then
+		if (open == 0 and self.CloseIfNoWindows) then
 			self.quit = true
 		end
 	end

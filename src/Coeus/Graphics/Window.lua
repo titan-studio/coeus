@@ -18,43 +18,44 @@ local GL = OpenGL.GL
 
 local Event = Coeus.Utility.Event
 
-local Window = OOP:Class() {
-	MainViewport = false,
+local Window = OOP:Class() 
+	:Members {
+		MainViewport = false,
 
-	Keyboard = false,
-	Mouse = false,
-	Graphics = false,
-	Application = false,
+		Keyboard = false,
+		Mouse = false,
+		Graphics = false,
+		Application = false,
 
-	IsClosed = false,
+		IsClosed = false,
 
-	ClearColor = Coeus.Graphics.Color:New(),
+		ClearColor = Coeus.Graphics.Color:New(),
 
-	title = "Coeus Window",
+		title = "Coeus Window",
 
-	x = 0,
-	y = 0,
+		x = 0,
+		y = 0,
 
-	width = 640,
-	height = 480,
+		width = 640,
+		height = 480,
 
-	fullscreen = false,
-	resizable = false,
-	monitor = false,
-	vsync_enabled = false,
+		fullscreen = false,
+		resizable = false,
+		monitor = false,
+		vsync_enabled = false,
 
-	handle = false,
+		handle = false,
 
-	Resized = Event:New(),
-	Moved = Event:New(),
-	Closed = Event:New(),
-	
-	FocusGained = Event:New(),
-	FocusLost = Event:New(),
+		Resized = Event:New(),
+		Moved = Event:New(),
+		Closed = Event:New(),
+		
+		FocusGained = Event:New(),
+		FocusLost = Event:New(),
 
-	Minimized = Event:New(),
-	Restored = Event:New()
-}
+		Minimized = Event:New(),
+		Restored = Event:New()
+	}
 
 function Window:_new(title, width, height, mode)
 	self.width = width or self.width
@@ -69,7 +70,7 @@ function Window:_new(title, width, height, mode)
 
 	local monitorobj
 
-	if monitor then
+	if (monitor) then
 		local count = ffi.new("int[1]")
 		local monitors = glfw.GetMonitors(count)
 
@@ -99,8 +100,8 @@ function Window:_new(title, width, height, mode)
 	height = height or mode.height
 
 	local window
-	if fullscreen then
-		if fullscreen == "desktop" then
+	if (fullscreen) then
+		if (fullscreen == "desktop") then
 			glfw.WindowHint(GLFW.DECORATED, GL.FALSE)
 
 			window = glfw.CreateWindow(width, height, title, nil, nil)
@@ -111,7 +112,7 @@ function Window:_new(title, width, height, mode)
 		window = glfw.CreateWindow(width, height, title, nil, nil)
 	end
 
-	if window == nil then
+	if (window == nil) then
 		error("GLFW failed to create a window!")
 	end
 
@@ -121,7 +122,7 @@ function Window:_new(title, width, height, mode)
 		self.width = width
 		self.height = height
 
-		if self.MainViewport then
+		if (self.MainViewport) then
 			self.MainViewport:Resize(self.width, self.height)
 		end
 	end)
@@ -136,14 +137,14 @@ function Window:_new(title, width, height, mode)
 		self.y = y
 	end)
 	glfw.SetWindowFocusCallback(self.handle, function(handle, focus)
-		if focus == GL.TRUE then
+		if (focus == GL.TRUE) then
 			self.FocusGained:Fire()
 		else
 			self.FocusLost:Fire()
 		end
 	end)
 	glfw.SetWindowIconifyCallback(self.handle, function(handle, iconify)
-		if iconify == GL.TRUE then
+		if (iconify == GL.TRUE) then
 			self.Minimized:Fire()
 		else
 			self.Restored:Fire()

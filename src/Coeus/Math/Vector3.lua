@@ -1,11 +1,34 @@
 local Coeus = (...)
 local OOP = Coeus.Utility.OOP
 
-local Vector3 = OOP:Class() {
-	x = 0,
-	y = 0,
-	z = 0
-}
+local Vector3 = OOP:Class()
+	:Metamethods {
+		__add = function(a, b)
+			return Vector3.Add(a, b)
+		end,
+		__sub = function(a, b)
+			return Vector3.Subtract(a, b)
+		end,
+		__mul = function(a, b)
+			return Vector3.Multiply(a, b)
+		end,
+		__div = function(a, b)
+			return Vector3.Divide(a, b)
+		end,
+		__unm = function(a)
+			return Vector2:New(-a.x, -a.y, -a.z)
+		end,
+		__eq = function(a, b)
+			return Coeus.Math.Numeric.CompareReal(a.x, b.x) and
+				   Coeus.Math.Numeric.CompareReal(a.y, b.y) and
+				   Coeus.Math.Numeric.CompareReal(a.z, b.z)
+		end
+	}
+	:Members {
+		x = 0,
+		y = 0,
+		z = 0
+	}
 
 function Vector3:_new(x, y, z)
 	self.x = x or self.x
@@ -102,28 +125,5 @@ end
 function Vector3:ToString()
 	return ("(%s, %s, %s)"):format(self.x, self.y, self.z)
 end
-
-Vector3:AddMetamethods({
-	__add = function(a, b)
-		return Vector3.Add(a, b)
-	end,
-	__sub = function(a, b)
-		return Vector3.Subtract(a, b)
-	end,
-	__mul = function(a, b)
-		return Vector3.Multiply(a, b)
-	end,
-	__div = function(a, b)
-		return Vector3.Divide(a, b)
-	end,
-	__unm = function(a)
-		return Vector2:New(-a.x, -a.y, -a.z)
-	end,
-	__eq = function(a, b)
-		return Coeus.Math.Numeric.CompareReal(a.x, b.x) and
-			   Coeus.Math.Numeric.CompareReal(a.y, b.y) and
-			   Coeus.Math.Numeric.CompareReal(a.z, b.z)
-	end
-})
 
 return Vector3

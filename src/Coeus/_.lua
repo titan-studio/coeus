@@ -1,0 +1,5 @@
+return {
+	Config = {
+		Debug = true
+	}
+}

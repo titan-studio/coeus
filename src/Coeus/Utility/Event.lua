@@ -35,10 +35,11 @@ local function disconnect(self)
 	self.disconnected = true
 end
 
-local Event = OOP:Class() {
-	listeners = {},
-	use_priority = false
-}
+local Event = OOP:Class() 
+	:Members {
+		listeners = {},
+		use_priority = false
+	}
 
 function Event:_new(use_priority)
 	self.use_priority = use_priority or self.use_priority

@@ -1,10 +1,33 @@
 local Coeus = (...)
 local OOP = Coeus.Utility.OOP
 
-local Vector2 = OOP:Class() {
-	x = 0,
-	y = 0
-}
+local Vector2 = OOP:Class()
+	:Metamethods {
+		__add = function(a, b)
+			return Vector2.Add(a, b)
+		end,
+		__sub = function(a, b)
+			return Vector2.Subtract(a, b)
+		end,
+		__mul = function(a, b)
+			return Vector2.Multiply(a, b)
+		end,
+		__div = function(a, b)
+			return Vector2.Divide(a, b)
+		end,
+		__unm = function(a)
+			return Vector2:New(-a.x, -a.y)
+		end,
+		__eq = function(a, b)
+			--todo: deprecate
+			return Coeus.Math.Numeric.CompareReal(a.x, b.x) and
+				   Coeus.Math.Numeric.CompareReal(a.y, b.y)
+		end
+	} 
+	:Members {
+		x = 0,
+		y = 0
+	}
 
 function Vector2:RELEASE__new(x, y)
 	self.x = x or 0
@@ -26,13 +49,11 @@ function Vector2:DEBUG__new(x, y)
 	self.y = y or 0
 end
 
---[[TODO: Do something with this?
 if (Coeus.Config.Debug) then
 	Vector2._new = Vector2.DEBUG__new
 else
 	Vector2._new = Vector2.RELEASE__new
 end
---]]
 Vector2._new = Vector2.RELEASE__new
 
 function Vector2.Add(a, b)
@@ -164,27 +185,5 @@ function Vector2:ToString()
 	return ("(%s, %s)"):format(self.x, self.y)
 end
 
-Vector2:AddMetamethods({
-	__add = function(a, b)
-		return Vector2.Add(a, b)
-	end,
-	__sub = function(a, b)
-		return Vector2.Subtract(a, b)
-	end,
-	__mul = function(a, b)
-		return Vector2.Multiply(a, b)
-	end,
-	__div = function(a, b)
-		return Vector2.Divide(a, b)
-	end,
-	__unm = function(a)
-		return Vector2:New(-a.x, -a.y)
-	end,
-	__eq = function(a, b)
-		--todo: deprecate
-		return Coeus.Math.Numeric.CompareReal(a.x, b.x) and
-			   Coeus.Math.Numeric.CompareReal(a.y, b.y)
-	end
-})
 
 return Vector2

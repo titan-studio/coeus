@@ -9,11 +9,11 @@ local function normalize(num)
 	return num % 0x80000000
 end
 
-local Random = OOP:Class() {
-	index = 0,
-	state = {},
-
-}
+local Random = OOP:Class() 
+	:Members {
+		index = 0,
+		state = {},
+	}
 
 function Random:_new(seed)
 	self:SetSeed(seed)

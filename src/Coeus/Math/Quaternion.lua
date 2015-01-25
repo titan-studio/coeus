@@ -5,12 +5,27 @@ local Vector3 = Coeus.Math.Vector3
 
 --TURN BACK NOW! THIS FILE HAS BEEN KNOWN TO CAUSE IRREVERSIBLE BRAIN DAMAGE
 
-local Quaternion = OOP:Class() {
-	x = 0,
-	y = 0,
-	z = 0,
-	w = 1
-}
+local Quaternion = OOP:Class() 
+	:Metamethods {
+		__add = function(a, b)
+			return Quaternion.Add(a, b)
+		end,
+		__sub = function(a, b)
+			return Quaternion.Subtract(a, b)
+		end,
+		__mul = function(a, b)
+			return Quaternion.Multiply(a, b)
+		end,
+		__div = function(a, b)
+			return Quaternion.Divide(a, b)
+		end
+	}
+	:Members {
+		x = 0,
+		y = 0,
+		z = 0,
+		w = 1
+	}
 
 function Quaternion:_new(x, y, z, w)
 	self.x = x or self.x
@@ -249,20 +264,5 @@ end
 function Quaternion:ToString()
 	return ("(%s, %s, %s, %s)"):format(self.x, self.y, self.z, self.w)
 end
-
-Quaternion:AddMetamethods({
-	__add = function(a, b)
-		return Quaternion.Add(a, b)
-	end,
-	__sub = function(a, b)
-		return Quaternion.Subtract(a, b)
-	end,
-	__mul = function(a, b)
-		return Quaternion.Multiply(a, b)
-	end,
-	__div = function(a, b)
-		return Quaternion.Divide(a, b)
-	end
-})
 
 return Quaternion

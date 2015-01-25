@@ -2,9 +2,19 @@ local Coeus = (...)
 local OOP = Coeus.Utility.OOP
 local Vector3 = Coeus.Math.Vector3
 
-local Matrix4 = OOP:Class() {
-	m = {}
-}
+local Matrix4 = OOP:Class()
+	:Metamethods {
+		__mul = function(a, b)
+			if (tonumber(b) == "userdata" and b.Is[Vector3]) then
+				return Matrix4.TransformPoint(a, b)
+			else
+				return Matrix4.Multiply(a, b)
+			end
+		end
+	}
+	:Members {
+		m = {}
+	}
 
 --[[
 	Creates a new matrix given a sequence of values.
@@ -362,16 +372,5 @@ function Matrix4:ToString()
 	local matrix = ("|%s %s %s %s|\n"):rep(4):format(unpack(buffer))
 	return matrix:sub(1, #matrix - 1)
 end
-
-Matrix4:AddMetamethods({
-	__mul = function(a, b)
-		if (tonumber(b) == "userdata" and b.Is[Vector3]) then
-			return Matrix4.TransformPoint(a, b)
-		else
-			return Matrix4.Multiply(a, b)
-		end
-	end
-
-})
 
 return Matrix4
