@@ -49,7 +49,7 @@ end
 function BaseApplication:MainLoop()
 	self:Initialize()
 
-	while not self.quit do
+	while (not self.quit) do
 		self.Timer:Step()
 
 		local delta_time = self.Timer:GetDelta()
