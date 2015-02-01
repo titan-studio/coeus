@@ -8,9 +8,7 @@
 
 local Coeus = (...)
 local ffi = require("ffi")
-local OOP = Coeus.Utility.OOP
-
-local CPSleep = Coeus.Utility.CPSleep
+local OOP = Coeus.Graphite.OOP
 
 local GLFW = Coeus.Bindings.GLFW
 local glfw = GLFW.glfw
@@ -32,7 +30,7 @@ local Timer = OOP:Class()
 --[[
 	Creates a new timer object and resets its properties.
 ]]
-function Timer:_new()
+function Timer:_init()
 	self.current = 0
 	self.previous = 0
 	self.frame_count = 0
@@ -52,7 +50,7 @@ end
 	Sleeps for at least the period of time, given in seconds.
 ]]
 function Timer:Sleep(time)
-	CPSleep(time)
+	Coeus.System.Sleep(time)
 end
 
 --[[

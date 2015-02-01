@@ -5,7 +5,7 @@ local Vector3 = Coeus.Math.Vector3
 local Matrix4 = OOP:Class()
 	:Metamethods {
 		__mul = function(a, b)
-			if (tonumber(b) == "userdata" and b.Is[Vector3]) then
+			if (type(b) == "userdata" and b.Is[Vector3]) then
 				return Matrix4.TransformPoint(a, b)
 			else
 				return Matrix4.Multiply(a, b)

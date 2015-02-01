@@ -1,6 +1,6 @@
 local Coeus = (...)
-local OOP = Coeus.Utility.OOP
-local Timer = Coeus.Utility.Timer
+local OOP = Coeus.Graphite.OOP
+local Timer = Coeus.System.Timer
 
 local BaseApplication = OOP:Class() 
 	:Members {
@@ -13,7 +13,7 @@ local BaseApplication = OOP:Class()
 		quit = false
 	}
 
-function BaseApplication:_new()
+function BaseApplication:_init()
 	self.Timer = Timer:New()
 end
 

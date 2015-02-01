@@ -1,7 +1,7 @@
 local Coeus = (...)
 local ffi = require("ffi")
 
-local OOP = Coeus.Utility.OOP
+local OOP = Coeus.Graphite.OOP
 local GLFW = Coeus.Bindings.GLFW
 local OpenGL = Coeus.Bindings.OpenGL
 
@@ -57,7 +57,8 @@ local Window = OOP:Class()
 		Restored = Event:New()
 	}
 
-function Window:_new(title, width, height, mode)
+function Window:_init(title, width, height, mode)
+	print("nigga")
 	self.width = width or self.width
 	self.height = height or self.height
 	self.title = title or self.title
@@ -264,4 +265,4 @@ function Window:Render()
 end
 
 
-return Window
+return

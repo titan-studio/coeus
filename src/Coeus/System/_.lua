@@ -1,6 +1,9 @@
 --[[
-	Cross-Platform Sleep Implementation
-	Provides CPSleep(S) that will sleep S number of seconds.
+	System module
+
+	Contains:
+		Cross-Platform Sleep Implementation
+		Provides Sleep(S) that will sleep S number of seconds.
 ]]
 
 local Coeus = (...)
@@ -28,4 +31,6 @@ else
 	end
 end
 
-return CPSleep
+return {
+	Sleep = CPSleep
+}
