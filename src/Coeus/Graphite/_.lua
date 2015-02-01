@@ -25,13 +25,13 @@
 ]]
 
 local libGraphite = (...)
-local Config = libGraphite.Config
+local Configuration = libGraphite.Configuration
 
 local Graphite = {
 	Version = {0, 1, 0, "alpha"},
 
 	Config = {
-		OOP = Config:Create("Graphite.Config.OOP") {
+		OOP = Configuration:Create("Graphite.Config.OOP") {
 			InitializerName = "_init",
 			ConstructorName = "New",
 			PlacementConstructorName = "PlacementNew",
@@ -45,7 +45,7 @@ local Graphite = {
 			DefaultStaticAttributes = {
 			}
 		},
-		Pointers = Config:Create("Graphite.Config.Pointer") {
+		Pointers = Configuration:Create("Graphite.Config.Pointer") {
 			SetName = "Set"
 		}
 	}

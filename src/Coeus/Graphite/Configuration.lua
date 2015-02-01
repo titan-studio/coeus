@@ -70,4 +70,6 @@ function Config:Create(name)
 	end
 end
 
+print("THE CONFIG", Config)
+
 return Config
