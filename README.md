@@ -1,5 +1,7 @@
 # Coeus
 
+<p align="center"><strong>Coeus is not in active development; look at <a href="https://github.com/lua-carbon/hexane">Hexane</a> for future projects.</strong></p>
+
 Coeus is a 3D game engine in pure LuaJIT with a focus on fast development and high quality games. Currently confirmed to run on both Windows and Linux. Check out some of the demos in our [Coeus Demos Repository](https://github.com/titan-studio/coeus-demos)
 
 Official IRC is at #titan-interactive on irc.freenode.net.
